@@ -1,4 +1,4 @@
-package br.ufpb.dsc.mercado;
+package br.ufpb.dsc.corrida;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-class MercadoApplicationTests {
+class CorridaApplicationTests {
 
     /**
      * Verifica que o contexto Spring Boot carrega sem erros.

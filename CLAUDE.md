@@ -22,7 +22,7 @@
 
 ## Estrutura de Pacotes
 ```
-br.ufpb.dsc.mercado
+br.ufpb.dsc.corrida
 ├── config/          # Configurações Spring (Security, Web, etc.)
 ├── controller/      # Controllers MVC (recebem requests HTTP)
 ├── domain/          # Entidades JPA (mapeamento objeto-relacional)

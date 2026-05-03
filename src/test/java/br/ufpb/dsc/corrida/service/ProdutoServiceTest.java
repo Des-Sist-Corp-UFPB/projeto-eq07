@@ -1,9 +1,5 @@
-package br.ufpb.dsc.mercado.service;
+package br.ufpb.dsc.corrida.service;
 
-import br.ufpb.dsc.mercado.domain.Produto;
-import br.ufpb.dsc.mercado.dto.ProdutoForm;
-import br.ufpb.dsc.mercado.exception.ProdutoNaoEncontradoException;
-import br.ufpb.dsc.mercado.repository.ProdutoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

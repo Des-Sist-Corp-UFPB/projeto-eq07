@@ -22,22 +22,22 @@ services:
   # ---------------------------------------------------------------------------
   postgres:
     image: postgres:16-alpine
-    container_name: mercado-postgres-dev
+    container_name: corridas-postgres-dev
     environment:
-      POSTGRES_DB: mercado_dev
-      POSTGRES_USER: mercado
-      POSTGRES_PASSWORD: mercado123
+      POSTGRES_DB: corridas_dev
+      POSTGRES_USER: corridasdb
+      POSTGRES_PASSWORD: C@rR!d@db
     ports:
       - "5432:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mercado -d mercado_dev"]
+      test: ["CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - mercado-net
+      - corridas-net
 
   # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
@@ -46,14 +46,15 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.dev
-    container_name: mercado-app-dev
+    container_name: corridas-app-dev
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mercado_dev
-      SPRING_DATASOURCE_USERNAME: mercado
-      SPRING_DATASOURCE_PASSWORD: mercado123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
+      SPRING_DATASOURCE_USERNAME: corridasdb
+      SPRING_DATASOURCE_PASSWORD: C@rR!d@db
     ports:
       - "8080:8080"
+      - "5005:5005"
     volumes:
       # Monta o código-fonte para hot-reload
       - ../src:/app/src
@@ -63,7 +64,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - mercado-net
+      - corridas-net
 
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
@@ -72,13 +73,13 @@ services:
   # ---------------------------------------------------------------------------
   adminer:
     image: adminer:latest
-    container_name: mercado-adminer
+    container_name: corridas-adminer
     ports:
       - "8888:8080"
     depends_on:
       - postgres
     networks:
-      - mercado-net
+      - corridas-net
 
   # ---------------------------------------------------------------------------
   # Trivy: scanner de vulnerabilidades (roda e sai — profile: scan)
@@ -86,7 +87,7 @@ services:
   # ---------------------------------------------------------------------------
   trivy:
     image: aquasec/trivy:latest
-    container_name: mercado-trivy
+    container_name: corridas-trivy
     profiles:
       - scan
     volumes:
@@ -94,7 +95,7 @@ services:
       - trivy-cache:/root/.cache/trivy
     command: fs /project --severity HIGH,CRITICAL --exit-code 1
     networks:
-      - mercado-net
+      - corridas-net
 
 volumes:
   postgres-dev-data:
@@ -102,5 +103,5 @@ volumes:
   trivy-cache:
 
 networks:
-  mercado-net:
+  corridas-net:
     driver: bridge
