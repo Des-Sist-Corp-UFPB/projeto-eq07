@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/mercado_dev
-    username: mercado
-    password: mercado123
+    url: jdbc:postgresql://localhost:5432/corridas_dev
+    username: corridasdb
+    password: C@rR!d@db
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -18,6 +18,11 @@ spring:
     enabled: true
     # Localização dos scripts de migração SQL
     locations: classpath:db/migration
+
+api:
+  security:
+    token:
+      secret: "teste_secret"
 
 logging:
   level:

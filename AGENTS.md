@@ -7,7 +7,7 @@
 Boilerplate Spring Boot para disciplina universitária. Java 21, Spring Boot 3.4.5, PostgreSQL, Thymeleaf+HTMX+Bootstrap.
 
 ## Pacote base
-`br.ufpb.dsc.mercado`
+`br.ufpb.dsc.corrida`
 
 ## Padrões importantes
 - DTOs são Records Java imutáveis

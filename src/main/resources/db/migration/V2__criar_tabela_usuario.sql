@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS usuario (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR NOT NULL UNIQUE,
+    nome VARCHAR(255) NOT NULL,
+    login VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    papel VARCHAR(255) NOT NULL,
+    deletado BOOLEAN DEFAULT false
+);

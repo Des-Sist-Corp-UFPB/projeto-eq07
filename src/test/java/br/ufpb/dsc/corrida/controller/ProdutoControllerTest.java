@@ -1,7 +1,5 @@
-package br.ufpb.dsc.mercado.controller;
+package br.ufpb.dsc.corrida.controller;
 
-import br.ufpb.dsc.mercado.domain.Produto;
-import br.ufpb.dsc.mercado.repository.ProdutoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

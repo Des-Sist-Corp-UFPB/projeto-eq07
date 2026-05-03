@@ -1,18 +1,19 @@
-package br.ufpb.dsc.mercado.config;
+package br.ufpb.dsc.corrida.config.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Configuração de segurança da aplicação usando Spring Security 6.
@@ -39,32 +40,11 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-    /**
-     * Define o serviço de usuários em memória.
-     *
-     * <p><strong>ATENÇÃO — APENAS PARA DESENVOLVIMENTO E DEMONSTRAÇÃO.</strong><br>
-     * Em produção, substitua por um {@code UserDetailsService} que busca usuários do banco
-     * de dados (ex.: via Spring Data JPA) e utilize senhas armazenadas com BCrypt.
-     *
-     * <p>{@code User.builder()} é um fluent builder do Spring Security para criar usuários.
-     * O password DEVE ser codificado — nunca passe a senha em texto puro.
-     *
-     * @param encoder codificador de senhas (injetado automaticamente pelo Spring)
-     * @return gerenciador de usuários em memória
-     */
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails admin = User.builder()
-                .username("admin")
-                // encode() aplica BCrypt na senha — o hash muda a cada chamada mas a verificação funciona
-                .password(encoder.encode("admin123"))
-                // ROLE_ADMIN é adicionado automaticamente; "roles" é um atalho para "authorities"
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(admin);
-    }
+    @Autowired
+    private AutenticacaoFilter autenticacaoFilter;
 
     /**
      * Define o algoritmo de codificação de senhas.
@@ -103,46 +83,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // === AUTORIZAÇÃO DE REQUISIÇÕES ===
                 .authorizeHttpRequests(auth -> auth
-                        // Recursos estáticos e health check são públicos
-                        // /webjars/** → Bootstrap, HTMX (servidos pelo Spring como recursos estáticos)
-                        // /css/**, /js/** → arquivos estáticos personalizados
-                        // /actuator/health → monitoramento sem autenticação
-                        .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health").permitAll()
+                        // Rotas para realizar login e registro não necessitam de autenticação
+                        .requestMatchers(HttpMethod.POST, "/login", "/registrar").permitAll()
                         // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )
-
-                // === FORMULÁRIO DE LOGIN ===
-                .formLogin(form -> form
-                        // URL da página de login customizada (em vez da padrão do Spring Security)
-                        .loginPage("/login")
-                        // Após login bem-sucedido, redireciona para /produtos
-                        // O segundo parâmetro (true) força sempre ir para esta URL,
-                        // ignorando a URL que o usuário tentou acessar antes do login
-                        .defaultSuccessUrl("/produtos", true)
-                        // A página de login deve ser acessível sem autenticação
-                        .permitAll()
-                )
-
-                // === LOGOUT ===
-                .logout(logout -> logout
-                        // Após logout, redireciona para a página de login com mensagem
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                )
-
                 // === CSRF (Cross-Site Request Forgery) ===
                 // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
                 // O Spring Security protege adicionando um token único em formulários.
                 // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
                 // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
-                .csrf(csrf -> csrf
-                        // Desabilita CSRF apenas para os endpoints de produtos (usados pelo HTMX)
-                        // ALTERNATIVA SEGURA: configure HTMX para enviar o token CSRF nos headers
-                        .ignoringRequestMatchers("/produtos/**")
-                );
+                .csrf(csrf -> csrf.disable())
+                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
