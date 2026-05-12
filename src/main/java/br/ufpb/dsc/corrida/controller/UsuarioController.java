@@ -1,17 +1,16 @@
 package br.ufpb.dsc.corrida.controller;
 
-import br.ufpb.dsc.corrida.dto.user.AutenticacaoRespostaDTO;
-import br.ufpb.dsc.corrida.dto.user.LoginDto;
-import br.ufpb.dsc.corrida.dto.user.RegistrarUsuarioDTO;
+import br.ufpb.dsc.corrida.domain.Usuario;
+import br.ufpb.dsc.corrida.dto.user.*;
 import br.ufpb.dsc.corrida.service.usuario.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/user")
 public class UsuarioController {
 
     @Autowired
@@ -28,4 +27,19 @@ public class UsuarioController {
         String token = service.login(credenciais);
         return ResponseEntity.ok(new AutenticacaoRespostaDTO(token, "Autenticado com sucesso"));
     }
+
+    @PatchMapping("/{id}")
+    @Transactional
+    public ResponseEntity edit(@RequestBody @Valid EditarUsuarioDTO dadosUsuario, @PathVariable Long id) {
+        Usuario usuario = service.editar(dadosUsuario, id);
+        return ResponseEntity.ok(new UsuarioResposta(usuario));
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -87,7 +87,7 @@ public class SecurityConfig {
                 // === AUTORIZAÇÃO DE REQUISIÇÕES ===
                 .authorizeHttpRequests(auth -> auth
                         // Rotas para realizar login e registro não necessitam de autenticação
-                        .requestMatchers(HttpMethod.POST, "/login", "/registrar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
                         // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )

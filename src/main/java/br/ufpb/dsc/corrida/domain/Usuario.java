@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.domain;
 
+import br.ufpb.dsc.corrida.dto.user.EditarUsuarioDTO;
 import br.ufpb.dsc.corrida.dto.user.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.enums.Papel;
 import jakarta.persistence.*;
@@ -41,6 +42,21 @@ public class Usuario implements UserDetails {
         this.deletado = false;
     }
 
+    public void editar(EditarUsuarioDTO dadosUsuario) {
+        if (dadosUsuario.nome() != null) {
+            this.nome = dadosUsuario.nome();
+        }
+        if (dadosUsuario.login() != null) {
+            this.login = dadosUsuario.login();
+        }
+        if (dadosUsuario.username() != null) {
+            this.username = dadosUsuario.username();
+        }
+        if (dadosUsuario.senha() != null) {
+            this.senha = dadosUsuario.senha();
+        }
+    }
+
     public void changeDeletado() {
         this.deletado = !this.deletado;
     }
@@ -48,6 +64,10 @@ public class Usuario implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_"+papel.name()));
+    }
+
+    public String getUserUsername() {
+        return username;
     }
 
     @Override
