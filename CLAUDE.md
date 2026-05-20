@@ -1,7 +1,7 @@
-# Memória do Projeto — Mercado DSC/UFPB
+# Memória do Projeto — Corridas DSC/UFPB
 
 ## Identidade do Projeto
-- **Nome**: Sistema Mercado — Projeto Base DSC
+- **Nome**: Sistema Gerenciamento de Corridas — Projeto Base DSC
 - **Disciplina**: Desenvolvimento de Sistemas Corporativos
 - **Professor**: Rodrigo Rebouças
 - **Instituição**: Universidade Federal da Paraíba — Campus IV
@@ -82,23 +82,12 @@ docker compose -f docker/docker-compose.prod.yml up -d
 
 ## Acesso Local
 - **App**: http://localhost:8080
-- **Login**: admin / admin123
 - **Adminer (DB UI)**: http://localhost:8888
 - **Health Check**: http://localhost:8080/actuator/health
-
-## Decisões Arquiteturais
-
-### Por que HTMX em vez de React/Vue?
-HTMX permite interatividade Ajax sem JavaScript customizado. Para um projeto educacional, reduz a curva de aprendizado mantendo a aplicação no paradigma server-side que os alunos já conhecem.
 
 ### Por que Flyway para migrations?
 Controle versionado do schema do banco. Cada alteração no banco deve ser uma migration nova (nunca editar migrations já aplicadas). Garante rastreabilidade e reversibilidade.
 
-### Por que InMemoryUserDetailsManager?
-Simplifica o onboarding dos alunos. Para projetos reais, trocar por UserDetailsService com banco de dados.
-
-### Por que perfil 'security' separado?
-SpotBugs e OWASP Dependency-Check são lentos. Separar em perfil permite que o build do dia-a-dia seja rápido, rodando segurança no CI.
 
 ## Convenções de Código
 - Nomes em português no domínio (entidades, métodos de negócio)
@@ -116,11 +105,3 @@ SpotBugs e OWASP Dependency-Check são lentos. Separar em perfil permite que o b
 | Trivy (fs) | Vulnerabilidades em libs | docker compose `--profile scan` |
 | Trivy (image) | Vulnerabilidades na imagem Docker | `trivy image mercado:latest` |
 | OWASP Dependency-Check | CVEs em dependências | `mvn verify -Psecurity` |
-
-## Para Alunos: Próximos Passos Sugeridos
-1. Renomear `Produto` para sua entidade principal
-2. Adicionar campos específicos do seu domínio
-3. Criar novas migrations Flyway para as alterações no banco
-4. Adicionar novos controllers seguindo o padrão HTMX
-5. Configurar autenticação baseada em banco de dados
-6. Adicionar testes para cada service criado
