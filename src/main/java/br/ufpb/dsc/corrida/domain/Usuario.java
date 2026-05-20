@@ -32,18 +32,6 @@ public class Usuario implements UserDetails {
     private Papel papel;
     private Boolean deletado;
 
-    public Usuario() {}
-
-    public Usuario(Long id, String nome, String username, String login, String senha, Papel papel, Boolean deletado) {
-        this.id = id;
-        this.nome = nome;
-        this.username = username;
-        this.login = login;
-        this.senha = senha;
-        this.papel = papel;
-        this.deletado = deletado;
-    }
-
     public Usuario(RegistrarUsuarioDTO usuario, String senhaCriptografada) {
         this.nome = usuario.nome();
         this.login = usuario.login();
