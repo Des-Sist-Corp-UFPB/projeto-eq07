@@ -97,6 +97,7 @@ public class SecurityConfig {
                 // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
                 // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

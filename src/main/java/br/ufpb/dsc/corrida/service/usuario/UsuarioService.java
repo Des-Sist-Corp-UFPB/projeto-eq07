@@ -6,9 +6,9 @@ import br.ufpb.dsc.corrida.dto.user.EditarUsuarioDTO;
 import br.ufpb.dsc.corrida.dto.user.LoginDto;
 import br.ufpb.dsc.corrida.dto.user.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.enums.Papel;
-import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitido;
-import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistente;
-import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontrado;
+import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
+import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
+import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +34,10 @@ public class UsuarioService {
     public String registrar(RegistrarUsuarioDTO usuarioDTO) {
         log.info("Iniciando serviço de registro de usuário");
         if (repository.existsByLogin(usuarioDTO.login())) {
-            throw new UsuarioJaExistente("Login já utilizado, tente outro");
+            throw new UsuarioJaExistenteException("Login já utilizado, tente outro");
         }
         if (repository.existsByUsername(usuarioDTO.username())) {
-            throw new UsuarioJaExistente("Username já utilizado, tente outro");
+            throw new UsuarioJaExistenteException("Username já utilizado, tente outro");
         }
         Usuario usuario = new Usuario(usuarioDTO);
         repository.save(usuario);
@@ -55,13 +55,13 @@ public class UsuarioService {
     public Usuario editar(EditarUsuarioDTO dadosUsuario, Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario usuarioLogado = (Usuario) auth.getPrincipal();
-        Usuario usuario = repository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário com ID: "+ id +" não encontrado"));
-        if (usuario.getId() != usuarioLogado.getId()) throw new AcessoNaoPermitido("Acesso negado para edição de usuário");
+        Usuario usuario = repository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário com ID: "+ id +" não encontrado"));
+        if (usuario.getId() != usuarioLogado.getId()) throw new AcessoNaoPermitidoException("Acesso negado para edição de usuário");
         if (dadosUsuario.login() != null) {
-            if (repository.existsByLoginAndIdNot(dadosUsuario.login(), id)) throw new UsuarioJaExistente("Usuário com login: " + dadosUsuario.login() + " já existente");
+            if (repository.existsByLoginAndIdNot(dadosUsuario.login(), id)) throw new UsuarioJaExistenteException("Usuário com login: " + dadosUsuario.login() + " já existente");
         }
         if (dadosUsuario.username() != null) {
-            if (repository.existsByUsernameAndIdNot(dadosUsuario.username(), id)) throw new UsuarioJaExistente("Usuário com username: " + dadosUsuario.username() + " já existente");
+            if (repository.existsByUsernameAndIdNot(dadosUsuario.username(), id)) throw new UsuarioJaExistenteException("Usuário com username: " + dadosUsuario.username() + " já existente");
         }
         usuario.editar(dadosUsuario);
         return usuario;
@@ -70,9 +70,9 @@ public class UsuarioService {
     public void deletar(Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario usuarioLogado = (Usuario) auth.getPrincipal();
-        Usuario usuario = repository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário com ID: "+ id +" não encontrado"));
+        Usuario usuario = repository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário com ID: "+ id +" não encontrado"));
         if (usuarioLogado.getPapel() == Papel.USUARIO) {
-            if (usuarioLogado.getId() != usuario.getId()) throw new AcessoNaoPermitido("Acesso negado para deleção de usuário");
+            if (usuarioLogado.getId() != usuario.getId()) throw new AcessoNaoPermitidoException("Acesso negado para deleção de usuário");
         }
         usuario.changeDeletado();
     }
