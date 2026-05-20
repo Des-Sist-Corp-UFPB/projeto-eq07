@@ -1,7 +1,7 @@
-# Memória do Projeto — Mercado DSC/UFPB
+# Memória do Projeto — Corrida DSC/UFPB
 
 ## Identidade do Projeto
-- **Nome**: Sistema Mercado — Projeto Base DSC
+- **Nome**: Sistema Corrida —  DSC
 - **Disciplina**: Desenvolvimento de Sistemas Corporativos
 - **Professor**: Rodrigo Rebouças
 - **Instituição**: Universidade Federal da Paraíba — Campus IV

@@ -1,0 +1,71 @@
+# =============================================================================
+# GitHub Actions — Validação de Pull Request (PR Check)
+# =============================================================================
+#
+# Este workflow é executado automaticamente quando uma Pull Request (PR) é aberta,
+# sincronizada ou reaberta tendo como destino a branch padrão (main).
+#
+# Ele realiza as seguintes verificações:
+#   1. Compilação do código e execução de todos os testes (Unitários e Integração)
+#   2. Análise estática de vulnerabilidades e bugs (SpotBugs + FindSecBugs)
+#   3. Análise estática do código-fonte (Semgrep)
+#
+# O build falha caso algum teste falhe ou vulnerabilidade/bug seja detectado.
+# =============================================================================
+
+name: Validação de Pull Request (PR Check)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:        # Permite disparar o workflow manualmente pelo GitHub
+
+jobs:
+  validate-pr:
+    name: Compilação, Testes e Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Configura o JDK 21 (Temurin = Eclipse Adoptium) e ativa cache do Maven.
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # ── 1. Compilação e Execução de Testes ──────────────────────────────────
+      # mvn verify: compila, roda testes unitários e de integração (Testcontainers).
+      # Os testes de integração sobem um banco de dados real PostgreSQL no Docker.
+      - name: Compilar e Executar Testes
+        run: mvn verify -B
+
+      # ── 2. Análise Estática de Bytecode (SpotBugs + FindSecBugs) ────────────
+      # SpotBugs analisa o bytecode compilado (.class) em busca de bugs ocultos e
+      # vulnerabilidades de segurança (utilizando o plugin FindSecBugs).
+      - name: SpotBugs + FindSecBugs
+        run: mvn compile spotbugs:check -Psecurity -B
+
+      # ── 3. Análise Estática de Código-Fonte (Semgrep) ──────────────────────
+      # Semgrep verifica padrões inseguros no código Java do projeto.
+      - name: Semgrep — Análise Estática de Código
+        run: |
+          pip install semgrep --quiet
+          semgrep --config p/java \
+                  --severity ERROR \
+                  --error \
+                  --exclude 'target/' \
+                  src/
+
+      # ── Relatório de Cobertura JaCoCo ──────────────────────────────────────
+      # Faz upload do relatório HTML gerado pelo JaCoCo para análise da cobertura.
+      - name: Upload — Cobertura JaCoCo
+        uses: actions/upload-artifact@v4
+        if: always()    # Envia mesmo em caso de falha nos passos anteriores
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          retention-days: 7

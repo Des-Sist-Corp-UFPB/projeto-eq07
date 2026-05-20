@@ -32,14 +32,49 @@ public class Usuario implements UserDetails {
     private Papel papel;
     private Boolean deletado;
 
-    public Usuario(RegistrarUsuarioDTO usuario) {
-        var bcrypt = new BCryptPasswordEncoder();
+    public Usuario() {}
+
+    public Usuario(Long id, String nome, String username, String login, String senha, Papel papel, Boolean deletado) {
+        this.id = id;
+        this.nome = nome;
+        this.username = username;
+        this.login = login;
+        this.senha = senha;
+        this.papel = papel;
+        this.deletado = deletado;
+    }
+
+    public Usuario(RegistrarUsuarioDTO usuario, String senhaCriptografada) {
         this.nome = usuario.nome();
         this.login = usuario.login();
         this.username = usuario.username();
-        this.senha = bcrypt.encode(usuario.senha());
+        this.senha = senhaCriptografada;
         this.papel = Papel.USUARIO;
         this.deletado = false;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public Papel getPapel() {
+        return papel;
+    }
+
+    public Boolean getDeletado() {
+        return deletado;
     }
 
     public void editar(EditarUsuarioDTO dadosUsuario) {
