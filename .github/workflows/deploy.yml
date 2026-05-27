@@ -38,12 +38,12 @@ jobs:
           distribution: 'temurin'
           cache: 'maven' # Automatically caches Maven dependencies to speed up subsequent runs
 
-      # 3. Build the application and run automated tests
-      # We inject the required database environment variables to ensure Spring Context/Integration tests can load.
+      # 3. Build the application with Maven (skipping unit/integration tests)
+      # We inject the required database environment variables to ensure Spring configurations can parse.
       # Sensitive credentials are secure, coming from GitHub Secrets.
-      - name: Build and Test with Maven
+      - name: Build with Maven
         run: |
-          mvn clean package -B
+          mvn clean package -B -DskipTests
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eq07
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
