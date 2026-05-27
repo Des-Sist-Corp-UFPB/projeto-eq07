@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsuarioJaExistenteException.class)
     public ResponseEntity<ErrorResponseDTO> tratarUsuarioJaExistenteException(UsuarioJaExistenteException ex) {
         var erro = new ErrorResponseDTO(
-                HttpStatus.CONFLICT.vaExUsuarioJaExistenteExceptionlue(),
+                HttpStatus.CONFLICT.value(),
                 "Conflito",
                 ex.getMessage()
         );
