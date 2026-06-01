@@ -144,8 +144,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           envs: REGISTRY,IMAGE_NAME,DB_USERNAME,DB_PASSWORD,GITHUB_ACTOR,GITHUB_TOKEN
           script: |
-            BACKEND_URI="${REGISTRY}/${IMAGE_NAME}-backend:latest"
-            FRONTEND_URI="${REGISTRY}/${IMAGE_NAME}-frontend:latest"
+            # Força a conversão do nome da imagem para minúsculas dentro do servidor
+            LC_IMAGE=$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
+            BACKEND_URI="${REGISTRY}/${LC_IMAGE}-backend:latest"
+            FRONTEND_URI="${REGISTRY}/${LC_IMAGE}-frontend:latest"
 
             echo "=== STARTING FULL DEPLOYMENT ==="
 
