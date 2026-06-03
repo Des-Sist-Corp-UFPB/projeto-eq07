@@ -26,5 +26,7 @@ api:
 
 logging:
   level:
-    br.ufpb.dsc.mercado: DEBUG
+    level:
+    root: INFO
     org.springframework.web: DEBUG
+    org.thymeleaf: TRACE

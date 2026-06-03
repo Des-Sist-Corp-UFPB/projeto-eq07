@@ -9,7 +9,6 @@ This document serves as a context guide to help you understand the architecture,
 - **Project Name:** Corridas
 - **Application Type:** Full-Stack Application
 - **Backend:** Spring Boot (Java)
-- **Frontend:** Vue.js
 - **Goal:** Application for managing road races
 
 ---
@@ -69,8 +68,6 @@ The project follows the standard Spring Boot layered structure. Below is the map
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml              # GitHub Actions workflow (CI/CD)
-├── frontend/                       # Project frontend (Vue.js)
-│   └── src/                        # Frontend source code
 ├── src/
 │   ├── main/
 │   │   ├── java/com/equipe07/projeto/
@@ -90,36 +87,4 @@ The project follows the standard Spring Boot layered structure. Below is the map
 ├── docker-compose.yml              # Local orchestration (Spring + Postgres)
 ├── pom.xml                         # Maven dependencies and build
 └── README.md                       # Documentation for human developers
-```
-
----
-
-## 🎨 7. Frontend Development Guidelines (Vue.js)
-
-When generating code, screens, or components for the user interface, follow the structural and technical governance rules below, based on the **Vue.js 3** ecosystem.
-
-### 🚨 Golden Rules (Critical)
-
-1. **Absolute Reuse and Generalization:** Before creating any new component, analyze the `src/components/` folder to check whether it already exists. If an existing component is similar to what you need, **refactor and generalize it** (via *props* and *slots*) to cover both use cases instead of duplicating code.
-2. **Focus on Spring Boot Integration:** All data flow, form handling, and state management should be designed with the Spring Boot API consumption in mind. Keep property names in `camelCase` and align objects with backend DTOs.
-3. **Strict Environment Variable Documentation:** Whenever you suggest or create a new environment variable (in the `.env` file), you **must document and thoroughly explain why it is needed** and where it applies.
-4. **Dependency Minimalism:** Avoid installing new dependencies (`npm install`). Try to solve problems using native Vue 3 features, plain CSS, or already-installed utilities. New libraries should only be suggested if strictly necessary and justified.
-
----
-
-### 📁 Standard Folder Structure (Vue.js)
-
-```
-├── src/
-│   ├── assets/          # Images, icons, and global style files
-│   ├── components/      # GENERIC and REUSABLE components (BaseButton, BaseModal)
-│   ├── composables/     # Shared logic / Custom Hooks (useAuth, useFetch)
-│   ├── router/          # Route configuration (Vue Router) and Route Guards
-│   ├── stores/          # Global state management (Pinia), if needed
-│   ├── views/           # Main pages tied to routes (LoginView, DashboardView)
-│   ├── services/        # HTTP clients (Axios) and requests to the Spring Boot API
-│   ├── App.vue          # Root application component
-│   └── main.js/ts       # Entry point that initializes the Vue instance
-├── .env.example         # Example of required environment variables
-└── package.json         # Project dependencies (keep as clean as possible)
 ```

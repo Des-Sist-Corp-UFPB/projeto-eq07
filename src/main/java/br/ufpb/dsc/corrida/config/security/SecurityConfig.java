@@ -83,25 +83,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 // === AUTORIZAÇÃO DE REQUISIÇÕES ===
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Rotas de autenticação da API (POST)
+                        // Rotas para realizar login e registro não necessitam de autenticação
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
-                        
-                        // 2. Endpoint obrigatório do Health Check do portal
-                        .requestMatchers(HttpMethod.GET, "/ping").permitAll()
-                        
-                        // 3. LIBERAÇÃO DO FRONTEND MONOLÍTICO:
-                        // Libera os arquivos HTML da raiz e pastas públicas internas (auth, produtos, etc.)
-                        .requestMatchers("/", "/index.html", "/layout.html", "/favicon.ico").permitAll()
-                        .requestMatchers("/auth/**", "/produtos/**").permitAll() 
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                        
-                        // Qualquer outra requisição de API
-                        .anyRequest().permitAll() // Altere para .authenticated() futuramente se quiser proteger o resto
+                        // Rota de saúde pública
+                        .requestMatchers("/ping").permitAll()
+                        // Rotas públicas da interface web e recursos estáticos
+                        .requestMatchers("/login", "/registrar", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        // Qualquer outra requisição exige autenticação
+                        .anyRequest().authenticated()
                 )
-                // === CSRF ===
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .permitAll()
+                )
+                // === CSRF (Cross-Site Request Forgery) ===
+                // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
+                // O Spring Security protege adicionando um token único em formulários.
+                // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
+                // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
                 .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class);

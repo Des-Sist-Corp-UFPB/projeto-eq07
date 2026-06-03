@@ -1,3 +1,5 @@
+server:
+  port: 8080
 spring:
   datasource:
     # Se DATABASE_URL for injetada pelo Docker, o Spring usa. Senão, adota o padrão local 'corridas_dev'
