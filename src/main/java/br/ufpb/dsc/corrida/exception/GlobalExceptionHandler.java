@@ -1,9 +1,9 @@
 package br.ufpb.dsc.corrida.exception;
 
 import br.ufpb.dsc.corrida.dto.ErrorResponseDTO;
-import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitido;
-import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistente;
-import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontrado;
+import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
+import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
+import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,8 +23,8 @@ public class GlobalExceptionHandler {
 
     // === Exceções de negócio (já existentes no projeto) ===
 
-    @ExceptionHandler(UsuarioNaoEncontrado.class)
-    public ResponseEntity<ErrorResponseDTO> tratarUsuarioNaoEncontrado(UsuarioNaoEncontrado ex) {
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ErrorResponseDTO> tratarUsuarioNaoEncontrado(UsuarioNaoEncontradoException ex) {
         var erro = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),
                 "Não encontrado",
@@ -33,8 +33,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
     }
 
-    @ExceptionHandler(UsuarioJaExistente.class)
-    public ResponseEntity<ErrorResponseDTO> tratarUsuarioJaExistente(UsuarioJaExistente ex) {
+    @ExceptionHandler(UsuarioJaExistenteException.class)
+    public ResponseEntity<ErrorResponseDTO> tratarUsuarioJaExistenteException(UsuarioJaExistenteException ex) {
         var erro = new ErrorResponseDTO(
                 HttpStatus.CONFLICT.value(),
                 "Conflito",
@@ -43,8 +43,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }
 
-    @ExceptionHandler(AcessoNaoPermitido.class)
-    public ResponseEntity<ErrorResponseDTO> tratarAcessoNaoPermitido(AcessoNaoPermitido ex) {
+    @ExceptionHandler(AcessoNaoPermitidoException.class)
+    public ResponseEntity<ErrorResponseDTO> tratarAcessoNaoPermitido(AcessoNaoPermitidoException ex) {
         var erro = new ErrorResponseDTO(
                 HttpStatus.FORBIDDEN.value(),
                 "Acesso negado",
