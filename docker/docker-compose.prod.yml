@@ -41,7 +41,7 @@ services:
       DATABASE_USERNAME: ${DB_USERNAME}
       DATABASE_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "8107:8080" # Perfeito! Redirecionamento da disciplina mantido
+      - "127.0.0.1:8107:8080" # Perfeito! Redirecionamento da disciplina mantido
     depends_on:
       postgres:
         condition: service_healthy
