@@ -16,8 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepara nome da imagem (lowercase)
-        run: echo "IMAGE=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest" >> $GITHUB_ENV
+      - name: Prepara nome da imagem fixo para eq07 (lowercase)
+        # Forçamos o nome da imagem para 'eq07' em letras minúsculas usando o dono do repositório
+        run: |
+          OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/$OWNER/eq07:latest" >> $GITHUB_ENV
 
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v3

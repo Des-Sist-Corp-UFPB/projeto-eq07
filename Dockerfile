@@ -1,24 +1,13 @@
-# =============================================================================
-# Monolith Dockerfile — Multi-stage build (Maven/Spring Boot)
-# =============================================================================
-# This Dockerfile compiles the Maven project and runs the single output JAR:
-#   1. Build Stage (maven): Compiles the Java/Spring Boot application.
-#   2. Runtime Stage (jre): Minimal JRE 21 execution environment as a non-root user.
-# =============================================================================
-
 # ---- Stage 1: Build Stage ---------------------------------------------------
 FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
 WORKDIR /build
 
-# Copy pom.xml first to leverage Docker layer caching for Maven dependencies
+# 1. Copia o pom.xml e o código fonte de uma vez só
 COPY pom.xml .
-RUN mvn dependency:go-offline -B -q
-
-# Copy the backend source code (including classpath resources under src/main/resources/public)
 COPY src ./src
 
-# Compile the Maven package (skipping tests since CI runs/skips them)
+# 2. Compila direto (ele vai baixar as dependências direto aqui, muito mais rápido)
 RUN mvn clean package -DskipTests -B -q
 
 # ---- Stage 2: Runtime Stage -------------------------------------------------
@@ -27,6 +16,9 @@ FROM eclipse-temurin:21-jre-jammy AS runtime
 # Create a non-root group and user for security compliance
 RUN groupadd --gid 1001 appgroup && \
     useradd --uid 1001 --gid appgroup --shell /bin/false appuser
+
+# Instala o wget como root para o HEALTHCHECK funcionar na imagem enxuta
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -39,10 +31,10 @@ RUN chown appuser:appgroup app.jar
 # Switch to the non-root user
 USER appuser
 
-# Expose the port the Spring Boot application runs on (container port 8080)
+# Expose the port the Spring Boot application runs on INTERNALLY
 EXPOSE 8080
 
-# Health check to verify the monolith is active (checking '/ping')
+# Health check to verify the monolith is active (checking internal port 8080)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD wget -qO- http://localhost:8080/ping || exit 1
 

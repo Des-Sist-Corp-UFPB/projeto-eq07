@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/corridas_dev
-    username: corridasdb
-    password: C@rR!d@db
+    # Se DATABASE_URL for injetada pelo Docker, o Spring usa. Senão, adota o padrão local 'corridas_dev'
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/corridas_dev}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -13,13 +14,13 @@ spring:
         format_sql: true
   flyway:
     enabled: true
-    # Localização dos scripts de migração SQL
     locations: classpath:db/migration
 
 api:
   security:
     token:
-      secret: "teste_secret"
+      # Permite injetar um secret forte em produção. Se não houver, usa o padrão.
+      secret: ${API_SECURITY_TOKEN_SECRET:teste_secret}
 
 management:
   endpoints:
@@ -32,5 +33,6 @@ management:
 
 logging:
   level:
-    br.ufpb.dsc.mercado: DEBUG
+    # Corrigido de 'mercado' para o pacote real do seu projeto 'corrida'
+    br.ufpb.dsc.corrida: DEBUG
     org.springframework.web: DEBUG

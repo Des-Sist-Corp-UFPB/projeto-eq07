@@ -86,16 +86,22 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // === AUTORIZAÇÃO DE REQUISIÇÕES ===
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas para realizar login e registro não necessitam de autenticação
+                        // 1. Rotas de autenticação da API (POST)
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
-                        // Qualquer outra requisição exige autenticação
-                        .anyRequest().authenticated()
+                        
+                        // 2. Endpoint obrigatório do Health Check do portal
+                        .requestMatchers(HttpMethod.GET, "/ping").permitAll()
+                        
+                        // 3. LIBERAÇÃO DO FRONTEND MONOLÍTICO:
+                        // Libera os arquivos HTML da raiz e pastas públicas internas (auth, produtos, etc.)
+                        .requestMatchers("/", "/index.html", "/layout.html", "/favicon.ico").permitAll()
+                        .requestMatchers("/auth/**", "/produtos/**").permitAll() 
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        
+                        // Qualquer outra requisição de API
+                        .anyRequest().permitAll() // Altere para .authenticated() futuramente se quiser proteger o resto
                 )
-                // === CSRF (Cross-Site Request Forgery) ===
-                // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
-                // O Spring Security protege adicionando um token único em formulários.
-                // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
-                // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
+                // === CSRF ===
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
                 .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class);
