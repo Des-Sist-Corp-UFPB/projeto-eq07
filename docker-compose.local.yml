@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eq07-postgres-local
+    environment:
+      POSTGRES_DB: eq07
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: ghcr.io/des-sist-corp-ufpb/projeto-eq07-backend:latest
+    container_name: eq07-backend-local
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eq07
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  frontend:
+    image: ghcr.io/des-sist-corp-ufpb/projeto-eq07-frontend:latest
+    container_name: eq07-frontend-local
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
