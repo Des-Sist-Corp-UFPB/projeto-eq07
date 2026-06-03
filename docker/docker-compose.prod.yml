@@ -11,7 +11,7 @@ services:
     image: postgres:16-alpine
     container_name: eq07-postgres-prod
     environment:
-      POSTGRES_DB: corridas_dev # Nome real do banco do projeto
+      POSTGRES_DB: eq07 # Nome real do banco do projeto
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
@@ -20,7 +20,7 @@ services:
       - "5432"
     healthcheck:
       # Ajustado para checar o banco eq07
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d corridas_dev"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d eq07"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,16 +37,15 @@ services:
     container_name: eq07-app-prod
     environment:
       # Ajustado para apontar para o banco eq07
-      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/corridas_dev}
+      DATABASE_URL: ${DATABASE_URL}
       DATABASE_USERNAME: ${DB_USERNAME}
       DATABASE_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "127.0.0.1:8107:8080" # Perfeito! Redirecionamento da disciplina mantido
+      - "127.0.0.1:8107:8080"
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      # Ajustado para usar o seu endpoint /ping seguro
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ping || exit 1"]
       interval: 30s
       timeout: 10s
