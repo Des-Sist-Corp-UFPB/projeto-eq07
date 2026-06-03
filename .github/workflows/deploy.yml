@@ -9,8 +9,6 @@ on:
 # Define default environment variables
 env:
   REGISTRY: ghcr.io
-  # Image name based on GitHub Repository (e.g., owner/repository-name)
-  # GHCR requires package names to be lowercase, which is handled dynamically in the login/push steps
   IMAGE_NAME: ${{ github.repository }}
 
 # Grant permissions required to publish packages to GitHub Container Registry (GHCR)
@@ -37,14 +35,9 @@ jobs:
           cache: 'maven'
 
       # 3. Build the application with Maven (skipping unit/integration tests)
+      # Removidas as variáveis de banco de dados não utilizadas devido ao -DskipTests
       - name: Build with Maven
-        run: |
-          mvn clean package -B -DskipTests
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+        run: mvn clean package -B -DskipTests
 
       # 4. Set up Docker Buildx
       - name: Set up Docker Buildx
@@ -112,11 +105,8 @@ jobs:
     needs: build-and-publish
 
     steps:
-      # 1. Checkout para ter acesso ao docker-compose.prod.yml
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # 2. SSH into the remote production server and execute deployment
+      # 1. SSH into the remote production server and execute deployment
+      # O checkout redundante foi removido daqui para acelerar a execução
       - name: Deploy application via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -125,8 +115,8 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
+          host: dsc.rodrigor.com                  # Fixado direto no código para não precisar do SSH_HOST
+          username: ${{ secrets.SSH_USERNAME }}   # Corrigido para mapear o seu secret real
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           envs: PROD_GHCR_TOKEN,PROD_GHCR_USER,DB_USERNAME,DB_PASSWORD
@@ -152,5 +142,8 @@ jobs:
 
             # 6. Remove imagens antigas para liberar espaço
             docker image prune -f
+
+            # 7. Confirmação de integridade dos containers em execução
+            docker ps
 
             echo "=== FULL DEPLOYMENT COMPLETED SUCCESSFULLY ==="
