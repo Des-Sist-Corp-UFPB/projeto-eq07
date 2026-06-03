@@ -16,11 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepara nomes das imagens (lowercase)
-        run: |
-          BASE="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
-          echo "IMAGE_BACKEND=${BASE}-backend:latest" >> $GITHUB_ENV
-          echo "IMAGE_FRONTEND=${BASE}-frontend:latest" >> $GITHUB_ENV
+      - name: Prepara nome da imagem (lowercase)
+        run: echo "IMAGE=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest" >> $GITHUB_ENV
 
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v3
@@ -29,70 +26,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build e push da imagem Backend
+      - name: Build e push da imagem
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
           push: true
-          tags: ${{ env.IMAGE_BACKEND }}
+          tags: ${{ env.IMAGE }}
 
-      - name: Build e push da imagem Frontend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_FRONTEND }}
-          build-args: |
-            VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
-
-      - name: Gera script de deploy
-        run: |
-          cat > /tmp/deploy.sh << SCRIPT
-          #!/bin/bash
-          set -e
-
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-          echo "Pulling images..."
-          docker pull "${{ env.IMAGE_BACKEND }}"
-          docker pull "${{ env.IMAGE_FRONTEND }}"
-
-          echo "Parando containers antigos..."
-          docker stop backend frontend || true
-          docker rm   backend frontend || true
-
-          echo "Subindo backend..."
-          docker run -d \
-            --name backend \
-            --restart unless-stopped \
-            -p 8080:8080 \
-            -e SPRING_DATASOURCE_URL="${{ secrets.DB_URL }}" \
-            -e SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USERNAME }}" \
-            -e SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
-            "${{ env.IMAGE_BACKEND }}"
-
-          echo "Subindo frontend..."
-          docker run -d \
-            --name frontend \
-            --restart unless-stopped \
-            -p 80:80 \
-            "${{ env.IMAGE_FRONTEND }}"
-
-          echo "Limpando imagens antigas..."
-          docker image prune -f
-
-          echo "=== DEPLOY CONCLUÍDO ==="
-          SCRIPT
-
-      - name: Envia e executa script no servidor
+      - name: Deploy no servidor
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-
+          # Envia "actor:token" ao servidor. A chave é travada (command=),
+          # então o servidor usa esse token efêmero só para puxar a imagem do GHCR.
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USERNAME }}@dsc.rodrigor.com \
-            "bash -s" < /tmp/deploy.sh
+            "${{ secrets.SSH_USERNAME }}@dsc.rodrigor.com" \
+            "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
