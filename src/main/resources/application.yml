@@ -1,18 +1,27 @@
 spring:
-  application:
-    name: mercado
-  profiles:
-    active: dev
+  datasource:
+    url: jdbc:postgresql://postgres:5432/corridas_dev
+    username: corridasdb
+    password: C@rR!d@db
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    # Localização dos scripts de migração SQL
+    locations: classpath:db/migration
 
-# Actuator - monitoramento da aplicação
-# Acesse: http://localhost:8080/actuator/health
-management:
-  endpoints:
-    web:
-      exposure:
-        # Expõe apenas os endpoints necessários (não exponha todos em produção!)
-        include: health,info,metrics
-  endpoint:
-    health:
-      # Detalhes do health só são exibidos para usuários autenticados
-      show-details: when-authorized
+api:
+  security:
+    token:
+      secret: "teste_secret"
+
+logging:
+  level:
+    br.ufpb.dsc.mercado: DEBUG
+    org.springframework.web: DEBUG
