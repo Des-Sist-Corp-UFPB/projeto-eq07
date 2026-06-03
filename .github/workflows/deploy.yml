@@ -90,4 +90,3 @@ jobs:
 
             docker image prune -f
             echo "=== DEPLOY CONCLUÍDO ==="
-ENDSSH
