@@ -21,6 +21,15 @@ api:
     token:
       secret: "teste_secret"
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
 logging:
   level:
     br.ufpb.dsc.mercado: DEBUG
