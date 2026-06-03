@@ -13,6 +13,10 @@
 #
 # Para rodar só o banco:
 #   docker compose -f docker/docker-compose.dev.yml up postgres adminer
+#
+# Credenciais: crie um arquivo .env na raiz do projeto com:
+#   DB_USERNAME=corridasdb
+#   DB_PASSWORD=C@rR!d@db
 # =============================================================================
 
 services:
@@ -25,14 +29,14 @@ services:
     container_name: corridas-postgres-dev
     environment:
       POSTGRES_DB: corridas_dev
-      POSTGRES_USER: corridasdb
-      POSTGRES_PASSWORD: C@rR!d@db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d corridas_dev"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,8 +54,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
-      SPRING_DATASOURCE_USERNAME: corridasdb
-      SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:8080"
       - "5005:5005"
@@ -69,7 +73,7 @@ services:
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
-  # Servidor: postgres | Banco: mercado_dev | Usuário: mercado | Senha: mercado123
+  # Servidor: postgres | Banco: corridas_dev | Usuário: ${DB_USERNAME}
   # ---------------------------------------------------------------------------
   adminer:
     image: adminer:latest
