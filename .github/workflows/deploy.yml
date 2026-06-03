@@ -9,9 +9,8 @@ on:
 # Define default environment variables
 env:
   REGISTRY: ghcr.io
-  # Image name based on GitHub Repository (e.g., owner/repository-name)
-  # GHCR requires package names to be lowercase, which is handled dynamically in the login/push steps
-  IMAGE_NAME: ${{ github.repository }}
+  # Definição global e centralizada do nome da imagem
+  IMAGE_NAME: eq07
 
 # Grant permissions required to publish packages to GitHub Container Registry (GHCR)
 permissions:
@@ -29,18 +28,14 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Set up Java JDK environment
-      # Note: We use Java 21 because the project's pom.xml specifies <java.version>21</java.version>.
-      # To use Java 17, change '21' to '17' below (ensuring pom.xml is also aligned).
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven' # Automatically caches Maven dependencies to speed up subsequent runs
+          cache: 'maven'
 
-      # 3. Build the application with Maven (skipping unit/integration tests)
-      # We inject the required database environment variables to ensure Spring configurations can parse.
-      # Sensitive credentials are secure, coming from GitHub Secrets.
+      # 3. Build the application with Maven (skipping tests)
       - name: Build with Maven
         run: |
           mvn clean package -B -DskipTests
@@ -50,13 +45,11 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
 
-
-      # 4. Set up Docker Buildx (enables advanced features like caching and multi-platform builds)
+      # 4. Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # 5. Log in to GitHub Container Registry (GHCR)
-      # Uses the automatic GITHUB_TOKEN for secure, zero-config authentication.
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -64,20 +57,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6. Extract metadata (tags, labels) for the Backend Docker image
-      # Generates tags like 'latest', branch name, and git commit SHA.
+      # 6. Extract metadata for the Backend Docker image (Incluindo o Owner do GitHub)
       - name: Extract Backend Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}-backend
           tags: |
             type=ref,event=branch
             type=sha,format=short
             latest
 
       # 7. Build and push the Backend Docker image
-      # Uses GHA local cache for extremely fast builds.
       - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -89,19 +80,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 8. Extract metadata (tags, labels) for the Frontend Docker image
+      # 8. Extract metadata for the Frontend Docker image
       - name: Extract Frontend Docker metadata
         id: meta-frontend
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}-frontend
           tags: |
             type=ref,event=branch
             type=sha,format=short
             latest
 
       # 9. Build and push the Frontend Docker image
-      # Passes the VITE_API_BASE_URL as a build argument so the static bundle compiles with the correct backend URL.
       - name: Build and Push Frontend Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -118,54 +108,49 @@ jobs:
   deploy:
     name: Deploy to Remote Server
     runs-on: ubuntu-latest
-    needs: build-and-publish # Ensures deployment only runs after successful build & push
+    needs: build-and-publish
 
     steps:
-      # 1. Lowercase the repository name on the GHA runner to avoid remote shell compatibility bugs
-      - name: Lowercase repository name for GHCR compatibility
-        id: repo_name
-        run: |
-          echo "lc_image=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      # 2. SSH into the remote production server and execute deployment commands for both backend and frontend
+      # SSH into the remote production server and execute deployment commands
       - name: Deploy application via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
           REGISTRY: ghcr.io
-          IMAGE_NAME: ${{ steps.repo_name.outputs.lc_image }}
+          # Monta a URI perfeitamente unificada usando o dono do repositório + seu padrão 'eq07'
+          IMAGE_URI: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # CORRIGIDO: Agora o login não vem em branco
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: REGISTRY,IMAGE_NAME,DB_USERNAME,DB_PASSWORD,GITHUB_ACTOR,GITHUB_TOKEN
+          envs: REGISTRY,IMAGE_URI,DB_USERNAME,DB_PASSWORD,GITHUB_ACTOR,GITHUB_TOKEN
           script: |
-            BACKEND_URI="${REGISTRY}/${IMAGE_NAME}-backend:latest"
-            FRONTEND_URI="${REGISTRY}/${IMAGE_NAME}-frontend:latest"
+            BACKEND_URI="${IMAGE_URI}-backend:latest"
+            FRONTEND_URI="${IMAGE_URI}-frontend:latest"
 
             echo "=== STARTING FULL DEPLOYMENT ==="
 
-            # 2. Log in to GitHub Container Registry (GHCR) from remote server
+            # 1. Log in to GitHub Container Registry (GHCR) from remote server
             echo "Logging into GHCR..."
             echo "$GITHUB_TOKEN" | docker login "$REGISTRY" -u "$GITHUB_ACTOR" --password-stdin
 
-            # 3. Pull both latest Docker images
+            # 2. Pull both latest Docker images
             echo "Pulling latest backend image: ${BACKEND_URI}..."
             docker pull "${BACKEND_URI}"
 
             echo "Pulling latest frontend image: ${FRONTEND_URI}..."
             docker pull "${FRONTEND_URI}"
 
-            # 4. Stop and remove existing containers if they are running
+            # 3. Stop and remove existing containers if they are running
             echo "Stopping and removing existing containers (eq07-app, eq07-frontend)..."
             docker stop eq07-app eq07-frontend || true
             docker rm eq07-app eq07-frontend || true
 
-            # 5. Run the new backend container
+            # 4. Run the new backend container
             echo "Starting the new backend container (eq07-app)..."
             docker run -d \
               --name eq07-app \
@@ -177,7 +162,7 @@ jobs:
               -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
               "${BACKEND_URI}"
 
-            # 6. Run the new frontend container (mapped to host port 80 for public access)
+            # 5. Run the new frontend container (mapped to host port 80 for public access)
             echo "Starting the new frontend container (eq07-frontend)..."
             docker run -d \
               --name eq07-frontend \
@@ -185,10 +170,8 @@ jobs:
               --restart unless-stopped \
               "${FRONTEND_URI}"
 
-            # 7. Clean up unused/dangling Docker images to save disk space
+            # 6. Clean up unused/dangling Docker images to save disk space
             echo "Cleaning up dangling images..."
             docker image prune -f
 
             echo "=== FULL DEPLOYMENT COMPLETED SUCCESSFULLY ==="
-
-
