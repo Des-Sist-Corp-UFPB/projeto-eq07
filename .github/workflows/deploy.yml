@@ -47,46 +47,55 @@ jobs:
           build-args: |
             VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
 
-      - name: Deploy no servidor
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          IMAGE_BACKEND: ${{ env.IMAGE_BACKEND }}
-          IMAGE_FRONTEND: ${{ env.IMAGE_FRONTEND }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      - name: Gera script de deploy
+        run: |
+          cat > /tmp/deploy.sh << SCRIPT
+          #!/bin/bash
+          set -e
+
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+          echo "Pulling images..."
+          docker pull "${{ env.IMAGE_BACKEND }}"
+          docker pull "${{ env.IMAGE_FRONTEND }}"
+
+          echo "Parando containers antigos..."
+          docker stop backend frontend || true
+          docker rm   backend frontend || true
+
+          echo "Subindo backend..."
+          docker run -d \
+            --name backend \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            -e SPRING_DATASOURCE_URL="${{ secrets.DB_URL }}" \
+            -e SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USERNAME }}" \
+            -e SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
+            "${{ env.IMAGE_BACKEND }}"
+
+          echo "Subindo frontend..."
+          docker run -d \
+            --name frontend \
+            --restart unless-stopped \
+            -p 80:80 \
+            "${{ env.IMAGE_FRONTEND }}"
+
+          echo "Limpando imagens antigas..."
+          docker image prune -f
+
+          echo "=== DEPLOY CONCLUÍDO ==="
+          SCRIPT
+
+      - name: Envia e executa script no servidor
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            /tmp/deploy.sh ${{ secrets.SSH_USERNAME }}@dsc.rodrigor.com:/tmp/deploy.sh
+
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            -o SendEnv="GITHUB_TOKEN GITHUB_ACTOR IMAGE_BACKEND IMAGE_FRONTEND DB_URL DB_USERNAME DB_PASSWORD" \
-            "${{ secrets.SSH_USERNAME }}@dsc.rodrigor.com" << 'ENDSSH'
-
-            set -e
-
-            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin || {
-              echo "ERRO: login falhou"
-              exit 1
-            }
-
-            docker pull "$IMAGE_BACKEND"
-            docker pull "$IMAGE_FRONTEND"
-
-            docker stop backend frontend || true
-            docker rm   backend frontend || true
-
-            docker run -d --name backend --restart unless-stopped -p 8080:8080 \
-              -e SPRING_DATASOURCE_URL="$DB_URL" \
-              -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
-              -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
-              -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
-              "$IMAGE_BACKEND"
-
-            docker run -d --name frontend --restart unless-stopped -p 80:80 \
-              "$IMAGE_FRONTEND"
-
-            docker image prune -f
-            echo "=== DEPLOY CONCLUÍDO ==="
+            ${{ secrets.SSH_USERNAME }}@dsc.rodrigor.com \
+            "bash /tmp/deploy.sh; rm -f /tmp/deploy.sh"
