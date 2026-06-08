@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "API Corrida (Equipe 07) - Ambiente de Desenvolvimento Local Ativo!";
+        return "index";
     }
 }

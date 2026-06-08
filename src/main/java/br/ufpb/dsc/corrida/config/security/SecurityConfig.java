@@ -89,7 +89,7 @@ public class SecurityConfig {
                         // Rotas para realizar login e registro não necessitam de autenticação
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
                         // Rota de saúde pública
-                        .requestMatchers("/ping").permitAll()
+                        .requestMatchers("/ping", "/").permitAll()
                         // Rotas públicas da interface web e recursos estáticos
                         .requestMatchers("/login", "/registrar", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                         // Qualquer outra requisição exige autenticação

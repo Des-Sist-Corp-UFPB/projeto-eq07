@@ -39,14 +39,16 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center relative overflow-hidden font-sans">
-    
-    <!-- Background Accents (Blurred Spheres for premium look) -->
-    <div class="absolute -top-40 -left-40 w-96 h-96 bg-brand-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
-    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
-    
+<body class="bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden font-sans">
+
+    <!-- Background accents: fixed so they never affect document flow -->
+    <div class="fixed -top-40 -left-40 w-96 h-96 bg-brand-600 rounded-full filter blur-[128px] opacity-20 animate-pulse pointer-events-none" aria-hidden="true"></div>
+    <div class="fixed -bottom-40 -right-40 w-96 h-96 bg-blue-600 rounded-full filter blur-[128px] opacity-20 animate-pulse pointer-events-none" aria-hidden="true"></div>
+
+    <!-- Scroll-safe centering wrapper -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-6">
     <!-- Outer Container -->
-    <div class="w-full max-w-md p-6 relative z-10">
+    <div class="w-full max-w-md relative z-10">
         
         <!-- Logo / Brand Header -->
         <div class="text-center mb-8">
@@ -181,5 +183,6 @@
             &copy; 2026 DSC - UFPB Campus IV. Todos os direitos reservados.
         </div>
     </div>
+    </div><!-- /centering wrapper -->
 </body>
 </html>
