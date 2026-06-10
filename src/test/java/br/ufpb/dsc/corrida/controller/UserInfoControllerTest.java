@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -189,5 +190,32 @@ class UserInfoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
+    }
+
+    // ─────────────────────────────────────────────
+    // UPLOAD FOTO DE PERFIL
+    // ─────────────────────────────────────────────
+
+    @Test
+    @WithMockUser
+    @DisplayName("POST /user-info/{usuarioId}/foto-perfil — delega para service e retorna 200")
+    void uploadFoto_deveRetornar200_comSucesso() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "teste.png", MediaType.IMAGE_PNG_VALUE, "imagem".getBytes()
+        );
+
+        UserInfoRespostaDTO atualizado = new UserInfoRespostaDTO(
+                1L, 1L, 70.0f, 175.0f, Genero.MALE, 0.0f,
+                LocalDate.of(1995, 5, 20), "/uploads/perfil/teste.png", 
+                NivelCondicionamento.INTERMEDIATE, null, null, null
+        );
+
+        when(userInfoService.uploadFotoPerfil(eq(1L), any())).thenReturn(atualizado);
+
+        mockMvc.perform(multipart("/user-info/1/foto-perfil")
+                        .file(file)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fotoPerfil").value("/uploads/perfil/teste.png"));
     }
 }

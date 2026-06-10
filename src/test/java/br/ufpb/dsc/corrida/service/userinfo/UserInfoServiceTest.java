@@ -20,6 +20,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -48,6 +56,8 @@ class UserInfoServiceTest {
     void setUp() {
         usuario = mock(Usuario.class);
         lenient().when(usuario.getId()).thenReturn(1L);
+
+        ReflectionTestUtils.setField(service, "uploadDir", "target/test-uploads/");
 
         dtoValido = new CriarUserInfoDTO(
                 1L,
@@ -256,6 +266,34 @@ class UserInfoServiceTest {
 
         assertThat(resultado).isNotNull();
         assertThat(resultado.peso()).isEqualTo(85.0f);
+        verify(userInfoRepository).save(info);
+    }
+
+    // ─────────────────────────────────────────────
+    // UPLOAD FOTO DE PERFIL
+    // ─────────────────────────────────────────────
+
+    @Test
+    @DisplayName("uploadFotoPerfil() — salva arquivo e atualiza url com sucesso")
+    void uploadFotoPerfil_deveSalvarComSucesso() throws IOException {
+        UserInfo info = new UserInfo();
+        info.setUsuario(usuario);
+        info.setPeso(70.0f);
+        info.setAltura(175.0f);
+
+        when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info));
+        when(userInfoRepository.save(any(UserInfo.class))).thenAnswer(i -> i.getArgument(0));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "foto.png", "image/png", "dadosdaimagem".getBytes());
+
+        UserInfoRespostaDTO resultado = service.uploadFotoPerfil(1L, file);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.fotoPerfil()).isNotNull();
+        assertThat(resultado.fotoPerfil()).contains("/uploads/perfil/");
+        assertThat(resultado.fotoPerfil()).endsWith(".png");
+
         verify(userInfoRepository).save(info);
     }
 }

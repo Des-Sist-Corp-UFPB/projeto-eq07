@@ -11,8 +11,18 @@ import br.ufpb.dsc.corrida.repository.UserInfoRepository;
 import br.ufpb.dsc.corrida.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 
 /**
@@ -30,6 +40,9 @@ public class UserInfoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Value("${app.upload.dir:uploads/perfil/}")
+    private String uploadDir;
 
     /**
      * Cria um novo registro de informações para um corredor.
@@ -145,6 +158,62 @@ public class UserInfoService {
         var atualizado = userInfoRepository.save(userInfo);
         log.info("UserInfo atualizado com sucesso para usuarioId={}", usuarioId);
         return new UserInfoRespostaDTO(atualizado);
+    }
+
+    /**
+     * Salva a foto de perfil enviada em um diretório físico local e atualiza a URL na entidade.
+     *
+     * @param usuarioId ID do usuário
+     * @param file Arquivo contendo a foto
+     * @return DTO com os dados do corredor atualizados
+     * @throws IllegalArgumentException se o arquivo for inválido
+     * @throws RuntimeException se houver falha de I/O
+     */
+    @Transactional
+    public UserInfoRespostaDTO uploadFotoPerfil(Long usuarioId, MultipartFile file) {
+        log.info("Iniciando upload de foto de perfil para usuarioId={}", usuarioId);
+
+        var userInfo = userInfoRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new UserInfoNaoEncontradoException(
+                        "Informações de corredor não encontradas para o usuário com ID: " + usuarioId));
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("O arquivo de imagem não pode estar vazio");
+        }
+
+        try {
+            // Criar o diretório se não existir
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Gerar nome de arquivo único
+            String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+            String extension = "";
+            int i = originalFileName.lastIndexOf('.');
+            if (i > 0) {
+                extension = originalFileName.substring(i);
+            }
+
+            String fileName = UUID.randomUUID().toString() + extension;
+            Path filePath = uploadPath.resolve(fileName);
+
+            // Salvar no disco
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Atualizar entidade com o path relativo (estático)
+            String urlPath = "/uploads/perfil/" + fileName;
+            userInfo.setFotoPerfil(urlPath);
+            var atualizado = userInfoRepository.save(userInfo);
+
+            log.info("Foto de perfil salva com sucesso para usuarioId={}. Arquivo: {}", usuarioId, urlPath);
+            return new UserInfoRespostaDTO(atualizado);
+
+        } catch (IOException e) {
+            log.error("Erro ao salvar o arquivo de foto de perfil", e);
+            throw new RuntimeException("Não foi possível salvar a imagem. Tente novamente mais tarde.", e);
+        }
     }
 
     // ─── Helpers de validação ───────────────────────────────────────────────
