@@ -88,6 +88,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Rotas para realizar login e registro não necessitam de autenticação
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
+                        // Rotas públicas do perfil de usuário
+                        .requestMatchers(HttpMethod.GET, "/user/*", "/user/*/profile").permitAll()
                         // Rota de saúde pública
                         .requestMatchers("/ping", "/").permitAll()
                         // Rotas públicas da interface web e recursos estáticos

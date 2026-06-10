@@ -4,11 +4,13 @@ import br.ufpb.dsc.corrida.config.security.TokenService;
 import br.ufpb.dsc.corrida.domain.Usuario;
 import br.ufpb.dsc.corrida.dto.user.EditarUsuarioDTO;
 import br.ufpb.dsc.corrida.dto.user.LoginDto;
+import br.ufpb.dsc.corrida.dto.user.PerfilPublicoDTO;
 import br.ufpb.dsc.corrida.dto.user.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.enums.Papel;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
+import br.ufpb.dsc.corrida.repository.UserInfoRepository;
 import br.ufpb.dsc.corrida.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository repository;
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -75,6 +80,30 @@ public class UsuarioService {
             if (usuarioLogado.getId() != usuario.getId()) throw new AcessoNaoPermitidoException("Acesso negado para deleção de usuário");
         }
         usuario.changeDeletado();
+    }
+
+    public PerfilPublicoDTO buscarPerfilPublico(String username) {
+        Usuario usuario = repository.findByUsername(username);
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException("Usuário com username: " + username + " não encontrado");
+        }
+
+        var userInfoOpt = userInfoRepository.findByUsuarioId(usuario.getId());
+
+        String fotoPerfil = null;
+        Float totalKmRun = 0.0f;
+
+        if (userInfoOpt.isPresent()) {
+            fotoPerfil = userInfoOpt.get().getFotoPerfil();
+            totalKmRun = userInfoOpt.get().getTotalKmRun();
+        }
+
+        return new PerfilPublicoDTO(
+                usuario.getNome(),
+                usuario.getUserUsername(),
+                fotoPerfil,
+                totalKmRun
+        );
     }
 
 }

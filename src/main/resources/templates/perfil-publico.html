@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${perfil.nome + ' (@' + perfil.username + ') — Corrida DSC'}">Perfil — Corrida DSC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            400: '#fb923c', 500: '#f97316',
+                            600: '#ea580c', 700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn      { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+        .bnav-link { @apply flex items-center gap-0.5 text-slate-500 hover:text-brand-400 transition-colors text-[10px] font-semibold; }
+        .bnav-link.active { @apply text-brand-400; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+
+    <!-- ════════════════════════════════════════════════
+     LEFT SIDEBAR (desktop md+)
+════════════════════════════════════════════════ -->
+<div th:replace="~{fragments/sidebar :: sidebar('perfil')}"></div>
+
+    <!-- ════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════ -->
+    <main class="md:ml-[260px] min-h-screen pb-24 md:pb-0">
+
+        <!-- Mobile top bar -->
+        <div class="md:hidden flex items-center justify-between px-5 pt-5 pb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center glow-orange">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-5 h-5 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                    </svg>
+                </div>
+                <span class="text-sm font-extrabold tracking-tight text-white">CORRIDA <span class="text-brand-500">DSC</span></span>
+            </div>
+            <a href="/minha-conta" sec:authorize="isAuthenticated()">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center text-white text-xs font-bold glow-orange" th:text="${#strings.toUpperCase(#strings.substring(#authentication.name, 0, 2))}">AT</div>
+            </a>
+            <a th:href="@{/login}" sec:authorize="isAnonymous()" class="text-xs font-bold text-brand-400">Entrar</a>
+        </div>
+
+        <!-- Decorative Top Banner -->
+        <div class="h-32 md:h-48 w-full bg-gradient-to-r from-brand-600/20 to-orange-400/20 relative overflow-hidden">
+            <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"></div>
+            <!-- Glows -->
+            <div class="absolute -bottom-24 -left-10 w-48 h-48 bg-brand-500/30 blur-[60px] rounded-full"></div>
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-orange-400/20 blur-[50px] rounded-full"></div>
+        </div>
+
+        <div class="px-5 md:px-8 max-w-4xl mx-auto -mt-16 md:-mt-20 relative z-10 space-y-8">
+
+            <!-- Section 1: User Info -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 md:p-8 glow-card backdrop-blur-xl">
+                <div class="flex flex-col md:flex-row gap-6 md:items-end justify-between">
+                    <div class="flex items-center gap-5">
+                        <!-- Profile Picture -->
+                        <div class="relative">
+                            <div th:if="${perfil.fotoPerfil == null}" 
+                                class="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center text-white text-3xl font-extrabold glow-orange shadow-xl border-4 border-slate-900" 
+                                th:text="${#strings.toUpperCase(#strings.substring(perfil.nome, 0, 1))}">
+                            </div>
+                            <img th:if="${perfil.fotoPerfil != null}" 
+                                th:src="${perfil.fotoPerfil}" 
+                                class="w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover border-4 border-slate-900 shadow-xl" alt="Foto de perfil" />
+                            
+                            <!-- Verified Badge -->
+                            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center">
+                                <div class="w-6 h-6 bg-brand-500 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-white">
+                                        <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Names -->
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-extrabold text-white leading-tight" th:text="${perfil.nome}">João Silva</h1>
+                            <p class="text-brand-400 font-semibold" th:text="'@' + ${perfil.username}">@joaosilva</p>
+                            
+                            <!-- Stats (Desktop) -->
+                            <div class="hidden md:flex items-center gap-6 mt-4">
+                                <div>
+                                    <p class="text-2xl font-black text-white" th:text="${perfil.totalKmRun}">125.4</p>
+                                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">km percorridos</p>
+                                </div>
+                                <div class="w-px h-8 bg-slate-800"></div>
+                                <div>
+                                    <p class="text-2xl font-black text-white">0</p>
+                                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">conexões</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connect Button -->
+                    <div class="mt-4 md:mt-0 flex flex-col md:items-end gap-4 w-full md:w-auto">
+                        <!-- Stats (Mobile) -->
+                        <div class="flex md:hidden items-center gap-6 mb-2 border-y border-slate-800 py-3">
+                            <div>
+                                <p class="text-xl font-black text-white" th:text="${perfil.totalKmRun}">125.4</p>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">km percorridos</p>
+                            </div>
+                            <div class="w-px h-8 bg-slate-800"></div>
+                            <div>
+                                <p class="text-xl font-black text-white">0</p>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">conexões</p>
+                            </div>
+                        </div>
+
+                        <!-- Conditional Button Logic -->
+                        <div th:if="${#authorization.expression('isAuthenticated()') and #authentication.principal.userUsername == perfil.username}">
+                            <a th:href="@{/minha-conta}" class="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-8 rounded-xl glow-btn transition-all text-sm w-full md:w-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                </svg>
+                                Ver minhas informações
+                            </a>
+                        </div>
+                        <div th:unless="${#authorization.expression('isAuthenticated()') and #authentication.principal.userUsername == perfil.username}">
+                            <button type="button" class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-xl transition-all text-sm w-full md:w-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                                </svg>
+                                Conectar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Activities -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 glow-card">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-extrabold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-brand-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.866 8.21 8.21 0 0 0 3 2.48Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
+                        </svg>
+                        Atividades Recentes
+                    </h2>
+                </div>
+
+                <!-- Empty State Placeholder -->
+                <div class="border-2 border-dashed border-slate-800 rounded-2xl p-10 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-slate-300 font-bold text-lg mb-1">Em breve!</h3>
+                    <p class="text-slate-500 text-sm max-w-sm">
+                        O feed de atividades está em desenvolvimento. Logo você poderá ver as corridas e treinos deste atleta por aqui.
+                    </p>
+                </div>
+            </div>
+
+        </div><!-- /max-w-4xl -->
+    </main>
+
+    <!-- ════════════════════════════════════════════════
+     BOTTOM NAV (mobile only)
+════════════════════════════════════════════════ -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-slate-800 flex justify-around items-center h-16 px-2 z-50">
+        <a href="/" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            Início
+        </a>
+        <a href="#" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+            Buscar
+        </a>
+        <a href="#" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            Corridas
+        </a>
+        <a href="/minha-conta" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+            Conta
+        </a>
+    </nav>
+</body>
+</html>
