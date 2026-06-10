@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 @RequestMapping("/user")
@@ -40,6 +41,20 @@ public class UsuarioController {
     public ResponseEntity deletar(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{username}/profile")
+    public ModelAndView getProfilePage(@PathVariable String username) {
+        PerfilPublicoDTO perfil = service.buscarPerfilPublico(username);
+        ModelAndView mv = new ModelAndView("perfil-publico");
+        mv.addObject("perfil", perfil);
+        return mv;
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<PerfilPublicoDTO> getProfileApi(@PathVariable String username) {
+        PerfilPublicoDTO perfil = service.buscarPerfilPublico(username);
+        return ResponseEntity.ok(perfil);
     }
 
 }

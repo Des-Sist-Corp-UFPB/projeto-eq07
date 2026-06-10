@@ -80,7 +80,8 @@ The project follows the standard Spring Boot layered structure. Below is the map
 │   │   │   ├── service/            # Business rules and internal logic layer
 │   │   │   └── ProjetoApplication.java  # Main class that bootstraps Spring
 │   │   └── resources/
-│   │       ├── application-prod.properties  # Application configuration
+│   │       ├── application-prod.properties # Application configuration
+│   │       ├── templates/ # Páginas HTML   
 │   │       └── db/migration/       # Flyway scripts
 │   └── test/                       # Unit and Integration Tests (JUnit/Mockito)
 ├── Dockerfile                      # Docker image build instructions
