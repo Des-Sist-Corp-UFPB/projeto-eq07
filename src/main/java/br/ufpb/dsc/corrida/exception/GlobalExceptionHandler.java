@@ -4,6 +4,8 @@ import br.ufpb.dsc.corrida.dto.ErrorResponseDTO;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
+import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
+import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,6 +24,36 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     // === Exceções de negócio (já existentes no projeto) ===
+
+    @ExceptionHandler(UserInfoNaoEncontradoException.class)
+    public ResponseEntity<ErrorResponseDTO> tratarUserInfoNaoEncontrado(UserInfoNaoEncontradoException ex) {
+        var erro = new ErrorResponseDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Não encontrado",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    }
+
+    @ExceptionHandler(UserInfoJaExistenteException.class)
+    public ResponseEntity<ErrorResponseDTO> tratarUserInfoJaExistente(UserInfoJaExistenteException ex) {
+        var erro = new ErrorResponseDTO(
+                HttpStatus.CONFLICT.value(),
+                "Conflito",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> tratarArgumentoIlegal(IllegalArgumentException ex) {
+        var erro = new ErrorResponseDTO(
+                HttpStatus.BAD_REQUEST.value(),
+                "Dados inválidos",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
 
     @ExceptionHandler(UsuarioNaoEncontradoException.class)
     public ResponseEntity<ErrorResponseDTO> tratarUsuarioNaoEncontrado(UsuarioNaoEncontradoException ex) {
