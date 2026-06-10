@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Value("${app.upload.dir:uploads/perfil/}")
     private String uploadDir;
