@@ -161,6 +161,18 @@
 
     <build>
         <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <excludes>
+                    <exclude>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                    </exclude>
+                </excludes>
+            </configuration>
+        </plugin>
             <!-- Plugin principal do Spring Boot -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -168,7 +180,7 @@
                 <version>3.24.0</version>
                 <configuration>
                     <sourceEncoding>UTF-8</sourceEncoding>
-                    <targetJdk>21</targetJdk>
+                    <targetJdk>22</targetJdk>
                     <failOnViolation>true</failOnViolation>
                     <printFailingErrors>true</printFailingErrors>
                 </configuration>
