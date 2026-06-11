@@ -9,6 +9,10 @@ jobs:
     name: Lint e testes
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./projeto-eq07
+
     services:
       postgres:
         image: postgres:16
@@ -32,9 +36,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Permitir execução do Maven Wrapper
-        run: chmod +x ./mvnw
 
       - name: Instalar dependências e rodar testes
         run: ./mvnw dependency:resolve
