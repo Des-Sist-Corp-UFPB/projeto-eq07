@@ -9,10 +9,6 @@ jobs:
     name: Lint e testes
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./projeto-eq07
-
     services:
       postgres:
         image: postgres:16
@@ -38,13 +34,13 @@ jobs:
           java-version: '17'
 
       - name: Instalar dependências e rodar testes
-        run: ./mvnw dependency:resolve
+        run: mvn dependency:resolve
 
       - name: Teste de qualidade de código (lint)
-        run: ./mvnw pmd:check   
+        run: mvn pmd:check   
 
       - name: Rodar testes unitários
-        run: ./mvnw test
+        run: mvn test
 
       - name: Rodar testes de integração
-        run: ./mvnw verify 
+        run: mvn verify 
