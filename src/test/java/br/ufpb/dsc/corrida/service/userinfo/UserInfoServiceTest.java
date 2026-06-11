@@ -1,17 +1,19 @@
 package br.ufpb.dsc.corrida.service.userinfo;
 
-import br.ufpb.dsc.corrida.domain.UserInfo;
-import br.ufpb.dsc.corrida.domain.Usuario;
-import br.ufpb.dsc.corrida.dto.userinfo.AtualizarUserInfoDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.CriarUserInfoDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.UserInfoRespostaDTO;
-import br.ufpb.dsc.corrida.enums.Genero;
-import br.ufpb.dsc.corrida.enums.NivelCondicionamento;
+import br.ufpb.dsc.corrida.user.UserInfo;
+import br.ufpb.dsc.corrida.user.User;
+import br.ufpb.dsc.corrida.user.Genero;
+import br.ufpb.dsc.corrida.user.NivelCondicionamento;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
-import br.ufpb.dsc.corrida.repository.UserInfoRepository;
-import br.ufpb.dsc.corrida.repository.UsuarioRepository;
+import br.ufpb.dsc.corrida.user.UserInfoRepository;
+import br.ufpb.dsc.corrida.user.UserInfoService;
+import br.ufpb.dsc.corrida.user.UserRepository;
+import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
+import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;
+import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,12 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -44,17 +42,17 @@ class UserInfoServiceTest {
     private UserInfoRepository userInfoRepository;
 
     @Mock
-    private UsuarioRepository usuarioRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserInfoService service;
 
-    private Usuario usuario;
+    private User usuario;
     private CriarUserInfoDTO dtoValido;
 
     @BeforeEach
     void setUp() {
-        usuario = mock(Usuario.class);
+        usuario = mock(User.class);
         lenient().when(usuario.getId()).thenReturn(1L);
 
         ReflectionTestUtils.setField(service, "uploadDir", "target/test-uploads/");
@@ -78,7 +76,7 @@ class UserInfoServiceTest {
     @Test
     @DisplayName("criar() — lança conflito se já existe UserInfo para o userId")
     void criar_deveRetornarConflito_quandoJaExiste() {
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(userInfoRepository.existsByUsuarioId(1L)).thenReturn(true);
 
         assertThatThrownBy(() -> service.criar(dtoValido))
@@ -90,7 +88,7 @@ class UserInfoServiceTest {
     @Test
     @DisplayName("criar() — lança não-encontrado se usuário não existe")
     void criar_deveRetornarNaoEncontrado_quandoUsuarioNaoExiste() {
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.criar(dtoValido))
                 .isInstanceOf(UsuarioNaoEncontradoException.class);
@@ -106,7 +104,7 @@ class UserInfoServiceTest {
                 LocalDate.of(1995, 5, 20), null, null, null
         );
 
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(userInfoRepository.existsByUsuarioId(1L)).thenReturn(false);
 
         assertThatThrownBy(() -> service.criar(dtoInvalido))
@@ -124,7 +122,7 @@ class UserInfoServiceTest {
                 LocalDate.of(1995, 5, 20), null, null, null
         );
 
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(userInfoRepository.existsByUsuarioId(1L)).thenReturn(false);
 
         assertThatThrownBy(() -> service.criar(dtoInvalido))
@@ -137,7 +135,7 @@ class UserInfoServiceTest {
     @Test
     @DisplayName("criar() — persiste e retorna UserInfo com sucesso")
     void criar_devePersistirERetornar_comSucesso() {
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(userInfoRepository.existsByUsuarioId(1L)).thenReturn(false);
 
         UserInfo saved = new UserInfo();

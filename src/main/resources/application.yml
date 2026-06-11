@@ -3,9 +3,9 @@ server:
 spring:
   datasource:
     # Se DATABASE_URL for injetada pelo Docker, o Spring usa. Senão, adota o padrão local 'corridas_dev'
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/eq07}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/corridas_dev}
+    username: ${DB_USERNAME:corridasdb}
+    password: ${DB_PASSWORD:C@rR!d@db}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5

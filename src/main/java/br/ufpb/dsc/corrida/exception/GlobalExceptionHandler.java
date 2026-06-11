@@ -1,6 +1,5 @@
 package br.ufpb.dsc.corrida.exception;
 
-import br.ufpb.dsc.corrida.dto.ErrorResponseDTO;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;

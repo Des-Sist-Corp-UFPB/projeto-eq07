@@ -19,7 +19,7 @@
     <description>Projeto base DSC - UFPB Campus IV</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>22</java.version>
         <!-- Versões de dependências -->
         <testcontainers.version>1.20.4</testcontainers.version>
         <webjars-bootstrap.version>5.3.3</webjars-bootstrap.version>
@@ -163,8 +163,22 @@
         <plugins>
             <!-- Plugin principal do Spring Boot -->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.24.0</version>
+                <configuration>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <targetJdk>21</targetJdk>
+                    <failOnViolation>true</failOnViolation>
+                    <printFailingErrors>true</printFailingErrors>
+                </configuration>
+                <executions>
+                    <execution>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- JaCoCo: cobertura de código -->

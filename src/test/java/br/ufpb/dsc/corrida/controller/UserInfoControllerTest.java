@@ -1,25 +1,30 @@
 package br.ufpb.dsc.corrida.controller;
 
-import br.ufpb.dsc.corrida.dto.userinfo.AtualizarUserInfoDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.CriarUserInfoDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.UserInfoRespostaDTO;
-import br.ufpb.dsc.corrida.enums.Genero;
-import br.ufpb.dsc.corrida.enums.NivelCondicionamento;
+import br.ufpb.dsc.corrida.user.Genero;
+import br.ufpb.dsc.corrida.user.NivelCondicionamento;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
+import br.ufpb.dsc.corrida.user.UserInfoService;
+import br.ufpb.dsc.corrida.user.UsuarioController;
+import br.ufpb.dsc.corrida.user.UsuarioService;
+import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
+import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;
+import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
-import br.ufpb.dsc.corrida.service.userinfo.UserInfoService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -31,7 +36,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UserInfoController.class)
+@ActiveProfiles("test")
+@SpringBootTest
+@AutoConfigureMockMvc
 @DisplayName("UserInfoController — Unit Tests")
 class UserInfoControllerTest {
 
@@ -40,6 +47,9 @@ class UserInfoControllerTest {
 
     @MockBean
     private UserInfoService userInfoService;
+
+    @MockBean
+    private UsuarioService usuarioService;
 
     private ObjectMapper objectMapper;
     private UserInfoRespostaDTO respostaDTO;
@@ -68,7 +78,7 @@ class UserInfoControllerTest {
     void getByUserId_deveRetornar200_comSucesso() throws Exception {
         when(userInfoService.buscarPorUsuarioId(1L)).thenReturn(respostaDTO);
 
-        mockMvc.perform(get("/user-info/1"))
+        mockMvc.perform(get("/user/userInfo/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.peso").value(70.5))
                 .andExpect(jsonPath("$.altura").value(175.0));
@@ -81,7 +91,7 @@ class UserInfoControllerTest {
         when(userInfoService.buscarPorUsuarioId(99L))
                 .thenThrow(new UserInfoNaoEncontradoException("Não encontrado"));
 
-        mockMvc.perform(get("/user-info/99"))
+        mockMvc.perform(get("/user/userInfo/99"))
                 .andExpect(status().isNotFound());
     }
 
@@ -100,7 +110,7 @@ class UserInfoControllerTest {
 
         when(userInfoService.criar(any(CriarUserInfoDTO.class))).thenReturn(respostaDTO);
 
-        mockMvc.perform(post("/user-info")
+        mockMvc.perform(post("/user/userInfo")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -120,7 +130,7 @@ class UserInfoControllerTest {
         when(userInfoService.criar(any(CriarUserInfoDTO.class)))
                 .thenThrow(new UserInfoJaExistenteException("Já existe"));
 
-        mockMvc.perform(post("/user-info")
+        mockMvc.perform(post("/user/userInfo")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -139,7 +149,7 @@ class UserInfoControllerTest {
         when(userInfoService.criar(any(CriarUserInfoDTO.class)))
                 .thenThrow(new UsuarioNaoEncontradoException("Usuário não encontrado"));
 
-        mockMvc.perform(post("/user-info")
+        mockMvc.perform(post("/user/userInfo")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -166,7 +176,7 @@ class UserInfoControllerTest {
 
         when(userInfoService.atualizar(eq(1L), any(AtualizarUserInfoDTO.class))).thenReturn(atualizado);
 
-        mockMvc.perform(put("/user-info/1")
+        mockMvc.perform(put("/user/userInfo/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -185,7 +195,7 @@ class UserInfoControllerTest {
         when(userInfoService.atualizar(eq(99L), any(AtualizarUserInfoDTO.class)))
                 .thenThrow(new UserInfoNaoEncontradoException("Não encontrado"));
 
-        mockMvc.perform(put("/user-info/99")
+        mockMvc.perform(put("/user/userInfo/99")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -212,7 +222,7 @@ class UserInfoControllerTest {
 
         when(userInfoService.uploadFotoPerfil(eq(1L), any())).thenReturn(atualizado);
 
-        mockMvc.perform(multipart("/user-info/1/foto-perfil")
+        mockMvc.perform(multipart("/user/userInfo/1/foto-perfil")
                         .file(file)
                         .with(csrf()))
                 .andExpect(status().isOk())

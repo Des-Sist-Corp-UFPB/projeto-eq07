@@ -1,7 +1,6 @@
 package br.ufpb.dsc.corrida.config.security;
 
-import br.ufpb.dsc.corrida.domain.Usuario;
-import br.ufpb.dsc.corrida.repository.UsuarioRepository;
+import br.ufpb.dsc.corrida.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +19,7 @@ public class AutenticacaoFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepository repository;
+    private UserRepository repository;
 
 
     @Override

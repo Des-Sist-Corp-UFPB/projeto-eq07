@@ -1,14 +1,15 @@
 package br.ufpb.dsc.corrida.controller;
 
-import br.ufpb.dsc.corrida.domain.Usuario;
-import br.ufpb.dsc.corrida.dto.user.RegistrarUsuarioDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.AtualizarUserInfoDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.CriarUserInfoDTO;
-import br.ufpb.dsc.corrida.dto.userinfo.UserInfoRespostaDTO;
-import br.ufpb.dsc.corrida.enums.Genero;
-import br.ufpb.dsc.corrida.enums.NivelCondicionamento;
-import br.ufpb.dsc.corrida.repository.UserInfoRepository;
-import br.ufpb.dsc.corrida.repository.UsuarioRepository;
+import br.ufpb.dsc.corrida.user.User;
+import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
+import br.ufpb.dsc.corrida.user.Genero;
+import br.ufpb.dsc.corrida.user.NivelCondicionamento;
+import br.ufpb.dsc.corrida.user.UserInfoRepository;
+import br.ufpb.dsc.corrida.user.UserRepository;
+import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
+import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;
+import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.*;
@@ -43,7 +44,7 @@ class UserInfoIntegrationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -55,7 +56,7 @@ class UserInfoIntegrationTest {
             .registerModule(new JavaTimeModule());
 
     @BeforeAll
-    static void setUpAll(@Autowired UsuarioRepository usuarioRepository,
+    static void setUpAll(@Autowired UserRepository userRepository,
                          @Autowired TestRestTemplate restTemplate) {
         // Register a test user and obtain JWT token for subsequent requests
         var registrar = new RegistrarUsuarioDTO(
@@ -69,7 +70,7 @@ class UserInfoIntegrationTest {
         ResponseEntity<String> response = restTemplate.postForEntity("/user/registrar", request, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Usuario usuario = usuarioRepository.findByUsername("atleta_test");
+        User usuario = userRepository.findByUsername("atleta_test");
         assertThat(usuario).isNotNull();
         usuarioId = usuario.getId();
 
@@ -105,12 +106,12 @@ class UserInfoIntegrationTest {
 
     @Test
     @Order(1)
-    @DisplayName("POST /user-info → 201 Created com payload válido")
+    @DisplayName("POST /user/userInfo → 201 Created com payload válido")
     void post_deveRetornar201_comDadosValidos() throws Exception {
         HttpEntity<CriarUserInfoDTO> request = new HttpEntity<>(validDto(), authHeaders());
 
         ResponseEntity<UserInfoRespostaDTO> response =
-                restTemplate.postForEntity("/user-info", request, UserInfoRespostaDTO.class);
+                restTemplate.postForEntity("/user/userInfo", request, UserInfoRespostaDTO.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
@@ -119,19 +120,19 @@ class UserInfoIntegrationTest {
 
     @Test
     @Order(2)
-    @DisplayName("POST /user-info → 409 Conflict se userId já tem registro")
+    @DisplayName("POST /user/userInfo → 409 Conflict se userId já tem registro")
     void post_deveRetornar409_quandoJaExiste() {
         HttpEntity<CriarUserInfoDTO> request = new HttpEntity<>(validDto(), authHeaders());
 
         ResponseEntity<String> response =
-                restTemplate.postForEntity("/user-info", request, String.class);
+                restTemplate.postForEntity("/user/userInfo", request, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
     @Order(3)
-    @DisplayName("POST /user-info → 404 Not Found se userId não existe")
+    @DisplayName("POST /user/userInfo → 404 Not Found se userId não existe")
     void post_deveRetornar404_quandoUsuarioNaoExiste() {
         var dto = new CriarUserInfoDTO(
                 99999L, 70.5f, 175.0f, Genero.MALE,
@@ -141,14 +142,14 @@ class UserInfoIntegrationTest {
         HttpEntity<CriarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());
 
         ResponseEntity<String> response =
-                restTemplate.postForEntity("/user-info", request, String.class);
+                restTemplate.postForEntity("/user/userInfo", request, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     @Order(4)
-    @DisplayName("POST /user-info → 400 Bad Request se peso <= 0")
+    @DisplayName("POST /user/userInfo → 400 Bad Request se peso <= 0")
     void post_deveRetornar400_quandoPesoInvalido() {
         var dto = new CriarUserInfoDTO(
                 usuarioId, 0.0f, 175.0f, Genero.MALE,
@@ -161,23 +162,23 @@ class UserInfoIntegrationTest {
         HttpEntity<CriarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());
 
         ResponseEntity<String> response =
-                restTemplate.postForEntity("/user-info", request, String.class);
+                restTemplate.postForEntity("/user/userInfo", request, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     // ─────────────────────────────────────────────
-    // GET /user-info/{usuarioId}
+    // GET /user/userInfo/{usuarioId}
     // ─────────────────────────────────────────────
 
     @Test
     @Order(5)
-    @DisplayName("GET /user-info/{usuarioId} → 200 OK com dados corretos")
+    @DisplayName("GET /user/userInfo/{usuarioId} → 200 OK com dados corretos")
     void get_deveRetornar200_comDadosCorretos() {
         HttpEntity<Void> request = new HttpEntity<>(authHeaders());
 
         ResponseEntity<UserInfoRespostaDTO> response =
-                restTemplate.exchange("/user-info/" + usuarioId, HttpMethod.GET, request, UserInfoRespostaDTO.class);
+                restTemplate.exchange("/user/userInfo/" + usuarioId, HttpMethod.GET, request, UserInfoRespostaDTO.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -187,23 +188,23 @@ class UserInfoIntegrationTest {
 
     @Test
     @Order(6)
-    @DisplayName("GET /user-info/{usuarioId} → 404 Not Found para userId desconhecido")
+    @DisplayName("GET /user/userInfo/{usuarioId} → 404 Not Found para userId desconhecido")
     void get_deveRetornar404_quandoNaoEncontrado() {
         HttpEntity<Void> request = new HttpEntity<>(authHeaders());
 
         ResponseEntity<String> response =
-                restTemplate.exchange("/user-info/99999", HttpMethod.GET, request, String.class);
+                restTemplate.exchange("/user/userInfo/99999", HttpMethod.GET, request, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     // ─────────────────────────────────────────────
-    // PUT /user-info/{usuarioId}
+    // PUT /user/userInfo/{usuarioId}
     // ─────────────────────────────────────────────
 
     @Test
     @Order(7)
-    @DisplayName("PUT /user-info/{usuarioId} → 200 OK com campos atualizados")
+    @DisplayName("PUT /user/userInfo/{usuarioId} → 200 OK com campos atualizados")
     void put_deveRetornar200_comDadosAtualizados() {
         var dto = new AtualizarUserInfoDTO(
                 85.0f, 180.0f, null, null, null, null, null
@@ -212,7 +213,7 @@ class UserInfoIntegrationTest {
         HttpEntity<AtualizarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());
 
         ResponseEntity<UserInfoRespostaDTO> response =
-                restTemplate.exchange("/user-info/" + usuarioId, HttpMethod.PUT, request, UserInfoRespostaDTO.class);
+                restTemplate.exchange("/user/userInfo/" + usuarioId, HttpMethod.PUT, request, UserInfoRespostaDTO.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -222,7 +223,7 @@ class UserInfoIntegrationTest {
 
     @Test
     @Order(8)
-    @DisplayName("PUT /user-info/{usuarioId} → 400 Bad Request se validação falha")
+    @DisplayName("PUT /user/userInfo/{usuarioId} → 400 Bad Request se validação falha")
     void put_deveRetornar400_quandoValidacaoFalha() {
         var dto = new AtualizarUserInfoDTO(
                 -10.0f, null, null, null, null, null, null
@@ -231,7 +232,7 @@ class UserInfoIntegrationTest {
         HttpEntity<AtualizarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());
 
         ResponseEntity<String> response =
-                restTemplate.exchange("/user-info/" + usuarioId, HttpMethod.PUT, request, String.class);
+                restTemplate.exchange("/user/userInfo/" + usuarioId, HttpMethod.PUT, request, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
