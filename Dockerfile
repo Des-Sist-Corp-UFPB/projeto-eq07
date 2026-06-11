@@ -1,5 +1,5 @@
 # ---- Stage 1: Build Stage ---------------------------------------------------
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM maven:3.9.9-eclipse-temurin-22 AS builder
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B -q
 
 # ---- Stage 2: Runtime Stage -------------------------------------------------
-FROM eclipse-temurin:21-jre-jammy AS runtime
+FROM eclipse-temurin:22-jre-jammy AS runtime
 
 # Create a non-root group and user for security compliance
 RUN groupadd --gid 1001 appgroup && \
