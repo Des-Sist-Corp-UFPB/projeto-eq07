@@ -58,12 +58,8 @@ public class UsuarioService {
         User usuarioLogado = (User) auth.getPrincipal();
         User usuario = repository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário com ID: "+ id +" não encontrado"));
         if (usuario.getId() != usuarioLogado.getId()) throw new AcessoNaoPermitidoException("Acesso negado para edição de usuário");
-        if (dadosUsuario.login() != null) {
-            if (repository.existsByLoginAndIdNot(dadosUsuario.login(), id)) throw new UsuarioJaExistenteException("Usuário com login: " + dadosUsuario.login() + " já existente");
-        }
-        if (dadosUsuario.username() != null) {
-            if (repository.existsByUsernameAndIdNot(dadosUsuario.username(), id)) throw new UsuarioJaExistenteException("Usuário com username: " + dadosUsuario.username() + " já existente");
-        }
+        if (dadosUsuario.login() != null && repository.existsByLoginAndIdNot(dadosUsuario.login(), id)) throw new UsuarioJaExistenteException("Usuário com login: " + dadosUsuario.login() + " já existente");
+        if (dadosUsuario.username() != null && repository.existsByUsernameAndIdNot(dadosUsuario.username(), id)) throw new UsuarioJaExistenteException("Usuário com username: " + dadosUsuario.username() + " já existente");
         usuario.editar(dadosUsuario);
         return usuario;
     }
@@ -72,9 +68,7 @@ public class UsuarioService {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         User usuarioLogado = (User) auth.getPrincipal();
         User usuario = repository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário com ID: "+ id +" não encontrado"));
-        if (usuarioLogado.getPapel() == Papel.USUARIO) {
-            if (usuarioLogado.getId() != usuario.getId()) throw new AcessoNaoPermitidoException("Acesso negado para deleção de usuário");
-        }
+        if (usuarioLogado.getPapel() == Papel.USUARIO && usuarioLogado.getId() != usuario.getId()) throw new AcessoNaoPermitidoException("Acesso negado para deleção de usuário");
         usuario.changeDeletado();
     }
 
