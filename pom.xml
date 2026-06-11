@@ -19,7 +19,7 @@
     <description>Projeto base DSC - UFPB Campus IV</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>22</java.version>
         <!-- Versões de dependências -->
         <testcontainers.version>1.20.4</testcontainers.version>
         <webjars-bootstrap.version>5.3.3</webjars-bootstrap.version>
