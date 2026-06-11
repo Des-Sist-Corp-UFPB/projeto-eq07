@@ -1,6 +1,6 @@
 package br.ufpb.dsc.corrida.config.security;
+import br.ufpb.dsc.corrida.user.User;
 
-import br.ufpb.dsc.corrida.domain.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -18,7 +18,7 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String criarToken(Usuario usuario) {
+    public String criarToken(User usuario) {
         try {
             Algorithm algoritmo = Algorithm.HMAC256(secret);
             return JWT.create()

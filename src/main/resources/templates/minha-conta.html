@@ -418,12 +418,12 @@
                 let url, method;
 
                 if (PROFILE_EXISTS) {
-                    url = '/user-info/' + USUARIO_ID;
+                    url = '/user/userInfo/' + USUARIO_ID;
                     method = 'PUT';
                     // PUT doesn't need usuarioId in body
                     delete payload.usuarioId;
                 } else {
-                    url = '/user-info';
+                    url = '/user/userInfo';
                     method = 'POST';
                 }
 

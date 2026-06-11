@@ -84,17 +84,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                // === AUTORIZAÇÃO DE REQUISIÇÕES ===
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas para realizar login e registro não necessitam de autenticação
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
-                        // Rotas públicas do perfil de usuário
                         .requestMatchers(HttpMethod.GET, "/user/*", "/user/*/profile").permitAll()
-                        // Rota de saúde pública
                         .requestMatchers("/ping", "/").permitAll()
-                        // Rotas públicas da interface web e recursos estáticos
                         .requestMatchers("/login", "/registrar", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                        // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

@@ -14,7 +14,7 @@
 | Framework | Spring Boot | 3.4.5 |
 | Build | Maven | 3.9+ |
 | Templates | Thymeleaf + HTMX | 3.x + 2.0.4 |
-| Frontend | Bootstrap | 5.3.3 |
+| Frontend Tailwind
 | Banco | PostgreSQL | 16 |
 | Migrations | Flyway | 11.x |
 | Segurança | Spring Security | 6.x |
