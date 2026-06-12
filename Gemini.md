@@ -64,28 +64,57 @@ Whenever generating code for this project, follow these rules:
 
 The project follows the standard Spring Boot layered structure. Below is the mapping of the main directories and files:
 
+
 ```
-├── .github/
+PROJETO-EQ07/
+├── .github/                      # Configurações do GitHub (CI/CD e Workflows)
 │   └── workflows/
-│       └── deploy.yml              # GitHub Actions workflow (CI/CD)
+│       ├── ci.yml                # Integração Contínua
+│       └── deploy.yml            # Deploy Automatizado
+├── docker/                       # Arquivos e configurações do Docker
+├── docs/                         # Documentação técnica do projeto
+├── logs/                         # Registros de log da aplicação
 ├── src/
 │   ├── main/
-│   │   ├── java/com/equipe07/projeto/
-│   │   │   ├── config/             # Global configurations (Security, CORS, etc.)
-│   │   │   ├── controller/         # REST endpoints (API entry point)
-│   │   │   ├── dto/                # Data Transfer Objects (Request and Response)
-│   │   │   ├── exception/          # Error handling and @ControllerAdvice
-│   │   │   ├── model/              # Database entities (JPA/Hibernate)
-│   │   │   ├── repository/         # Database access interfaces (Spring Data JPA)
-│   │   │   ├── service/            # Business rules and internal logic layer
-│   │   │   └── ProjetoApplication.java  # Main class that bootstraps Spring
+│   │   ├── java/br/ufpb/dsc/corrida/
+│   │   │   ├── config/           # Classes de configuração (Segurança, CORS, etc.)
+│   │   │   ├── exception/        # Tratamento global de exceções da API
+│   │   │   ├── home/             # Lógica relacionada à página/fluxo inicial
+│   │   │   ├── user/             # Módulo de Usuários (Domínio Principal)
+│   │   │   │   ├── dto/          # Objetos de Transferência de Dados (Data Transfer Objects)
+│   │   │   │   ├── AuthService.java
+│   │   │   │   ├── Genero.java
+│   │   │   │   ├── NivelCondicionamento.java
+│   │   │   │   ├── Papel.java
+│   │   │   │   ├── User.java     # Entidade de Domínio
+│   │   │   │   ├── UserInfo.java # Entidade complementar
+│   │   │   │   ├── UserInfoRepository.java
+│   │   │   │   ├── UserInfoService.java
+│   │   │   │   ├── UserRepository.java
+│   │   │   │   ├── UsuarioController.java       # Endpoints REST da API
+│   │   │   │   ├── UsuarioService.java          # Regras de Negócio
+│   │   │   │   └── UsuarioViewController.java   # Controle de Views (Thymeleaf)
+│   │   │   └── CorridaApplication.java          # Classe Principal do Spring Boot
 │   │   └── resources/
-│   │       ├── application-prod.properties # Application configuration
-│   │       ├── templates/ # Páginas HTML   
-│   │       └── db/migration/       # Flyway scripts
-│   └── test/                       # Unit and Integration Tests (JUnit/Mockito)
-├── Dockerfile                      # Docker image build instructions
-├── docker-compose.yml              # Local orchestration (Spring + Postgres)
-├── pom.xml                         # Maven dependencies and build
-└── README.md                       # Documentation for human developers
+│   │       ├── db/               # Scripts de banco de dados / Migrations (Flyway/Liquibase)
+│   │       ├── public/           # Arquivos estáticos globais (CSS, JS, Imagens)
+│   │       ├── templates/        # Views HTML renderizadas pelo servidor (Thymeleaf)
+│   │       │   ├── auth/         # Telas de login/autenticação
+│   │       │   ├── fragments/    # Componentes HTML reutilizáveis (Header, Footer, etc.)
+│   │       │   ├── index.html
+│   │       │   ├── minha-conta.html
+│   │       │   └── perfil-publico.html
+│   │       ├── application-dev.yml   # Propriedades de Desenvolvimento
+│   │       ├── application-prod.yml  # Propriedades de Produção
+│   │       ├── application-test.yml  # Propriedades de Teste
+│   │       └── application.yml       # Configurações Gerais do Spring
+│   └── test/                     # Estrutura de Testes Automatizados
+│       └── java/br/ufpb/dsc/corrida/
+│           ├── controller/       # Testes de Unidade e Integração dos Endpoints
+│           │   ├── UserInfoControllerTest.java
+│           │   └── UserInfoIntegrationTest.java
+│           ├── service/userinfo/ # Testes das Regras de Negócio
+│           │   └── UserInfoServiceTest.java
+│           └── CorridaApplicationTests.java
+
 ```

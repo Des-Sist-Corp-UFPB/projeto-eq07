@@ -30,6 +30,7 @@ import br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO;
 import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.user.dto.UsuarioResposta;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/user")
@@ -40,6 +41,9 @@ public class UsuarioController {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Autowired
+    private UserConnectionService userConnectionService;
 
     @PostMapping("/registrar")
     public String registrarUsuario(@ModelAttribute("usuario") @Valid RegistrarUsuarioDTO usuarioDTO, BindingResult bindingResult, Model model) {
@@ -108,5 +112,49 @@ public class UsuarioController {
         
         UserInfoRespostaDTO resposta = userInfoService.uploadFotoPerfil(usuarioId, file);
         return ResponseEntity.ok(resposta);
+    }
+
+    @PostMapping("/conexao/enviar/{receiverId}")
+    public ResponseEntity<?> enviarConexao(
+            @PathVariable Long receiverId,
+            @AuthenticationPrincipal User loggedInUser) {
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
+        }
+        userConnectionService.sendConnectionRequest(loggedInUser.getId(), receiverId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/conexao/aceitar/{requestId}")
+    public ResponseEntity<?> aceitarConexao(
+            @PathVariable Long requestId,
+            @AuthenticationPrincipal User loggedInUser) {
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
+        }
+        userConnectionService.acceptConnectionRequest(requestId, loggedInUser.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/conexao/recusar/{requestId}")
+    public ResponseEntity<?> recusarConexao(
+            @PathVariable Long requestId,
+            @AuthenticationPrincipal User loggedInUser) {
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
+        }
+        userConnectionService.declineConnectionRequest(requestId, loggedInUser.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/conexao/remover/{receiverId}")
+    public ResponseEntity<?> removerConexao(
+            @PathVariable Long receiverId,
+            @AuthenticationPrincipal User loggedInUser) {
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
+        }
+        userConnectionService.removeConnection(loggedInUser.getId(), receiverId);
+        return ResponseEntity.ok().build();
     }
 }

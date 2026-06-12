@@ -44,8 +44,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponseDTO> tratarArgumentoIlegal(IllegalArgumentException ex) {
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<ErrorResponseDTO> tratarArgumentoOuEstadoIlegal(RuntimeException ex) {
         var erro = new ErrorResponseDTO(
                 HttpStatus.BAD_REQUEST.value(),
                 "Dados inválidos",

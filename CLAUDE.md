@@ -20,17 +20,61 @@
 | Segurança | Spring Security | 6.x |
 | Testes | JUnit 5 + Testcontainers | - |
 
-## Estrutura de Pacotes
-```
-br.ufpb.dsc.corrida
-├── config/          # Configurações Spring (Security, Web, etc.)
-├── controller/      # Controllers MVC (recebem requests HTTP)
-├── domain/          # Entidades JPA (mapeamento objeto-relacional)
-├── dto/             # Data Transfer Objects (Records Java)
-├── exception/       # Exceções de domínio
-├── repository/      # Interfaces Spring Data JPA
-└── service/         # Lógica de negócio (@Transactional)
-```
+## 📂 Arquitetura do Projeto
+
+Abaixo está a representação da estrutura de pastas e a organização arquitetural do sistema:
+
+```text
+PROJETO-EQ07/
+├── .github/                      # Configurações do GitHub (CI/CD e Workflows)
+│   └── workflows/
+│       ├── ci.yml                # Integração Contínua
+│       └── deploy.yml            # Deploy Automatizado
+├── docker/                       # Arquivos e configurações do Docker
+├── docs/                         # Documentação técnica do projeto
+├── logs/                         # Registros de log da aplicação
+├── src/
+│   ├── main/
+│   │   ├── java/br/ufpb/dsc/corrida/
+│   │   │   ├── config/           # Classes de configuração (Segurança, CORS, etc.)
+│   │   │   ├── exception/        # Tratamento global de exceções da API
+│   │   │   ├── home/             # Lógica relacionada à página/fluxo inicial
+│   │   │   ├── user/             # Módulo de Usuários (Domínio Principal)
+│   │   │   │   ├── dto/          # Objetos de Transferência de Dados (Data Transfer Objects)
+│   │   │   │   ├── AuthService.java
+│   │   │   │   ├── Genero.java
+│   │   │   │   ├── NivelCondicionamento.java
+│   │   │   │   ├── Papel.java
+│   │   │   │   ├── User.java     # Entidade de Domínio
+│   │   │   │   ├── UserInfo.java # Entidade complementar
+│   │   │   │   ├── UserInfoRepository.java
+│   │   │   │   ├── UserInfoService.java
+│   │   │   │   ├── UserRepository.java
+│   │   │   │   ├── UsuarioController.java       # Endpoints REST da API
+│   │   │   │   ├── UsuarioService.java          # Regras de Negócio
+│   │   │   │   └── UsuarioViewController.java   # Controle de Views (Thymeleaf)
+│   │   │   └── CorridaApplication.java          # Classe Principal do Spring Boot
+│   │   └── resources/
+│   │       ├── db/               # Scripts de banco de dados / Migrations (Flyway/Liquibase)
+│   │       ├── public/           # Arquivos estáticos globais (CSS, JS, Imagens)
+│   │       ├── templates/        # Views HTML renderizadas pelo servidor (Thymeleaf)
+│   │       │   ├── auth/         # Telas de login/autenticação
+│   │       │   ├── fragments/    # Componentes HTML reutilizáveis (Header, Footer, etc.)
+│   │       │   ├── index.html
+│   │       │   ├── minha-conta.html
+│   │       │   └── perfil-publico.html
+│   │       ├── application-dev.yml   # Propriedades de Desenvolvimento
+│   │       ├── application-prod.yml  # Propriedades de Produção
+│   │       ├── application-test.yml  # Propriedades de Teste
+│   │       └── application.yml       # Configurações Gerais do Spring
+│   └── test/                     # Estrutura de Testes Automatizados
+│       └── java/br/ufpb/dsc/corrida/
+│           ├── controller/       # Testes de Unidade e Integração dos Endpoints
+│           │   ├── UserInfoControllerTest.java
+│           │   └── UserInfoIntegrationTest.java
+│           ├── service/userinfo/ # Testes das Regras de Negócio
+│           │   └── UserInfoServiceTest.java
+│           └── CorridaApplicationTests.java
 
 ## Comandos Essenciais
 
