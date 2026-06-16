@@ -1,11 +1,10 @@
-package br.ufpb.dsc.corrida.controller;
+package br.ufpb.dsc.corrida.userinfo;
 
 import br.ufpb.dsc.corrida.user.Genero;
 import br.ufpb.dsc.corrida.user.NivelCondicionamento;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.UserInfoService;
-import br.ufpb.dsc.corrida.user.UsuarioController;
 import br.ufpb.dsc.corrida.user.UsuarioService;
 import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;

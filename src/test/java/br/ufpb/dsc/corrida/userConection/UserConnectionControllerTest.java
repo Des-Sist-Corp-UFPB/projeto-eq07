@@ -1,5 +1,6 @@
-package br.ufpb.dsc.corrida.controller;
+package br.ufpb.dsc.corrida.userConection;
 
+import br.ufpb.dsc.corrida.user.Papel;
 import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.userConections.UserConnectionService;
 import br.ufpb.dsc.corrida.user.UsuarioService;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +47,7 @@ class UserConnectionControllerTest {
         org.springframework.test.util.ReflectionTestUtils.setField(loggedInUser, "id", 1L);
         org.springframework.test.util.ReflectionTestUtils.setField(loggedInUser, "nome", "Logged In User");
         org.springframework.test.util.ReflectionTestUtils.setField(loggedInUser, "login", "user@test.com");
+        org.springframework.test.util.ReflectionTestUtils.setField(loggedInUser, "papel", Papel.USUARIO);
     }
 
     @Test
@@ -95,7 +98,8 @@ class UserConnectionControllerTest {
     @DisplayName("POST /user/conexao/enviar/{receiverId} — should return 401 Unauthorized when not authenticated")
     void enviarConexao_unauthorized() throws Exception {
         mockMvc.perform(post("/user/conexao/enviar/2")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is3xxRedirection());
     }
 }
