@@ -1,7 +1,7 @@
 package br.ufpb.dsc.corrida.controller;
 
 import br.ufpb.dsc.corrida.user.User;
-import br.ufpb.dsc.corrida.user.UserConnectionService;
+import br.ufpb.dsc.corrida.userConections.UserConnectionService;
 import br.ufpb.dsc.corrida.user.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

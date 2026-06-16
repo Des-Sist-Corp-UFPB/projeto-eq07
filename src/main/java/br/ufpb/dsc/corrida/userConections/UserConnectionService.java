@@ -1,7 +1,12 @@
-package br.ufpb.dsc.corrida.user;
+package br.ufpb.dsc.corrida.userConections;
 
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
-import br.ufpb.dsc.corrida.user.dto.SolicitacaoConexaoDTO;
+import br.ufpb.dsc.corrida.user.UserInfoRepository;
+import br.ufpb.dsc.corrida.user.UserRepository;
+import br.ufpb.dsc.corrida.userConections.dto.SolicitacaoConexaoDTO;
+import br.ufpb.dsc.corrida.user.User;
+import br.ufpb.dsc.corrida.user.UserInfo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

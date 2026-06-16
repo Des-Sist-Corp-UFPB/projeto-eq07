@@ -1,10 +1,12 @@
-package br.ufpb.dsc.corrida.user;
+package br.ufpb.dsc.corrida.userConections;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+
+import br.ufpb.dsc.corrida.user.User;
 
 import java.time.LocalDateTime;
 

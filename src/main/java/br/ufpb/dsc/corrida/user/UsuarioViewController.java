@@ -15,6 +15,9 @@ import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO;
 import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
+import br.ufpb.dsc.corrida.userConections.UserConnection;
+import br.ufpb.dsc.corrida.userConections.UserConnectionRepository;
+import br.ufpb.dsc.corrida.userConections.UserConnectionService;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller

@@ -1,7 +1,10 @@
 package br.ufpb.dsc.corrida.service.user;
 
 import br.ufpb.dsc.corrida.user.*;
-import br.ufpb.dsc.corrida.user.dto.SolicitacaoConexaoDTO;
+import br.ufpb.dsc.corrida.userConections.UserConnection;
+import br.ufpb.dsc.corrida.userConections.UserConnectionRepository;
+import br.ufpb.dsc.corrida.userConections.UserConnectionService;
+import br.ufpb.dsc.corrida.userConections.dto.SolicitacaoConexaoDTO;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

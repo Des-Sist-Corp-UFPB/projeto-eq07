@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.user;
+package br.ufpb.dsc.corrida.userConections;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

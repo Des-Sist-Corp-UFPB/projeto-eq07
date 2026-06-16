@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.user.dto;
+package br.ufpb.dsc.corrida.userConections.dto;
 
 import java.time.LocalDateTime;
 

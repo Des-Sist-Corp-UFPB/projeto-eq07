@@ -29,6 +29,7 @@ import br.ufpb.dsc.corrida.user.dto.LoginDto;
 import br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO;
 import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.user.dto.UsuarioResposta;
+import br.ufpb.dsc.corrida.userConections.UserConnectionService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
