@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.service.user;
+package br.ufpb.dsc.corrida.userConection;
 
 import br.ufpb.dsc.corrida.user.*;
 import br.ufpb.dsc.corrida.userConections.UserConnection;

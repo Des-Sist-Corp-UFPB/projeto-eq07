@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.controller;
+package br.ufpb.dsc.corrida.userinfo;
 
 import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;

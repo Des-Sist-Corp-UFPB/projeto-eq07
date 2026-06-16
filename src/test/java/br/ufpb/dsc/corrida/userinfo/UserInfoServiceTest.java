@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.service.userinfo;
+package br.ufpb.dsc.corrida.userinfo;
 
 import br.ufpb.dsc.corrida.user.UserInfo;
 import br.ufpb.dsc.corrida.user.User;

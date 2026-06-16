@@ -66,7 +66,7 @@ public class UsuarioController {
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<AutenticacaoRespostaDTO> login(@RequestBody @Valid LoginDto credenciais) {
+    public ResponseEntity<AutenticacaoRespostaDTO> login(@ModelAttribute @Valid LoginDto credenciais) {
         String token = service.login(credenciais);
         return ResponseEntity.ok(new AutenticacaoRespostaDTO(token, "Autenticado com sucesso"));
     }
