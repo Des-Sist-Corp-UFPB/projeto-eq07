@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/*", "/user/*/profile").permitAll()
                         .requestMatchers("/ping", "/").permitAll()
-                        .requestMatchers("/login", "/registrar", "/css/**", "/js/**", "/images/**", 
+                        .requestMatchers("/login", "/registrar", "/registrar/organizador", "/organizacao/*", "/css/**", "/js/**", "/images/**", 
                                                     "/webjars/**", "/manifest.json", "/sw.js", "/corrida.ico"
                                                 ).permitAll()
                         .anyRequest().authenticated()

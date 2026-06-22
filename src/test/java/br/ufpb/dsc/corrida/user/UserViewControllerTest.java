@@ -207,7 +207,7 @@ class UsuarioViewControllerTest {
                 .andExpect(view().name("perfil-publico"))
                 .andExpect(model().attribute("perfil", perfilMock))
                 .andExpect(model().attribute("perfilId", 2L))
-                .andExpect(model().attributeDoesNotExist("countConections"));
+                .andExpect(model().attributeExists("countConections"));
     }
 
     // ────────────────────────────────────────────────────────────────────────

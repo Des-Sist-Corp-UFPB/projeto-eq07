@@ -12,6 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
+import br.ufpb.dsc.corrida.organizer.Organization;
+import br.ufpb.dsc.corrida.organizer.Organizer;
+import br.ufpb.dsc.corrida.organizer.OrganizerService;
 import br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO;
 import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
@@ -37,6 +40,9 @@ public class UsuarioViewController {
 
     @Autowired
     private UserConnectionService userConnectionService;
+
+    @Autowired
+    private OrganizerService organizerService;
     
     @GetMapping("/registrar")
     public String exibirFormularioRegistro(Model model) {
@@ -79,6 +85,20 @@ public class UsuarioViewController {
         mv.addObject("perfil", perfil);
         mv.addObject("perfilId", profileUser.getId());
 
+        // Adiciona o número de conexões incondicionalmente
+        long countConections = userConnectionRepository.countConnectionsByUserId(profileUser.getId());
+        mv.addObject("countConections", countConections);
+
+        // Adiciona informações do organizador se for o caso
+        mv.addObject("isOrganizador", profileUser.getPapel() == Papel.ORGANIZADOR);
+        if (profileUser.getPapel() == Papel.ORGANIZADOR) {
+            Optional<Organizer> organizerOpt = organizerService.buscarOrganizadorPorUsuarioId(profileUser.getId());
+            if (organizerOpt.isPresent()) {
+                Optional<Organization> organizationOpt = organizerService.buscarOrganizacaoPorOrganizadorId(organizerOpt.get().getId());
+                organizationOpt.ifPresent(org -> mv.addObject("organizacao", org));
+            }
+        }
+
         // Adiciona o CSRF token — necessário para o template
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         if (csrfToken != null) {
@@ -86,10 +106,6 @@ public class UsuarioViewController {
         }
 
         if (loggedInUser != null) {
-
-            long countConections = userConnectionRepository.countConnectionsByUserId(profileUser.getId());
-            mv.addObject("countConections", countConections);
-
             Optional<UserConnection> conexaoOpt = userConnectionRepository
                 .findConnectionBetweenUsers(loggedInUser.getId(), profileUser.getId());
             conexaoOpt.ifPresent(conexao -> mv.addObject("conexao", conexao));

@@ -115,6 +115,20 @@
                             <h1 class="text-2xl md:text-3xl font-extrabold text-white leading-tight" th:text="${perfil.nome}">João Silva</h1>
                             <p class="text-brand-400 font-semibold" th:text="'@' + ${perfil.username}">@joaosilva</p>
                             
+                            <!-- Organizer Badge & Organization -->
+                            <div th:if="${isOrganizador}" class="mt-2 flex flex-col gap-1.5">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2.5 py-1 rounded-lg w-max shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-brand-500">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4.13-5.69Z" clip-rule="evenodd" />
+                                    </svg>
+                                    Organizador Homologado
+                                </span>
+                                <p th:if="${organizacao != null}" class="text-xs text-slate-400">
+                                    Organização: 
+                                    <a th:href="@{/organizacao/{id}(id=${organizacao.id})}" class="text-brand-400 hover:text-brand-300 font-bold underline transition-colors" th:text="${organizacao.name}">Super Corridas</a>
+                                </p>
+                            </div>
+
                             <!-- Stats (Desktop) -->
                             <div class="hidden md:flex items-center gap-6 mt-4">
                                 <div>
