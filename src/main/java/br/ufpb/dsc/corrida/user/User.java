@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +19,7 @@ import java.util.List;
 @Entity(name = "User")
 @Table(name = "usuario")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
@@ -38,6 +41,16 @@ public class User implements UserDetails {
         this.username = usuario.username();
         this.senha = bcrypt.encode(usuario.senha());
         this.papel = Papel.USUARIO;
+        this.deletado = false;
+    }
+
+    public User(br.ufpb.dsc.corrida.organizer.dto.RegistrarOrganizadorStep1DTO usuario, Papel papel) {
+        var bcrypt = new BCryptPasswordEncoder();
+        this.nome = usuario.nome();
+        this.login = usuario.login();
+        this.username = usuario.username();
+        this.senha = bcrypt.encode(usuario.senha());
+        this.papel = papel;
         this.deletado = false;
     }
 

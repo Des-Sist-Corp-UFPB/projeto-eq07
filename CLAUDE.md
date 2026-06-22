@@ -5,7 +5,7 @@
 - **Disciplina**: Desenvolvimento de Sistemas Corporativos
 - **Professor**: Rodrigo Rebouças
 - **Instituição**: Universidade Federal da Paraíba — Campus IV
-- **Propósito**: Boilerplate educacional para alunos iniciarem seus projetos
+- **Propósito**: Sistema feito para gerenciar atividades de corridas. Organizadores e usuários podem estar participando e gerenciando corridas, realizando inscrições e compartilhando suas atividades.
 
 ## Stack Técnica
 | Camada | Tecnologia | Versão |
@@ -38,9 +38,14 @@ PROJETO-EQ07/
 │   │   ├── java/br/ufpb/dsc/corrida/
 │   │   │   ├── config/           # Classes de configuração (Segurança, CORS, etc.)
 │   │   │   ├── exception/        # Tratamento global de exceções da API
-│   │   │   ├── home/             # Lógica relacionada à página/fluxo inicial
-│   │   │   ├── user/             # Módulo de Usuários (Domínio Principal)
-│   │   │   │   ├── dto/          # Objetos de Transferência de Dados (Data Transfer Objects)
+│   │   │   ├── home/
+│   │   ├── userConections/             # Módulo de Conexões de usuários
+│   │   │   │   ├── dto/
+│   │   │   │   ├── UserConections.java
+│   │   │   │   ├── UserConectionsRepository.java
+│   │   │   │   ├── UserConectionsService.java
+│   │   │   ├── user/
+│   │   │   │   ├── dto/      
 │   │   │   │   ├── AuthService.java
 │   │   │   │   ├── Genero.java
 │   │   │   │   ├── NivelCondicionamento.java
