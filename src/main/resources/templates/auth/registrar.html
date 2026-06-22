@@ -179,12 +179,19 @@
             </form>
 
             <!-- Cross-navigation: already have an account? -->
-            <div class="mt-6 border-t border-slate-800/80 pt-5 text-center">
+            <div class="mt-6 border-t border-slate-800/80 pt-5 text-center space-y-3">
                 <p class="text-sm text-slate-400">
                     Já possui uma conta?
                     <a th:href="@{/login}"
                        class="text-brand-400 font-semibold hover:text-brand-300 hover:underline underline-offset-4 transition-colors ml-1">
                         Faça o login
+                    </a>
+                </p>
+                <p class="text-sm text-slate-500">
+                    Quer organizar corridas?
+                    <a th:href="@{/registrar/organizador}"
+                       class="text-orange-400 font-semibold hover:text-orange-300 hover:underline underline-offset-4 transition-colors ml-1">
+                        Cadastre-se como Organizador
                     </a>
                 </p>
             </div>

@@ -235,10 +235,16 @@
             </div>
 
             <!-- Login option -->
-            <p class="text-center text-sm text-slate-400 mt-6">
-                Já é cadastrado?
-                <a th:href="@{/login}" class="text-brand-400 font-semibold hover:text-brand-300 hover:underline">Entre aqui</a>
-            </p>
+            <div class="text-center mt-6 space-y-3">
+                <p class="text-sm text-slate-400">
+                    Já é cadastrado?
+                    <a th:href="@{/login}" class="text-brand-400 font-semibold hover:text-brand-300 hover:underline">Entre aqui</a>
+                </p>
+                <p class="text-sm text-slate-500">
+                    Quer participar como atleta?
+                    <a th:href="@{/registrar}" class="text-orange-400 font-semibold hover:text-orange-300 hover:underline">Cadastre-se como Atleta</a>
+                </p>
+            </div>
         </div>
     </div>
 
