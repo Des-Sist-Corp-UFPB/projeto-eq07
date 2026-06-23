@@ -24,6 +24,9 @@ api:
     token:
       secret: "teste_secret"
 
+ors:
+  api-key: 
+
 logging:
   level:
     level:

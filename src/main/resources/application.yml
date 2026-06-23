@@ -26,6 +26,10 @@ api:
       # Permite injetar um secret forte em produção. Se não houver, usa o padrão.
       secret: ${API_SECURITY_TOKEN_SECRET:teste_secret}
 
+ors:
+  api-key: ${ORS_API_KEY:""}
+  base-url: ${ORS_BASE_URL:https://api.openrouteservice.org}
+
 management:
   endpoints:
     web:
