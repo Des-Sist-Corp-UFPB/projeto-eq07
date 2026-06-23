@@ -88,6 +88,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/*", "/user/*/profile").permitAll()
                         .requestMatchers("/ping", "/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/corridas", "/corridas/**", "/api/geo/search").permitAll()
+                        .requestMatchers("/organizacao/*/corridas/**").hasRole("ORGANIZADOR")
                         .requestMatchers("/login", "/registrar", "/registrar/organizador", "/organizacao/*", "/css/**", "/js/**", "/images/**", 
                                                     "/webjars/**", "/manifest.json", "/sw.js", "/corrida.ico"
                                                 ).permitAll()
