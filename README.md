@@ -192,6 +192,13 @@ docker compose -f docker/docker-compose.dev.yml down -v
 docker compose -f docker/docker-compose.dev.yml up postgres
 ```
 
+## Environment Setup
+
+| Variable | Required | Purpose | Where to obtain |
+|---|---|---|---|
+| `ORS_API_KEY` | Yes | Route calculation and address geocoding via OpenRouteService | https://openrouteservice.org/dev/#/signup |
+| `ORS_BASE_URL` | No | ORS base URL (defaults to production) | Leave blank unless using a self-hosted instance |
+
 ---
 
 ## Testes

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${corrida.nome} + ' — Details — Corrida DSC'">Detalhes da Corrida — Corrida DSC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" th:href="@{/corrida.ico}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            400: '#fb923c', 500: '#f97316',
+                            600: '#ea580c', 700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn      { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <div th:replace="~{fragments/sidebar :: sidebar('corridas')}"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="md:ml-[260px] min-h-screen pb-24 md:pb-0">
+
+        <!-- Mobile top bar -->
+        <div class="md:hidden flex items-center justify-between px-5 pt-5 pb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center glow-orange">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-5 h-5 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                    </svg>
+                </div>
+                <span class="text-sm font-extrabold tracking-tight text-white">CORRIDA <span class="text-brand-500">DSC</span></span>
+            </div>
+        </div>
+
+        <div class="px-5 md:px-8 py-6 md:py-10 max-w-4xl mx-auto space-y-8">
+            <!-- Back Button -->
+            <a th:href="@{/corridas}" class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
+                Voltar para lista
+            </a>
+
+            <!-- Header Info Card -->
+            <div class="bg-slate-900/60 border border-slate-850 rounded-3xl overflow-hidden glow-card">
+                <!-- Banner Image -->
+                <div class="relative h-64 md:h-80 w-full bg-slate-800 flex items-center justify-center">
+                    <img th:if="${corrida.bannerUrl != null && !corrida.bannerUrl.empty}" th:src="${corrida.bannerUrl}" alt="Banner da Corrida" class="absolute inset-0 w-full h-full object-cover" />
+                    <div th:unless="${corrida.bannerUrl != null && !corrida.bannerUrl.empty}" class="absolute inset-0 bg-gradient-to-br from-slate-900 via-brand-950 to-orange-950 opacity-95"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+
+                    <!-- Left bottom name overlay -->
+                    <div class="absolute bottom-6 left-6 right-6">
+                        <span class="bg-brand-600 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg glow-btn uppercase tracking-wider mb-2 inline-block" th:text="${corrida.categoria}">C5K</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight" th:text="${corrida.nome}">Corrida Exemplo</h1>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Details column (Left 2 cols) -->
+                    <div class="md:col-span-2 space-y-6">
+                        <div class="space-y-3">
+                            <h2 class="text-lg font-bold text-white uppercase tracking-wider text-xs text-brand-400">Descrição do Evento</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed whitespace-pre-line" th:text="${corrida.descricao}">Lorem ipsum dolor sit amet...</p>
+                        </div>
+
+                        <!-- Route info cards -->
+                        <div class="space-y-4 pt-4 border-t border-slate-800/80">
+                            <h2 class="text-lg font-bold text-white uppercase tracking-wider text-xs text-brand-400">Informações da Rota</h2>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-slate-950/50 border border-slate-850 p-4 rounded-2xl text-center">
+                                    <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Distância</span>
+                                    <span class="text-lg md:text-xl font-extrabold text-white" th:text="${corrida.distanciaKm != null} ? ${corrida.distanciaKm} + ' km' : '--'">--</span>
+                                </div>
+                                <div class="bg-slate-950/50 border border-slate-850 p-4 rounded-2xl text-center">
+                                    <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Duração Est.</span>
+                                    <span class="text-lg md:text-xl font-extrabold text-white" th:text="${corrida.duracaoEstimadaMin != null} ? ${corrida.duracaoEstimadaMin} + ' min' : '--'">--</span>
+                                </div>
+                                <div class="bg-slate-950/50 border border-slate-850 p-4 rounded-2xl text-center">
+                                    <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Inscrições</span>
+                                    <span class="text-lg md:text-xl font-extrabold text-white" th:text="${corrida.maxInscricoes != null} ? ${corrida.maxInscricoes} : 'Ilimitado'">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Benefits -->
+                        <div class="space-y-3 pt-4 border-t border-slate-800/80" th:if="${corrida.beneficios != null && !corrida.beneficios.isEmpty()}">
+                            <h2 class="text-lg font-bold text-white uppercase tracking-wider text-xs text-brand-400">O que está incluso no kit</h2>
+                            <div class="flex flex-wrap gap-2">
+                                <span th:each="beneficio : ${corrida.beneficios}" class="bg-slate-950/60 border border-slate-850 text-slate-300 font-bold text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-brand-500">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span th:text="${beneficio}">AGUA</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Leaflet map -->
+                        <div class="space-y-3 pt-4 border-t border-slate-800/80">
+                            <h2 class="text-lg font-bold text-white uppercase tracking-wider text-xs text-brand-400">Mapa do Percurso</h2>
+                            <div id="map-detail" class="h-80 w-full rounded-2xl border border-slate-800 shadow-inner overflow-hidden z-10"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right panel column (Sticky summary & actions) -->
+                    <div class="space-y-6">
+                        <div class="bg-slate-950/60 border border-slate-850 p-6 rounded-2xl space-y-4 md:sticky md:top-6">
+                            <div class="border-b border-slate-800/80 pb-4">
+                                <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Organizador</span>
+                                <a th:href="@{|/organizacao/${corrida.organization.id}|}" class="text-sm font-bold text-white hover:text-brand-400 transition-colors block" th:text="${corrida.organization.name}">Nome da Organização</a>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 text-sm">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-brand-500 flex-shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 leading-none">Data do Evento</p>
+                                        <p class="font-semibold text-slate-200 mt-0.5" th:text="${#temporals.format(corrida.dataInicio, 'dd/MM/yyyy')}">25/12/2026</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3 text-sm">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-brand-500 flex-shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 leading-none">Horário de Largada</p>
+                                        <p class="font-semibold text-slate-200 mt-0.5" th:text="${#temporals.format(corrida.dataInicio, 'HH:mm')}">06:00</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3 text-sm">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-brand-500 flex-shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1 1 15 0Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs text-slate-500 leading-none">Endereço de Largada</p>
+                                        <p class="font-semibold text-slate-200 mt-0.5 truncate" th:text="${corrida.largadaEndereco}" th:title="${corrida.largadaEndereco}">Endereço de Largada</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-800/80 flex flex-col gap-1">
+                                <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider">Valor do Evento</span>
+                                <span class="text-2xl font-extrabold text-white" th:text="${corrida.valorInscricao != null && corrida.valorInscricao > 0} ? 'R$ ' + ${corrida.valorInscricao} : 'Grátis'">R$ 80,00</span>
+                            </div>
+
+                            <!-- Enrollment placeholder section -->
+                            <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
+                                <button disabled title="Em breve" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm opacity-50 cursor-not-allowed glow-btn flex items-center justify-center gap-2">
+                                    Inscrever-se
+                                </button>
+                                <span class="bg-brand-500/20 text-brand-400 border border-brand-500/30 font-extrabold text-xs px-3 py-2 rounded-xl uppercase tracking-wider">Em breve</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            const geojsonStr = [[${corrida.rotaGeoJson}]];
+            const largadaLat = [[${corrida.largadaLat}]];
+            const largadaLng = [[${corrida.largadaLng}]];
+            const chegadaLat = [[${corrida.chegadaLat}]];
+            const chegadaLng = [[${corrida.chegadaLng}]];
+
+            if (largadaLat && largadaLng) {
+                const map = L.map('map-detail').setView([largadaLat, largadaLng], 14);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(map);
+
+                const startIcon = L.divIcon({
+                    className: 'bg-emerald-500 border-2 border-slate-950 rounded-full w-4.5 h-4.5 shadow-lg flex items-center justify-center font-bold text-[8px] text-white',
+                    html: 'L',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+
+                const endIcon = L.divIcon({
+                    className: 'bg-rose-500 border-2 border-slate-950 rounded-full w-4.5 h-4.5 shadow-lg flex items-center justify-center font-bold text-[8px] text-white',
+                    html: 'C',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+
+                L.marker([largadaLat, largadaLng], { icon: startIcon }).bindPopup('Largada: ' + [[${corrida.largadaEndereco}]]).addTo(map);
+                L.marker([chegadaLat, chegadaLng], { icon: endIcon }).bindPopup('Chegada: ' + [[${corrida.chegadaEndereco}]]).addTo(map);
+
+                if (geojsonStr) {
+                    try {
+                        const geojsonData = JSON.parse(geojsonStr);
+                        const geojsonLayer = L.geoJSON(geojsonData, {
+                            style: {
+                                color: '#ea580c',
+                                weight: 5,
+                                opacity: 0.85
+                            }
+                        }).addTo(map);
+                        
+                        map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30] });
+                    } catch (e) {
+                        console.error("Erro ao processar GeoJSON de rota", e);
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>
