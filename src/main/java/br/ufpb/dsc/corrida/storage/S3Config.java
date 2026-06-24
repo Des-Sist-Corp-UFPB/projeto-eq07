@@ -10,6 +10,8 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
+import software.amazon.awssdk.services.s3.S3Configuration;
+
 @Configuration
 public class S3Config {
 
@@ -27,18 +29,23 @@ public class S3Config {
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(s3Properties.getAccessKey(), s3Properties.getSecretKey())
                 ))
-                .forcePathStyle(true) // Obrigatório para o MinIO
+                .forcePathStyle(true) 
                 .build();
     }
 
     @Bean
     public S3Presigner s3Presigner() {
+        S3Configuration serviceConfiguration = S3Configuration.builder()
+                .pathStyleAccessEnabled(true)
+                .build();
+
         return S3Presigner.builder()
                 .endpointOverride(URI.create(s3Properties.getPublicEndpoint()))
                 .region(Region.of(s3Properties.getRegion()))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(s3Properties.getAccessKey(), s3Properties.getSecretKey())
                 ))
+                .serviceConfiguration(serviceConfiguration)
                 .build();
     }
 }

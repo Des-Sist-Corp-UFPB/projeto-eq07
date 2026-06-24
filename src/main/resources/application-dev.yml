@@ -26,7 +26,7 @@ api:
 
 logging:
   level:
-    level:
     root: INFO
+    br.ufpb.dsc.corrida: DEBUG
     org.springframework.web: DEBUG
     org.thymeleaf: TRACE

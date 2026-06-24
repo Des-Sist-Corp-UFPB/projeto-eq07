@@ -220,7 +220,8 @@ docker compose -f docker/docker-compose.dev.yml --profile scan up trivy
 mvn versions:display-dependency-updates -Pversions
 ```
 
-Veja `docs/SECURITY.md` para detalhes.
+Veja `docs/SECURITY.md` para detalhes de segurança.
+Veja `docs/STORAGE_MINIO.md` para instruções sobre upload e gerenciamento de arquivos (fotos/documentos) usando o MinIO (AWS S3).
 
 ---
 

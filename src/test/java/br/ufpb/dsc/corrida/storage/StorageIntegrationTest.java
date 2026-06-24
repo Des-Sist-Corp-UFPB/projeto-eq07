@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 class StorageIntegrationTest {
 
-    // Testcontainers: Sobe um container MinIO real para os testes de integração do S3
+    // Testcontainers: Sobe um container MinIO  para os testes de integração do S3
     @Container
     static MinIOContainer minioContainer = new MinIOContainer("minio/minio:RELEASE.2023-09-04T19-57-37Z")
             .withUserName("eq07")
@@ -51,14 +51,14 @@ class StorageIntegrationTest {
 
     @Test
     void testFullS3UploadDownloadAndDeleteFlow() {
-        // 1. Upload
+        
         MultipartFile file = new MockMultipartFile("file", "test-integration.txt", "text/plain", "dados de integracao s3".getBytes());
         String generatedName = storageService.upload(file);
         
         assertNotNull(generatedName);
         assertTrue(generatedName.contains("test-integration.txt"));
 
-        // 2. Geração da URL assinada (Presigned URL)
+        // 2. Geração da URL (Presigned URL)
         String presignedUrl = storageService.getPresignedUrl(generatedName);
         assertNotNull(presignedUrl);
         assertTrue(presignedUrl.contains(generatedName));
