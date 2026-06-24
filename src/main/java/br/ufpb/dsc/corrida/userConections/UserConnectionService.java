@@ -1,6 +1,7 @@
 package br.ufpb.dsc.corrida.userConections;
 
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
+import br.ufpb.dsc.corrida.storage.StorageService;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;
 import br.ufpb.dsc.corrida.user.UserRepository;
 import br.ufpb.dsc.corrida.userConections.dto.SolicitacaoConexaoDTO;
@@ -26,6 +27,9 @@ public class UserConnectionService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private StorageService storageService;
 
     @Transactional
     public UserConnection sendConnectionRequest(Long requesterId, Long receiverId) {
@@ -104,9 +108,12 @@ public class UserConnectionService {
         List<UserConnection> pending = userConnectionRepository.findByReceiverIdAndStatusOrderByCreatedAtDesc(userId, null);
         return pending.stream().map(conn -> {
             User req = conn.getRequester();
-            String foto = userInfoRepository.findByUsuarioId(req.getId())
+            String fotoKey = userInfoRepository.findByUsuarioId(req.getId())
                     .map(UserInfo::getFotoPerfil)
                     .orElse(null);
+            String foto = (fotoKey != null && !fotoKey.isBlank())
+                    ? storageService.getPresignedUrl(fotoKey)
+                    : null;
             return new SolicitacaoConexaoDTO(
                     conn.getId(),
                     req.getId(),

@@ -30,6 +30,17 @@ public record UserInfoRespostaDTO(
      * @param userInfo entidade a ser mapeada
      */
     public UserInfoRespostaDTO(UserInfo userInfo) {
+        this(userInfo, userInfo.getFotoPerfil());
+    }
+
+    /**
+     * Construtor que permite injetar uma URL customizada para a foto de perfil.
+     * Útil quando usamos presigned URLs do S3.
+     *
+     * @param userInfo entidade a ser mapeada
+     * @param fotoPerfilUrl URL da foto (presigned) ou nome do arquivo
+     */
+    public UserInfoRespostaDTO(UserInfo userInfo, String fotoPerfilUrl) {
         this(
                 userInfo.getId(),
                 userInfo.getUsuario().getId(),
@@ -38,7 +49,7 @@ public record UserInfoRespostaDTO(
                 userInfo.getGenero(),
                 userInfo.getTotalKmRun(),
                 userInfo.getDataNasc(),
-                userInfo.getFotoPerfil(),
+                fotoPerfilUrl,
                 userInfo.getNivelCondicionamento(),
                 userInfo.getNotasMedicas(),
                 userInfo.getCriadoEm(),
