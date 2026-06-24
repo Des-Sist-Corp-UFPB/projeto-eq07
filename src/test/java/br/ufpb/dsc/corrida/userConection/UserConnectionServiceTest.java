@@ -6,6 +6,7 @@ import br.ufpb.dsc.corrida.userConections.UserConnectionRepository;
 import br.ufpb.dsc.corrida.userConections.UserConnectionService;
 import br.ufpb.dsc.corrida.userConections.dto.SolicitacaoConexaoDTO;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
+import br.ufpb.dsc.corrida.storage.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,9 @@ class UserConnectionServiceTest {
 
     @Mock
     private UserInfoRepository userInfoRepository;
+
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private UserConnectionService userConnectionService;
@@ -300,16 +304,19 @@ class UserConnectionServiceTest {
 
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info1));
         when(userInfoRepository.findByUsuarioId(3L)).thenReturn(Optional.of(info2));
+        
+        when(storageService.getPresignedUrl("photo1.jpg")).thenReturn("url-1");
+        when(storageService.getPresignedUrl("photo2.jpg")).thenReturn("url-2");
 
         List<SolicitacaoConexaoDTO> list = userConnectionService.getPendingRequestsList(2L);
 
         assertThat(list).hasSize(2);
         assertThat(list.get(0).id()).isEqualTo(101L);
         assertThat(list.get(0).requesterId()).isEqualTo(3L);
-        assertThat(list.get(0).foto()).isEqualTo("photo2.jpg");
+        assertThat(list.get(0).foto()).isEqualTo("url-2");
 
         assertThat(list.get(1).id()).isEqualTo(100L);
         assertThat(list.get(1).requesterId()).isEqualTo(1L);
-        assertThat(list.get(1).foto()).isEqualTo("photo1.jpg");
+        assertThat(list.get(1).foto()).isEqualTo("url-1");
     }
 }

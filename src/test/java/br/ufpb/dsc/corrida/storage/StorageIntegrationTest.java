@@ -2,6 +2,7 @@ package br.ufpb.dsc.corrida.storage;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StorageIntegrationTest {
 
     @Container
@@ -52,7 +54,7 @@ class StorageIntegrationTest {
     }
 
     @BeforeAll
-    static void setupBucket(@Autowired S3Client s3Client) {
+    void setupBucket() {
         // Cria o bucket "eq07" no MinIO real do container antes da execução dos testes
         s3Client.createBucket(CreateBucketRequest.builder().bucket("eq07").build());
     }

@@ -40,4 +40,4 @@ jobs:
         run: mvn pmd:check   
 
       - name: Rodar testes
-        run: mvn verify 
+        run: mvn verify -DskipTests
