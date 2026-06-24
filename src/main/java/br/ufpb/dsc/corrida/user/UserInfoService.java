@@ -6,20 +6,14 @@ import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
+import br.ufpb.dsc.corrida.storage.StorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 
 /**
@@ -38,8 +32,8 @@ public class UserInfoService {
     @Autowired
     private UserRepository usuarioRepository;
 
-    @Value("${app.upload.dir:uploads/perfil/}")
-    private String uploadDir;
+    @Autowired
+    private StorageService storageService;
 
     /**
      * Cria um novo registro de informações para um corredor.
@@ -87,7 +81,7 @@ public class UserInfoService {
 
         var salvo = userInfoRepository.save(userInfo);
         log.info("UserInfo criado com sucesso para usuarioId={}", dto.usuarioId());
-        return new UserInfoRespostaDTO(salvo);
+        return toDto(salvo);
     }
 
     /**
@@ -105,7 +99,7 @@ public class UserInfoService {
                 .orElseThrow(() -> new UserInfoNaoEncontradoException(
                         "Informações de corredor não encontradas para o usuário com ID: " + usuarioId));
 
-        return new UserInfoRespostaDTO(userInfo);
+        return toDto(userInfo);
     }
 
     /**
@@ -154,7 +148,7 @@ public class UserInfoService {
 
         var atualizado = userInfoRepository.save(userInfo);
         log.info("UserInfo atualizado com sucesso para usuarioId={}", usuarioId);
-        return new UserInfoRespostaDTO(atualizado);
+        return toDto(atualizado);
     }
 
     /**
@@ -178,42 +172,28 @@ public class UserInfoService {
             throw new IllegalArgumentException("O arquivo de imagem não pode estar vazio");
         }
 
-        try {
-            // Criar o diretório se não existir
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // Gerar nome de arquivo único
-            String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-            String extension = "";
-            int i = originalFileName.lastIndexOf('.');
-            if (i > 0) {
-                extension = originalFileName.substring(i);
-            }
-
-            String fileName = UUID.randomUUID().toString() + extension;
-            Path filePath = uploadPath.resolve(fileName);
-
-            // Salvar no disco
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Atualizar entidade com o path relativo (estático)
-            String urlPath = "/uploads/perfil/" + fileName;
-            userInfo.setFotoPerfil(urlPath);
-            var atualizado = userInfoRepository.save(userInfo);
-
-            log.info("Foto de perfil salva com sucesso para usuarioId={}. Arquivo: {}", usuarioId, urlPath);
-            return new UserInfoRespostaDTO(atualizado);
-
-        } catch (IOException e) {
-            log.error("Erro ao salvar o arquivo de foto de perfil", e);
-            throw new RuntimeException("Não foi possível salvar a imagem. Tente novamente mais tarde.", e);
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.equals("image/jpeg") && !contentType.equals("image/png") && !contentType.equals("image/webp"))) {
+            throw new IllegalArgumentException("Tipo de arquivo não suportado. Envie apenas imagens (JPEG, PNG ou WEBP).");
         }
+
+        String fileName = storageService.upload(file);
+        userInfo.setFotoPerfil(fileName);
+        var atualizado = userInfoRepository.save(userInfo);
+
+        log.info("Foto de perfil salva com sucesso para usuarioId={}. Arquivo: {}", usuarioId, fileName);
+        return toDto(atualizado);
     }
 
-    // ─── Helpers de validação ───────────────────────────────────────────────
+    // ─── Helpers de validação e mapeamento ─────────────────────────────────
+
+    private UserInfoRespostaDTO toDto(UserInfo userInfo) {
+        String url = userInfo.getFotoPerfil();
+        if (url != null && !url.isBlank()) {
+            url = storageService.getPresignedUrl(url);
+        }
+        return new UserInfoRespostaDTO(userInfo, url);
+    }
 
     private void validarPeso(Float peso) {
         if (peso == null || peso <= 0) {
