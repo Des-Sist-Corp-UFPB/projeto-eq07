@@ -32,7 +32,7 @@ services:
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev"]
+      test: [ "CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -82,6 +82,35 @@ services:
       - corridas-net
 
   # ---------------------------------------------------------------------------
+  # MinIO: Object Storage S3 compatível
+  # Console Web: http://localhost:9001
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-dev-data:/data
+    networks:
+      - corridas-net
+
+  # Container temporário para criar o bucket "eq07" automaticamente
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " sleep 5; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb myminio/eq07 || true; /usr/bin/mc anonymous set public myminio/eq07; exit 0; "
+    networks:
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
   # Trivy: scanner de vulnerabilidades (roda e sai — profile: scan)
   # Uso: docker compose -f docker/docker-compose.dev.yml --profile scan up trivy
   # ---------------------------------------------------------------------------
@@ -101,6 +130,7 @@ volumes:
   postgres-dev-data:
   maven-cache:
   trivy-cache:
+  minio-dev-data:
 
 networks:
   corridas-net:
