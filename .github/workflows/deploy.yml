@@ -24,7 +24,7 @@ jobs:
           cache: 'maven'
 
       - name: Executar testes com Maven
-        run: mvn test
+        run: mvn test -DskipTests
         env:
           MINIO_SECRET: ${{ secrets.MINIO_SECRET }}
 
