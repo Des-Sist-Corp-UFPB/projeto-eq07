@@ -24,8 +24,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Executar testes com Maven
-        run: mvn test
+      - name: Compilar e Executar testes com Maven
+        run: mvn clean package
         env:
           MINIO_SECRET: ${{ secrets.MINIO_SECRET }}
 
