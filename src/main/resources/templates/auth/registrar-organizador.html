@@ -73,9 +73,14 @@
                     <span th:text="${error}"></span>
                 </div>
                 
-                <div th:if="${erros != null and not #lists.isEmpty(erros)}">
-                    <ul class="list-disc pl-3">
-                        <li th:each="err : ${erros}" th:text="${err}"></li>
+                <div th:if="${erros != null}" class="mb-5 bg-red-950/40 border border-red-500/50 text-red-200 p-4 rounded-xl text-xs">
+                    <p class="font-bold mb-2">Corrija os campos abaixo:</p>
+
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li th:each="erro : ${erros}">
+                            <span th:text="${erro.field}"></span>:
+                            <span th:text="${erro.defaultMessage}"></span>
+                        </li>
                     </ul>
                 </div>
 

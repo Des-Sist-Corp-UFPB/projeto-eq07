@@ -32,7 +32,8 @@ audit:
     collection-name: ${AUDIT_MONGODB_COLLECTION_NAME:audit_logs_dev}
 
 ors:
-  api-key: 
+  api-key: ${ORS_API_KEY:eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMzMGZjNjY1ZjgyYTQyN2Y5MDA3M2UxMzQyNzMxMzVlIiwiaCI6Im11cm11cjY0In0=}
+  base-url: ${ORS_BASE_URL:https://api.openrouteservice.org} 
 
 logging:
   level:

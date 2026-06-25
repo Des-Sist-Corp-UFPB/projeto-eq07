@@ -44,6 +44,7 @@ public class OrganizerViewController {
             Model model) {
         
         if (bindingResult.hasErrors()) {
+            model.addAttribute("erros", bindingResult.getFieldErrors());
             model.addAttribute("organizadorStep1", completoDTO.step1());
             model.addAttribute("organizadorStep2", completoDTO.step2());
             return "auth/registrar-organizador";
@@ -53,11 +54,13 @@ public class OrganizerViewController {
             organizerService.registrarOrganizador(completoDTO);
             return "redirect:/login?success=true";
         } catch (IllegalArgumentException e) {
+            System.out.println(e);
             model.addAttribute("error", e.getMessage());
             model.addAttribute("organizadorStep1", completoDTO.step1());
             model.addAttribute("organizadorStep2", completoDTO.step2());
             return "auth/registrar-organizador";
         } catch (Exception e) {
+            System.out.println(e);
             model.addAttribute("error", "Ocorreu um erro inesperado. Tente novamente.");
             model.addAttribute("organizadorStep1", completoDTO.step1());
             model.addAttribute("organizadorStep2", completoDTO.step2());
