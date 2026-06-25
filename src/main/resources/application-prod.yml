@@ -37,3 +37,4 @@ aws:
     bucket: eq07
     access-key: eq07
     secret-key: ${MINIO_SECRET}
+
