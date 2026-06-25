@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.userConections;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;
 import br.ufpb.dsc.corrida.user.UserRepository;
@@ -28,6 +29,7 @@ public class UserConnectionService {
     private UserInfoRepository userInfoRepository;
 
     @Transactional
+    @Auditable(action = "SEND_CONNECTION", resource = "CONECTION")
     public UserConnection sendConnectionRequest(Long requesterId, Long receiverId) {
         if (requesterId.equals(receiverId)) {
             throw new IllegalArgumentException("Não é possível conectar-se a si mesmo.");
@@ -63,6 +65,7 @@ public class UserConnectionService {
     }
 
     @Transactional
+    @Auditable(action = "ACCEPT_CONNECTION", resource = "CONECTION")
     public UserConnection acceptConnectionRequest(Long requestId, Long receiverId) {
         UserConnection connection = userConnectionRepository.findById(requestId)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Solicitação de conexão não encontrada."));
@@ -76,6 +79,7 @@ public class UserConnectionService {
     }
 
     @Transactional
+    @Auditable(action = "DECLINE_CONNECTION", resource = "CONECTION")
     public UserConnection declineConnectionRequest(Long requestId, Long receiverId) {
         UserConnection connection = userConnectionRepository.findById(requestId)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Solicitação de conexão não encontrada."));
@@ -89,6 +93,7 @@ public class UserConnectionService {
     }
 
     @Transactional
+    @Auditable(action = "REMOVE_CONNECTION", resource = "CONECTION")
     public void removeConnection(Long requesterId, Long receiverId) {
         Optional<UserConnection> connectionOpt = userConnectionRepository.findConnectionBetweenUsers(requesterId, receiverId);
         connectionOpt.ifPresent(userConnectionRepository::delete);

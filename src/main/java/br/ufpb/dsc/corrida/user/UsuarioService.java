@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.user;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.config.security.TokenService;
 import br.ufpb.dsc.corrida.user.dto.EditarUsuarioDTO;
 import br.ufpb.dsc.corrida.user.dto.LoginDto;
@@ -46,6 +47,7 @@ public class UsuarioService {
         return tokenService.criarToken(usuario);
     }
 
+    @Auditable(action = "LOGIN", resource = "USER")
     public String login(LoginDto credenciais) {
         log.info("Iniciando serviço de login do usuário {}", credenciais.login());
         var token = new UsernamePasswordAuthenticationToken(credenciais.login(), credenciais.senha());
@@ -53,6 +55,7 @@ public class UsuarioService {
         return tokenService.criarToken((User) autenticacao.getPrincipal());
     }
 
+    @Auditable(action = "EDIT_USER", resource = "USER")
     public User editar(EditarUsuarioDTO dadosUsuario, Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         User usuarioLogado = (User) auth.getPrincipal();
@@ -64,6 +67,7 @@ public class UsuarioService {
         return usuario;
     }
 
+    @Auditable(action = "DELETE_USER", resource = "USER")
     public void deletar(Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         User usuarioLogado = (User) auth.getPrincipal();
@@ -72,6 +76,7 @@ public class UsuarioService {
         usuario.changeDeletado();
     }
 
+    
     public PerfilPublicoDTO buscarPerfilPublico(String username) {
         User usuario = repository.findByUsername(username);
         if (usuario == null) {

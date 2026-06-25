@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.user;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
@@ -59,6 +60,7 @@ public class UserInfoService {
      * @throws IllegalArgumentException       se peso ou altura forem inválidos (≤ 0)
      */
     @Transactional
+    @Auditable(action = "CREATE_USER_INFO", resource = "USER_INFO")
     public UserInfoRespostaDTO criar(CriarUserInfoDTO dto) {
         log.info("Iniciando criação de UserInfo para usuarioId={}", dto.usuarioId());
 
@@ -98,6 +100,7 @@ public class UserInfoService {
      * @throws UserInfoNaoEncontradoException se não há registro para o userId informado
      */
     @Transactional(readOnly = true)
+    @Auditable(action = "GET_USER_INFO", resource = "USER_INFO")
     public UserInfoRespostaDTO buscarPorUsuarioId(Long usuarioId) {
         log.info("Buscando UserInfo para usuarioId={}", usuarioId);
 
@@ -121,6 +124,7 @@ public class UserInfoService {
      * @throws IllegalArgumentException       se peso ou altura fornecidos forem ≤ 0
      */
     @Transactional
+    @Auditable(action = "UPDATE_USER_INFO", resource = "USER_INFO")
     public UserInfoRespostaDTO atualizar(Long usuarioId, AtualizarUserInfoDTO dto) {
         log.info("Atualizando UserInfo para usuarioId={}", usuarioId);
 
@@ -167,6 +171,7 @@ public class UserInfoService {
      * @throws RuntimeException se houver falha de I/O
      */
     @Transactional
+    @Auditable(action = "UPDATE_PROFILE_PHOTO", resource = "USER_INFO")
     public UserInfoRespostaDTO uploadFotoPerfil(Long usuarioId, MultipartFile file) {
         log.info("Iniciando upload de foto de perfil para usuarioId={}", usuarioId);
 

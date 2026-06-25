@@ -108,9 +108,9 @@ class UsuarioControllerTest {
     // Os testes cobrem o comportamento real desse endpoint.
     // ─────────────────────────────────────────────
 
-    @Test
-    @DisplayName("POST /user/registrar — retorna 200 com texto 'redirect:/login?success=true' no body ao registrar")
-    void registrar_deveRetornar200_comTextoRedirectNoBody() throws Exception {
+        @Test
+        @DisplayName("POST /user/registrar — redireciona para login ao registrar com sucesso")
+        void registrar_deveRedirecionarParaLogin_comSucesso() throws Exception {
         when(usuarioService.registrar(any(RegistrarUsuarioDTO.class))).thenReturn("token-ignorado");
 
         mockMvc.perform(post("/user/registrar")
@@ -120,15 +120,15 @@ class UsuarioControllerTest {
                         .param("username", "joaosilva")
                         .param("login", "joao@email.com")
                         .param("senha", "senha123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("redirect:/login?success=true"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?success=true"));
 
         verify(usuarioService).registrar(any(RegistrarUsuarioDTO.class));
-    }
+        }
 
     @Test
-    @DisplayName("POST /user/registrar — retorna 200 com texto 'auth/registrar' no body quando login já existe")
-    void registrar_deveRetornar200_comTextoViewNoBody_quandoLoginJaExiste() throws Exception {
+        @DisplayName("POST /user/registrar — retorna view de cadastro quando login já existe")
+        void registrar_deveRetornarViewCadastro_quandoLoginJaExiste() throws Exception {
         doThrow(new UsuarioJaExistenteException("Login já utilizado, tente outro"))
                 .when(usuarioService).registrar(any(RegistrarUsuarioDTO.class));
 
@@ -140,12 +140,13 @@ class UsuarioControllerTest {
                         .param("login", "joao@email.com")
                         .param("senha", "senha123"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("auth/registrar"));
-    }
+                .andExpect(view().name("auth/registrar"))
+                .andExpect(model().attribute("error", "Login já utilizado, tente outro"));
+        }
 
     @Test
-    @DisplayName("POST /user/registrar — retorna 200 com 'auth/registrar' no body quando campos inválidos (@Valid)")
-    void registrar_deveRetornar200_comTextoViewNoBody_quandoCamposInvalidos() throws Exception {
+        @DisplayName("POST /user/registrar — retorna view de cadastro quando campos inválidos")
+        void registrar_deveRetornarViewCadastro_quandoCamposInvalidos() throws Exception {
         mockMvc.perform(post("/user/registrar")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -154,10 +155,10 @@ class UsuarioControllerTest {
                         .param("login", "")
                         .param("senha", ""))
                 .andExpect(status().isOk())
-                .andExpect(content().string("auth/registrar"));
+                .andExpect(view().name("auth/registrar"));
 
         verify(usuarioService, never()).registrar(any());
-    }
+        }
 
     // ─────────────────────────────────────────────
     // PATCH /user/{id}

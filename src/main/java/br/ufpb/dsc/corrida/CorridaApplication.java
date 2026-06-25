@@ -2,9 +2,21 @@ package br.ufpb.dsc.corrida;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 
 @SpringBootApplication
+@EnableJpaRepositories(basePackages = {
+    "br.ufpb.dsc.corrida.user",
+    "br.ufpb.dsc.corrida.race",
+    "br.ufpb.dsc.corrida.organizer",
+    "br.ufpb.dsc.corrida.userConections"
+    // demais pacotes JPA
+})
+@EnableMongoRepositories(basePackages = {
+    "br.ufpb.dsc.corrida.audit"
+})
 public class CorridaApplication {
 
     public static void main(String[] args) {

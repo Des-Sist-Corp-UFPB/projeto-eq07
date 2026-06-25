@@ -18,11 +18,18 @@ spring:
     enabled: true
     # Localização dos scripts de migração SQL
     locations: classpath:db/migration
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb+srv://petersonsilva:P3tzMax123@cluster0.bxaqvcn.mongodb.net/Cluster0}
 
 api:
   security:
     token:
       secret: "teste_secret"
+
+audit:
+  mongodb:
+    collection-name: ${AUDIT_MONGODB_COLLECTION_NAME:audit_logs_dev}
 
 ors:
   api-key: 

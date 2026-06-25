@@ -80,7 +80,7 @@
             <!-- Bean-validation field errors (e.g., @NotBlank) -->
 
             <!-- Registration Form -->
-            <form th:action="@{/registrar}" th:object="${usuario}" method="post" class="space-y-4" novalidate>
+            <form th:action="@{/user/registrar}" th:object="${usuario}" method="post" class="space-y-4" novalidate>
 
                 <div th:if="${#fields.hasAnyErrors()}" th:object="${usuario}"
                     class="mb-5 bg-amber-950/40 border border-amber-500/50 text-amber-200 p-4 rounded-xl flex items-start space-x-3 text-sm">

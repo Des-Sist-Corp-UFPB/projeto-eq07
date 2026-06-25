@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.race;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.exception.CorridaNaoEncontradaException;
 import br.ufpb.dsc.corrida.exception.ExternalServiceException;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
@@ -66,6 +67,7 @@ public class CorridaService {
      * @throws ExternalServiceException     se o ORS não responder
      */
     @Transactional
+    @Auditable(action = "RACE_CREATED", resource = "Corrida")
     public Race criarCorrida(CriarCorridaDTO dto, Long organizationId, UserDetails usuarioLogado) {
         Organization org = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Organização não encontrada"));
@@ -114,6 +116,7 @@ public class CorridaService {
      * @throws IllegalStateException        se a corrida começa em menos de 24h
      */
     @Transactional
+    @Auditable(action = "RACE_UPDATED", resource = "Corrida")
     public Race editarCorrida(Long id, EditarCorridaDTO dto, UserDetails usuarioLogado) {
         Race race = raceRepository.findById(id)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
@@ -167,6 +170,7 @@ public class CorridaService {
     // =========================================================================
 
     @Transactional
+    @Auditable(action = "RACE_CANCELLED", resource = "Corrida")
     public void cancelarCorrida(Long id, UserDetails usuarioLogado) {
         Race race = raceRepository.findById(id)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));

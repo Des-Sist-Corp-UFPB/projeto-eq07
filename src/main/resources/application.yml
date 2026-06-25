@@ -19,6 +19,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/audit_db}
 
 api:
   security:
@@ -44,3 +47,7 @@ logging:
     # Corrigido de 'mercado' para o pacote real do seu projeto 'corrida'
     br.ufpb.dsc.corrida: DEBUG
     org.springframework.web: DEBUG
+
+audit:
+  mongodb:
+    collection-name: ${AUDIT_MONGODB_COLLECTION_NAME:audit_logs}

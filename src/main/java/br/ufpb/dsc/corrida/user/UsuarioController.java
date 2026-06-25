@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.ufpb.dsc.corrida.audit.AuditLogRepository;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
 import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
@@ -32,8 +32,9 @@ import br.ufpb.dsc.corrida.user.dto.UsuarioResposta;
 import br.ufpb.dsc.corrida.userConections.UserConnectionService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 
-@RestController
+@Controller
 @RequestMapping("/user")
 public class UsuarioController {
     
@@ -46,13 +47,14 @@ public class UsuarioController {
     @Autowired
     private UserConnectionService userConnectionService;
 
+    @Autowired
+    private AuditLogRepository auditLogRepository;
+
     @PostMapping("/registrar")
     public String registrarUsuario(@ModelAttribute("usuario") @Valid RegistrarUsuarioDTO usuarioDTO, BindingResult bindingResult, Model model) {
-
         if (bindingResult.hasErrors()) {
             return "auth/registrar";
         }
-
         try {
             service.registrar(usuarioDTO);
             return "redirect:/login?success=true";

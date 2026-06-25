@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.organizer.dto.RegistrarOrganizadorCompletoDTO;
 import br.ufpb.dsc.corrida.user.Papel;
 import br.ufpb.dsc.corrida.user.User;
@@ -24,6 +25,7 @@ public class OrganizerService {
     private OrganizationRepository organizationRepository;
 
     @Transactional
+    @Auditable(action = "REGISTER_ORGANIZER", resource = "ORGANIZER")
     public User registrarOrganizador(RegistrarOrganizadorCompletoDTO dto) {
         if (userRepository.existsByLogin(dto.step1().login())) {
             throw new IllegalArgumentException("Login já utilizado, tente outro");
