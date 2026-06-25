@@ -11,7 +11,7 @@
 #          NUNCA use em produção.
 # =============================================================================
 
-FROM maven:3.9.9-eclipse-temurin-21 AS dev
+FROM maven:3.9.9-eclipse-temurin-22 AS dev
 
 WORKDIR /app
 
