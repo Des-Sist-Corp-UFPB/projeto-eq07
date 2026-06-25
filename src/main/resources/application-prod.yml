@@ -11,6 +11,11 @@ spring:
     show-sql: false
   flyway:
     enabled: true
+    
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI}
+      auto-index-creation: true
 
 management:
   endpoints:
