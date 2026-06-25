@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/auditoria")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMINISTRADOR')")
 public class AuditController {
 
     private final AuditLogRepository auditLogRepository;
