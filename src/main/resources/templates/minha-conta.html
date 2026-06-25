@@ -419,7 +419,6 @@
                 altura: parseFloat(document.getElementById('altura').value),
                 genero: document.getElementById('genero').value || null,
                 dataNasc: document.getElementById('dataNasc').value || null,
-                fotoPerfil: base64Foto || null,
                 nivelCondicionamento: document.getElementById('nivelCondicionamento').value || null,
                 notasMedicas: document.getElementById('notasMedicas').value.trim() || null
             };
@@ -444,6 +443,26 @@
                 });
 
                 if (response.ok) {
+                    const fileInput = document.getElementById('fotoPerfil');
+                    if (fileInput.files.length > 0) {
+                        const formData = new FormData();
+                        formData.append('file', fileInput.files[0]);
+                        const uploadResp = await fetch(`/user/userInfo/${USUARIO_ID}/foto-perfil`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (!uploadResp.ok) {
+                            showToast('Perfil salvo, mas erro ao fazer upload da foto.', false);
+                            btn.disabled = false;
+                            btn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/>
+                            </svg>
+                            Salvar Perfil`;
+                            return;
+                        }
+                    }
+
                     showToast('Perfil salvo com sucesso! 🎉', true);
                     // Remove missing profile banner if it existed
                     const banner = document.getElementById('alert-missing');

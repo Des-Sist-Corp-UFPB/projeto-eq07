@@ -8,6 +8,7 @@ import br.ufpb.dsc.corrida.user.dto.EditarUsuarioDTO;
 import br.ufpb.dsc.corrida.user.dto.LoginDto;
 import br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO;
 import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
+import br.ufpb.dsc.corrida.storage.StorageService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,6 +46,9 @@ class UsuarioServiceTest {
 
     @Mock
     private TokenService tokenService;
+
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private UsuarioService service;
@@ -319,10 +323,11 @@ class UsuarioServiceTest {
 
         when(repository.findByUsername("joaosilva")).thenReturn(usuarioMock);
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(userInfo));
+        when(storageService.getPresignedUrl("/uploads/foto.png")).thenReturn("url-presigned");
 
         PerfilPublicoDTO resultado = service.buscarPerfilPublico("joaosilva");
 
-        assertThat(resultado.fotoPerfil()).isEqualTo("/uploads/foto.png");
+        assertThat(resultado.fotoPerfil()).isEqualTo("url-presigned");
         assertThat(resultado.totalKmRun()).isEqualTo(42.5f);
     }
 

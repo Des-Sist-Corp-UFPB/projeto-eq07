@@ -32,7 +32,7 @@ services:
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev"]
+      test: [ "CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,6 +42,7 @@ services:
   # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
   # ---------------------------------------------------------------------------
+
   app:
     build:
       context: ..
@@ -52,20 +53,25 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
       SPRING_DATASOURCE_USERNAME: corridasdb
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      # ADICIONE ESTAS VARIÁVEIS AQUI:
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET: minioadmin
+      MINIO_BUCKET: eq07
     ports:
       - "8080:8080"
       - "5005:5005"
     volumes:
-      # Monta o código-fonte para hot-reload
       - ../src:/app/src
-      # Persistir dependências Maven (evita re-download a cada restart)
       - maven-cache:/root/.m2
     depends_on:
       postgres:
         condition: service_healthy
+      minio: # Adicione isso para garantir que o MinIO suba antes
+        condition: service_started
     networks:
       - corridas-net
-
+      
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
@@ -78,6 +84,35 @@ services:
       - "8888:8080"
     depends_on:
       - postgres
+    networks:
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
+  # MinIO: Object Storage S3 compatível
+  # Console Web: http://localhost:9001
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-dev-data:/data
+    networks:
+      - corridas-net
+
+  # Container temporário para criar o bucket "eq07" automaticamente
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " sleep 5; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb myminio/eq07 || true; /usr/bin/mc anonymous set public myminio/eq07; exit 0; "
     networks:
       - corridas-net
 
@@ -101,6 +136,7 @@ volumes:
   postgres-dev-data:
   maven-cache:
   trivy-cache:
+  minio-dev-data:
 
 networks:
   corridas-net:

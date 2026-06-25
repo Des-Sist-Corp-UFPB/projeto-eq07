@@ -37,10 +37,13 @@ services:
     container_name: eq07-app-prod
     pull_policy: always
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       # Ajustado para apontar para o banco eq07
       DATABASE_URL: ${DATABASE_URL}
-      DATABASE_USERNAME: ${DB_USERNAME}
-      DATABASE_PASSWORD: ${DB_PASSWORD}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      # MinIO/S3 — apenas o secret vem de variável de ambiente
+      MINIO_SECRET: ${MINIO_SECRET}
     ports:
       - "127.0.0.1:8107:8080"
     depends_on:

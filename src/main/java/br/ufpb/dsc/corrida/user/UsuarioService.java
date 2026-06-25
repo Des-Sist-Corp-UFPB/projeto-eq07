@@ -9,6 +9,7 @@ import br.ufpb.dsc.corrida.user.dto.RegistrarUsuarioDTO;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
+import br.ufpb.dsc.corrida.storage.StorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -75,8 +76,7 @@ public class UsuarioService {
         if (usuarioLogado.getPapel() == Papel.USUARIO && usuarioLogado.getId() != usuario.getId()) throw new AcessoNaoPermitidoException("Acesso negado para deleção de usuário");
         usuario.changeDeletado();
     }
-
-    
+  
     public PerfilPublicoDTO buscarPerfilPublico(String username) {
         User usuario = repository.findByUsername(username);
         if (usuario == null) {
@@ -89,7 +89,10 @@ public class UsuarioService {
         Float totalKmRun = 0.0f;
 
         if (userInfoOpt.isPresent()) {
-            fotoPerfil = userInfoOpt.get().getFotoPerfil();
+            String fotoKey = userInfoOpt.get().getFotoPerfil();
+            if (fotoKey != null && !fotoKey.isBlank()) {
+                fotoPerfil = storageService.getPresignedUrl(fotoKey);
+            }
             totalKmRun = userInfoOpt.get().getTotalKmRun();
         }
 

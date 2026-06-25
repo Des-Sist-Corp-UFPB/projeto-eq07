@@ -10,6 +10,7 @@ import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;
 import br.ufpb.dsc.corrida.user.UserInfoService;
 import br.ufpb.dsc.corrida.user.UserRepository;
+import br.ufpb.dsc.corrida.storage.StorageService;
 import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
@@ -44,6 +45,9 @@ class UserInfoServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private StorageService storageService;
+
     @InjectMocks
     private UserInfoService service;
 
@@ -54,8 +58,6 @@ class UserInfoServiceTest {
     void setUp() {
         usuario = mock(User.class);
         lenient().when(usuario.getId()).thenReturn(1L);
-
-        ReflectionTestUtils.setField(service, "uploadDir", "target/test-uploads/");
 
         dtoValido = new CriarUserInfoDTO(
                 1L,
@@ -272,7 +274,7 @@ class UserInfoServiceTest {
     // ─────────────────────────────────────────────
 
     @Test
-    @DisplayName("uploadFotoPerfil() — salva arquivo e atualiza url com sucesso")
+    @DisplayName("uploadFotoPerfil() — salva arquivo no StorageService e atualiza a entidade")
     void uploadFotoPerfil_deveSalvarComSucesso() throws IOException {
         UserInfo info = new UserInfo();
         info.setUsuario(usuario);
@@ -285,13 +287,16 @@ class UserInfoServiceTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "foto.png", "image/png", "dadosdaimagem".getBytes());
 
+        when(storageService.upload(any())).thenReturn("fake-uuid.png");
+        when(storageService.getPresignedUrl("fake-uuid.png"))
+                .thenReturn("http://minio/fake-uuid.png?token=123");
+
         UserInfoRespostaDTO resultado = service.uploadFotoPerfil(1L, file);
 
         assertThat(resultado).isNotNull();
-        assertThat(resultado.fotoPerfil()).isNotNull();
-        assertThat(resultado.fotoPerfil()).contains("/uploads/perfil/");
-        assertThat(resultado.fotoPerfil()).endsWith(".png");
+        assertThat(resultado.fotoPerfil()).isEqualTo("http://minio/fake-uuid.png?token=123");
 
+        verify(storageService).upload(file);
         verify(userInfoRepository).save(info);
     }
 }
