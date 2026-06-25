@@ -52,6 +52,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
       SPRING_DATASOURCE_USERNAME: corridasdb
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      SPRING_DATA_MONGODB_URI: mongodb+srv://admin:admin123@cluster0.idifbhy.mongodb.net/audit_db?appName=Cluster0
     ports:
       - "8080:8080"
       - "5005:5005"
