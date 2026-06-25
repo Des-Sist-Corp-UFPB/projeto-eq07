@@ -6,7 +6,7 @@
 | **Repositório** | https://github.com/des-sist-corp-ufpb/projeto-eq07 |
 | **Aplicação** | https://eq07.dsc.rodrigor.com |
 | **Período de atividade** | 2026-06-23 → 2026-06-25 |
-| **Total de commits** (sem merges, branch main) | 4 |
+| **Total de commits** (sem merges, branch main) | 5 |
 | **Integrantes** | Peterson William Da Silva Fernandes (@petersonwsf), Igino Medeiros De Oliveira (@IginoMedeiros) |
 
 ---
@@ -96,7 +96,7 @@
 | Aspecto | Status | Observação |
 |---------|--------|-----------|
 | Arquitetura em camadas | ✅ | controller=✅  service=✅  repository=✅ |
-| Testes automatizados | ✅ | 18 arquivo(s) de teste |
+| Testes automatizados | ✅ | 19 Java, 0 JS/TS, 0 Python |
 | Migrations versionadas | ✅ | 6 migration(s) |
 | Logging | ✅ | @Slf4j / LoggerFactory / logging.getLogger detectado |
 | Autenticação / Segurança | ✅ | Spring Security / JWT / decorator detectado |
@@ -114,12 +114,12 @@
 
 | Usuário | Commits (main) | Commits (GitHub API) | Linhas adicionadas | Linhas no código atual | % código atual |
 |---------|---------------|---------------------|-------------------|----------------------|----------------|
-| Peterson William Da Silva Fernandes (@petersonwsf) | 3 | **52** ⚠️ | 12.790 | 10.788 | 100% |
+| Peterson William Da Silva Fernandes (@petersonwsf) | 3 | **54** ⚠️ | 12.790 | 10.788 | 100% |
 | Igino Medeiros De Oliveira (@IginoMedeiros) | 0 | **11** ⚠️ | 0 | 0 | 0% |
-| *(sem login GitHub)* | 1 | 25% | — | — | — |
+| *(sem login GitHub)* | 2 | 40% | — | — | — |
 
 > **⚠️ Divergência entre commits locais e GitHub API:**
-> - **@petersonwsf**: 3 commit(s) na branch `main` vs **52** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
+> - **@petersonwsf**: 3 commit(s) na branch `main` vs **54** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
 > - **@IginoMedeiros**: 0 commit(s) na branch `main` vs **11** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
 >
 
