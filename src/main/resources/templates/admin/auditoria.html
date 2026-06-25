@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Logs de Auditoria - Admin</title>
+    <!-- WebJars Dependencies -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <script th:src="@{/webjars/htmx.org/dist/htmx.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    
+    <style>
+        body { background-color: #f8f9fa; }
+        .audit-card { border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .badge-method-GET { background-color: #6c757d; }
+        .badge-method-POST { background-color: #198754; }
+        .badge-method-PUT, .badge-method-PATCH { background-color: #0d6efd; }
+        .badge-method-DELETE { background-color: #dc3545; }
+        .status-failed { border-left: 4px solid #dc3545; }
+        .status-success { border-left: 4px solid #198754; }
+    </style>
+</head>
+<body>
+
+<div class="d-flex">
+    <!-- Renderiza a Sidebar padrão do sistema -->
+    <div th:replace="~{fragments/sidebar :: sidebar('auditoria')}"></div>
+
+    <div class="flex-grow-1 p-5" style="margin-left: 260px;"> <!-- Margin to offset fixed sidebar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Logs de Auditoria (Sistema de Segurança)</h2>
+        </div>
+
+        <div class="card audit-card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Operador</th>
+                            <th>IP</th>
+                            <th>Ação</th>
+                            <th>Recurso</th>
+                            <th>Método</th>
+                            <th class="text-end">Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log : ${logsPage.content}" th:class="${#strings.endsWith(log.action, '_FAILED')} ? 'status-failed' : 'status-success'">
+                            <td th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}">25/06/2026 14:00:00</td>
+                            <td th:text="${log.operator}">admin@email.com</td>
+                            <td><small class="text-muted" th:text="${log.ip}">127.0.0.1</small></td>
+                            <td>
+                                <span class="badge bg-dark" th:if="${!#strings.endsWith(log.action, '_FAILED')}" th:text="${log.action}">UPDATE</span>
+                                <span class="badge bg-danger" th:if="${#strings.endsWith(log.action, '_FAILED')}" th:text="${log.action}">UPDATE_FAILED</span>
+                            </td>
+                            <td th:text="${log.resource}">Corrida</td>
+                            <td>
+                                <span class="badge" th:classappend="'badge-method-' + ${log.httpMethod}" th:text="${log.httpMethod}">PUT</span>
+                            </td>
+                            <td class="text-end">
+                                <!-- Botão HTMX que busca os detalhes e joga no modal -->
+                                <button class="btn btn-sm btn-outline-primary"
+                                        hx-target="#auditModalBody"
+                                        hx-swap="innerHTML"
+                                        th:hx-get="@{/admin/auditoria/{id}/detalhes(id=${log.id})}"
+                                        data-bs-toggle="modal" data-bs-target="#auditModal">
+                                    Ver Detalhes
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${logsPage.empty}">
+                            <td colspan="7" class="text-center py-4 text-muted">Nenhum log de auditoria encontrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card-footer bg-white border-top-0 py-3" th:if="${logsPage.totalPages > 1}">
+                <ul class="pagination mb-0 justify-content-center">
+                    <li class="page-item" th:classappend="${logsPage.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/auditoria(page=${logsPage.number - 1})}">Anterior</a>
+                    </li>
+                    <li class="page-item disabled"><span class="page-link">Página [[${logsPage.number + 1}]] de [[${logsPage.totalPages}]]</span></li>
+                    <li class="page-item" th:classappend="${logsPage.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/auditoria(page=${logsPage.number + 1})}">Próxima</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bootstrap para exibir os detalhes do Log -->
+<div class="modal fade" id="auditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes da Auditoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light" id="auditModalBody">
+                <!-- O conteúdo será injetado aqui pelo HTMX -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
