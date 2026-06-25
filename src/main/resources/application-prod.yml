@@ -31,9 +31,10 @@ logging:
 # Apenas MINIO_SECRET vem de variável de ambiente (GitHub Actions secret)
 aws:
   s3:
-    endpoint: http://minio:9000
+    endpoint: https://s3.dsc.rodrigor.com
     public-endpoint: https://s3.dsc.rodrigor.com
     region: us-east-1
     bucket: eq07
     access-key: eq07
     secret-key: ${MINIO_SECRET}
+

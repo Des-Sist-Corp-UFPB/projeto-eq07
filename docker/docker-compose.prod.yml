@@ -42,18 +42,13 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      # MinIO/S3
-      MINIO_URL: ${MINIO_URL:-http://minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_SECRET: ${MINIO_SECRET:-minioadmin}
-      MINIO_BUCKET: ${MINIO_BUCKET:-eq07}
+      # MinIO/S3 — apenas o secret vem de variável de ambiente
+      MINIO_SECRET: ${MINIO_SECRET}
     ports:
       - "127.0.0.1:8107:8080"
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ping || exit 1"]
       interval: 30s
@@ -64,38 +59,8 @@ services:
     networks:
       - eq07-net
 
-  # ---------------------------------------------------------------------------
-  # MinIO: Object Storage S3 compatível
-  # ---------------------------------------------------------------------------
-  minio:
-    image: minio/minio:latest
-    container_name: eq07-minio-prod
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET:-minioadmin}
-    command: server /data --console-address ":9001"
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - eq07-minio-prod-data:/data
-    restart: unless-stopped
-    networks:
-      - eq07-net
-
-  # Container temporário para criar o bucket automaticamente
-  minio-setup:
-    image: minio/mc:latest
-    depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c " sleep 5; /usr/bin/mc config host add myminio http://minio:9000 $${MINIO_ACCESS_KEY:-minioadmin} $${MINIO_SECRET:-minioadmin}; /usr/bin/mc mb myminio/$${MINIO_BUCKET:-eq07} || true; /usr/bin/mc anonymous set public myminio/$${MINIO_BUCKET:-eq07}; exit 0; "
-    networks:
-      - eq07-net
-
 volumes:
   eq07-prod-data:
-  eq07-minio-prod-data:
 
 networks:
   eq07-net:

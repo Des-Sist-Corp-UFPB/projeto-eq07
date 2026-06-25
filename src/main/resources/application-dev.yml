@@ -33,3 +33,11 @@ logging:
     br.ufpb.dsc.corrida: DEBUG
     org.springframework.web: DEBUG
     org.thymeleaf: TRACE
+
+
+aws:
+  s3:
+    endpoint: ${MINIO_URL:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET:minioadmin}
+    bucket: ${MINIO_BUCKET:eq07}

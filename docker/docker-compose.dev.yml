@@ -42,6 +42,7 @@ services:
   # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
   # ---------------------------------------------------------------------------
+
   app:
     build:
       context: ..
@@ -52,20 +53,25 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
       SPRING_DATASOURCE_USERNAME: corridasdb
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      # ADICIONE ESTAS VARIÁVEIS AQUI:
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET: minioadmin
+      MINIO_BUCKET: eq07
     ports:
       - "8080:8080"
       - "5005:5005"
     volumes:
-      # Monta o código-fonte para hot-reload
       - ../src:/app/src
-      # Persistir dependências Maven (evita re-download a cada restart)
       - maven-cache:/root/.m2
     depends_on:
       postgres:
         condition: service_healthy
+      minio: # Adicione isso para garantir que o MinIO suba antes
+        condition: service_started
     networks:
       - corridas-net
-
+      
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
