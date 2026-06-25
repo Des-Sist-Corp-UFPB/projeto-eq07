@@ -8,6 +8,26 @@
     <script th:src="@{/webjars/htmx.org/dist/htmx.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     
+    <!-- Tailwind CSS (Necessário para a Sidebar renderizar corretamente) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        /* Sidebar active link */
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+        .glow-orange { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+    </style>
+
     <style>
         body { background-color: #f8f9fa; }
         .audit-card { border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -17,6 +37,10 @@
         .badge-method-DELETE { background-color: #dc3545; }
         .status-failed { border-left: 4px solid #dc3545; }
         .status-success { border-left: 4px solid #198754; }
+        
+        /* Reset para evitar conflito do Tailwind no Bootstrap */
+        .flex-grow-1, .d-flex { display: flex; }
+        table { border-collapse: collapse; }
     </style>
 </head>
 <body>
