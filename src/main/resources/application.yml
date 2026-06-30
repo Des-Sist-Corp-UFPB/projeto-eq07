@@ -47,7 +47,3 @@ logging:
     # Corrigido de 'mercado' para o pacote real do seu projeto 'corrida'
     br.ufpb.dsc.corrida: DEBUG
     org.springframework.web: DEBUG
-
-audit:
-  mongodb:
-    collection-name: ${AUDIT_MONGODB_COLLECTION_NAME:audit_logs}

@@ -1,6 +1,8 @@
 package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.ExternalServiceException;
+import br.ufpb.dsc.corrida.ors.OpenRouteServiceClient;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

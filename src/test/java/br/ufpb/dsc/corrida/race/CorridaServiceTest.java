@@ -6,9 +6,10 @@ import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.organizer.OrganizationRepository;
 import br.ufpb.dsc.corrida.organizer.Organizer;
 import br.ufpb.dsc.corrida.organizer.OrganizerRepository;
+import br.ufpb.dsc.corrida.ors.OpenRouteServiceClient;
+import br.ufpb.dsc.corrida.ors.dto.RotaDTO;
 import br.ufpb.dsc.corrida.race.dto.CriarCorridaDTO;
 import br.ufpb.dsc.corrida.race.dto.EditarCorridaDTO;
-import br.ufpb.dsc.corrida.race.dto.RotaDTO;
 import br.ufpb.dsc.corrida.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

@@ -1,18 +1,10 @@
-# Sistema Mercado — Projeto Base DSC/UFPB
-
-Projeto base (boilerplate) para a disciplina **Desenvolvimento de Sistemas Corporativos**.
-
-**Professor**: Rodrigo Rebouças | **UFPB — Campus IV**
-
----
-
 ## Tecnologias
 
 | Camada | Tecnologia |
 |--------|-----------|
 | Backend | Java 21 + Spring Boot 3.4.5 |
 | Templates | Thymeleaf + HTMX 2.0 |
-| Frontend | Bootstrap 5.3 |
+| Frontend | Tailwind 5.3 |
 | Banco | PostgreSQL 16 |
 | Migrações | Flyway 11 |
 | Segurança | Spring Security 6 |
@@ -21,183 +13,17 @@ Projeto base (boilerplate) para a disciplina **Desenvolvimento de Sistemas Corpo
 
 ---
 
-## Guia de Instalação para Alunos
-
-### Passo 1 — Instale o Java 21
-
-O projeto requer Java 21. Recomendamos o **Eclipse Temurin** (distribuição gratuita da Adoptium).
-
-**Windows / macOS / Linux:**
-1. Acesse https://adoptium.net/temurin/releases/?version=21
-2. Baixe o instalador para seu sistema operacional
-3. Execute o instalador e siga as instruções
-
-**Verificar se está correto:**
-```bash
-java -version
-# Esperado: openjdk version "21.x.x" ...
-```
-
-> **Dica para Windows:** durante a instalação, marque a opção *"Add to PATH"* e *"Set JAVA_HOME"*.
-
----
-
-### Passo 2 — Instale o Maven
-
-O Maven é a ferramenta de build do projeto.
-
-**macOS (com Homebrew):**
-```bash
-brew install maven
-```
-
-**Windows:**
-1. Acesse https://maven.apache.org/download.cgi
-2. Baixe o arquivo `apache-maven-3.x.x-bin.zip`
-3. Extraia para uma pasta (ex.: `C:\maven`)
-4. Adicione `C:\maven\bin` à variável de ambiente `PATH`
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt install maven
-```
-
-**Verificar:**
-```bash
-mvn -version
-# Esperado: Apache Maven 3.x.x
-```
-
----
-
-### Passo 3 — Instale o Docker Desktop
-
-O Docker sobe o banco de dados PostgreSQL sem precisar instalar nada manualmente.
-
-1. Acesse https://www.docker.com/products/docker-desktop/
-2. Baixe e instale o Docker Desktop para seu sistema
-3. Abra o Docker Desktop e aguarde ele inicializar (ícone na barra de tarefas)
-
-**Verificar:**
-```bash
-docker -v
-# Esperado: Docker version 27.x.x ...
-```
-
-> **Importante:** o Docker Desktop deve estar **em execução** sempre que você for rodar o projeto.
-
----
-
-### Passo 4 — Clone o repositório
-
-```bash
-git clone <URL-DO-REPOSITÓRIO>
-cd base_projeto
-```
-
-> Substitua `<URL-DO-REPOSITÓRIO>` pela URL fornecida pelo professor.
-
----
-
-### Passo 5 — Execute o projeto
-
-Você tem duas opções. **Recomendamos a Opção A para a primeira execução.**
-
-#### Opção A: Tudo com Docker (mais simples)
-
-Um único comando sobe o banco, a aplicação e o Adminer (interface web do banco):
-
-```bash
-docker compose -f docker/docker-compose.dev.yml up --build
-```
-
-Aguarde as mensagens de inicialização. Quando aparecer algo como:
-```
-Started MercadoApplication in X.XXX seconds
-```
-...a aplicação está pronta.
-
-#### Opção B: Banco no Docker + aplicação local (recomendado para desenvolvimento)
-
-Esta opção permite editar o código e ver as mudanças mais rápido:
-
-```bash
-# Terminal 1 — sobe o banco de dados
-docker compose -f docker/docker-compose.dev.yml up postgres adminer
-
-# Terminal 2 — roda a aplicação (em outro terminal, na mesma pasta)
-mvn spring-boot:run
-```
-
----
-
-### Passo 6 — Acesse no browser
-
-| O que | Endereço |
-|-------|----------|
-| Aplicação | http://localhost:8080 |
-| Login | usuário: `admin` / senha: `admin123` |
-| Adminer (banco) | http://localhost:8888 |
-| Health check | http://localhost:8080/actuator/health |
-
----
-
-### Parando o projeto
-
-```bash
-# Parar a aplicação: Ctrl+C no terminal onde está rodando
-
-# Parar os containers Docker:
-docker compose -f docker/docker-compose.dev.yml down
-```
-
----
-
-## Solução de Problemas Comuns
-
-### "Port 8080 already in use"
-Outra aplicação está usando a porta 8080. Para liberar:
-```bash
-# macOS / Linux
-lsof -ti:8080 | xargs kill
-
-# Windows (PowerShell)
-netstat -ano | findstr :8080
-# Anote o PID da última coluna e execute:
-taskkill /PID <número-do-pid> /F
-```
-
-### "Cannot connect to the Docker daemon"
-O Docker Desktop não está em execução. Abra o aplicativo Docker Desktop e aguarde inicializar.
-
-### "Connection refused" ao banco de dados
-O container do PostgreSQL ainda não subiu. Aguarde alguns segundos e tente novamente. Você pode verificar com:
-```bash
-docker compose -f docker/docker-compose.dev.yml ps
-# O container "mercado-postgres-dev" deve estar com status "healthy"
-```
-
-### Erro de compilação Java
-Verifique se o Java 21 está sendo usado pelo Maven:
-```bash
-mvn -version
-# A linha "Java version:" deve mostrar 21.x.x
-```
-Se mostrar outra versão, configure a variável `JAVA_HOME` apontando para o Java 21.
-
-### Flyway: "Found non-empty schema(s) with no schema history table"
-O banco existe mas foi criado sem as migrations. Apague os dados e recomece:
-```bash
-docker compose -f docker/docker-compose.dev.yml down -v
-docker compose -f docker/docker-compose.dev.yml up postgres
-```
-
 ## Environment Setup
 
-| Variable | Required | Purpose | Where to obtain |
+| Variable | Required | Purpose |
 |---|---|---|---|
-| `ORS_API_KEY` | Yes | Route calculation and address geocoding via OpenRouteService | https://openrouteservice.org/dev/#/signup |
-| `ORS_BASE_URL` | No | ORS base URL (defaults to production) | Leave blank unless using a self-hosted instance |
+| `ORS_API_KEY` | Yes | Route calculation and address geocoding via OpenRouteService 
+| `ORS_BASE_URL` | No | ORS base URL (defaults to production) |
+| `API_SECURITY_TOKEN_SECRET` | Yes | JWT to authetication | 
+| `SPRING_DATA_MONGODB_URI` | Yes | URI to connect to the audit log database |
+| `DATABASE_URL` | Yes | URL to connect application database |
+| `DB_USERNAME` | Yes | Username to connect Postgres database |
+| `DB_PASSWORD` | Yes | Password to connect Postgres database |
 
 ---
 
@@ -339,12 +165,47 @@ base_projeto/
 
 ---
 
-## Para Alunos: Adaptando o Boilerplate
+## Log de auditoria
 
-1. **Renomear** a entidade `Produto` para sua entidade principal
-2. **Criar migration** Flyway com a nova estrutura da tabela (`src/main/resources/db/migration/V2__...sql`)
-3. **Atualizar** Repository, Service, Controller e templates seguindo os mesmos padrões
-4. **Manter** a estrutura de pacotes e convenções (ver `docs/CONVENTIONS.md`)
-5. **Nunca editar** migrations já aplicadas — sempre criar uma nova (`V3__`, `V4__`, ...)
+- **O que é auditado**: Operações críticas de negócio mapeadas nas classes de serviço do sistema. Os recursos e as ações atualmente auditadas são:
+  - **Recurso `Corrida`**: Criação (`RACE_CREATED`), Edição (`RACE_UPDATED`) e Cancelamento (`RACE_CANCELLED`).
+  - **Recurso `USER`**: Login (`LOGIN`), Edição de conta (`EDIT_USER`) e Exclusão (`DELETE_USER`).
+  - **Recurso `USER_INFO`**: Registro inicial (`CREATE_USER_INFO`), Consulta de perfil (`GET_USER_INFO`), Atualização de perfil (`UPDATE_USER_INFO`) e Alteração de foto (`UPDATE_PROFILE_PHOTO`).
+  - **Recurso `ORGANIZER`**: Registro de Organizador e Organização (`REGISTER_ORGANIZER`).
+  - **Recurso `CONECTION`**: Envio de convite (`SEND_CONNECTION`), Aceitar convite (`ACCEPT_CONNECTION`), Recusar convite (`DECLINE_CONNECTION`) e Desfazer conexão (`REMOVE_CONNECTION`).
+- **Onde fica armazenado**: MongoDB Atlas ou banco local, em uma coleção cuja propriedade dinâmica de nome é definida no `application.yml` (padrão `audit_logs`). Cada documento registrado armazena os seguintes campos (definidos em [AuditLog.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLog.java)):
+  - `id`: Identificador único do documento.
+  - `action`: Código da ação de negócio executada (ex: `RACE_UPDATED`, `RACE_CANCELLED_FAILED`).
+  - `operator`: Identificação do operador (e-mail do usuário autenticado).
+  - `ip`: Endereço IP do cliente (respeitando o cabeçalho `X-Forwarded-For`).
+  - `userAgent`: String do User-Agent do navegador ou cliente HTTP.
+  - `httpMethod`: Método HTTP correspondente à requisição (ex: POST, PUT, PATCH).
+  - `resource`: Nome do recurso de domínio afetado (ex: `Corrida`).
+  - `targetId`: ID único do recurso modificado.
+  - `stateBefore`: Dados serializados e higienizados do recurso *antes* da execução.
+  - `stateAfter`: Dados serializados e higienizados do recurso *depois* da execução.
+  - `errorMessage`: Detalhe da mensagem de erro capturada caso a ação falhe.
+  - `timestamp`: Instante do registro do log (com TTL configurado para 90 dias).
+- **Como foi implementado**: Utilizando programação orientada a aspectos (AOP) com Spring AOP para interceptar métodos marcados com a anotação customizada `@Auditable`. O aspecto captura os dados de contexto HTTP (IP com tratamento para `X-Forwarded-For`, User-Agent e método HTTP) e segurança (operador autenticado), além de mapear recursivamente os estados anterior e posterior do recurso (com exclusão automática de campos sensíveis como senhas, tokens e propriedades anotadas com `@ToString.Exclude`). A persistência é realizada por eventos do Spring (`AuditLogEvent`) desacoplados, onde operações de sucesso são gravadas após o commit da transação (`@TransactionalEventListener`) e falhas são salvas assincronamente (`@Async`).
+- **Quais classes/arquivos participam**:
+  - [Auditable.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/Auditable.java) (anotação customizada)
+  - [AuditLog.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLog.java) (entidade documento MongoDB com TTL index de 90 dias)
+  - [AuditLogRepository.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLogRepository.java) (repositório MongoDB)
+  - [AuditContextUtils.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditContextUtils.java) (utilitário para HttpServletRequest e IP do cliente)
+  - [AuditAspect.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditAspect.java) (interceptador aspect e higienizador por reflexão)
+  - [AuditLogEvent.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLogEvent.java) (evento de auditoria)
+  - [AuditLogListener.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLogListener.java) (listener transacional e assíncrono)
+  - [AuditConfig.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditConfig.java) (habilitação do `@EnableAsync`)
 
-> Dúvidas? Consulte a documentação em `docs/` ou o professor.
+---
+
+## Integração com Serviço Externo
+
+- **Serviço externo**: OpenRouteService (Directions e Geocoding APIs)
+- **Finalidade**: Usado para geocodificação de endereços no formulário de criação/edição de corrida (autocomplete de texto para coordenadas geográficas) e para calcular rotas reais de pedestre entre o ponto de largada e o ponto de chegada. O serviço fornece a distância exata da prova, o tempo estimado de duração e o traçado completo em formato GeoJSON para renderização interativa na tela com Leaflet.js.
+- **Classes/arquivos participantes**:
+  - [OpenRouteServiceClient.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/OpenRouteServiceClient.java) (cliente HTTP com Spring RestClient e resiliência a falhas)
+  - [CorridaService.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/CorridaService.java) (uso das rotas e regras de caching de requisições baseadas em coordenadas inalteradas)
+  - [GeocodingApiController.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/GeocodingApiController.java) (REST API Proxy para chamadas do front-end)
+  - [RotaDTO.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/dto/RotaDTO.java) (DTO de transferência da rota calculada)
+  - [application.yml](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/resources/application.yml) (definição de chaves e URLs do serviço)

@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race.dto;
+package br.ufpb.dsc.corrida.ors.dto;
 
 import java.math.BigDecimal;
 
