@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.ors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
