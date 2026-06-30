@@ -18,11 +18,27 @@ spring:
     enabled: true
     # Localização dos scripts de migração SQL
     locations: classpath:db/migration
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:""}
 
 api:
   security:
     token:
       secret: "teste_secret"
+
+api:
+  security:
+    token:
+      secret: "teste_secret"
+
+audit:
+  mongodb:
+    collection-name: ${AUDIT_MONGODB_COLLECTION_NAME:audit_logs_dev}
+
+ors:
+  api-key: ${ORS_API_KEY:""}
+  base-url: ${ORS_BASE_URL:https://api.openrouteservice.org} 
 
 logging:
   level:
