@@ -100,6 +100,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-            name: relatorio-gatling
-            path: target/gatling/*/
-            retention-days: 7
+          name: relatorio-gatling
+          path: target/gatling/*/
+          retention-days: 7
