@@ -8,7 +8,7 @@ spring:
     password: ${DB_PASSWORD:C@rR!d@db}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5
+      maximum-pool-size: 50
   jpa:
     hibernate:
       ddl-auto: validate
@@ -23,6 +23,10 @@ spring:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/audit_db}
 
+server:
+  tomcat:
+    thread:
+      max: 500
 api:
   security:
     token:
@@ -32,6 +36,7 @@ api:
 ors:
   api-key: ${ORS_API_KEY:""}
   base-url: ${ORS_BASE_URL:https://api.openrouteservice.org}
+
 
 management:
   endpoints:
