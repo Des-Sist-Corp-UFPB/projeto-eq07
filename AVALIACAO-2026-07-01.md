@@ -16,7 +16,8 @@
 
 ## 2. Integração com Serviço Externo
 
-- ❌ **Google Maps** — **declarado no README, mas SEM evidência no código.**
+- ✅ **OpenRouteService** — declarado no README e comprovado no código (25 ocorrência(s)).
+  - Evidência: `application-example.properties:7:# OpenRouteService API key`
 
 ---
 
