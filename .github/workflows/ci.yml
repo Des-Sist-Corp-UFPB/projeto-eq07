@@ -34,10 +34,10 @@ jobs:
           java-version: '22'
 
       - name: Instalar dependências e rodar testes
-        run: mvn dependency:resolve
+        run: ./mvnw dependency:resolve
 
       - name: Teste de qualidade de código (lint)
-        run: mvn pmd:check   
+        run: ./mvnw pmd:check   
 
       - name: Rodar testes
-        run: mvn verify 
+        run: ./mvnw verify 
