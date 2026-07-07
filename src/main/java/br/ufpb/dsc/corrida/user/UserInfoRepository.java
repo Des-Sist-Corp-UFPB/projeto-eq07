@@ -23,4 +23,8 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
      * @return {@code true} se já existe um registro
      */
     boolean existsByUsuarioId(Long usuarioId);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE UserInfo ui SET ui.totalKmRun = ui.totalKmRun + :kms WHERE ui.usuario.id IN (SELECT i.usuario.id FROM br.ufpb.dsc.corrida.race.Inscricao i WHERE i.corrida.id = :raceId AND i.status = 'ATIVA' AND i.compareceu = true)")
+    void addKilometersToPresentParticipants(@org.springframework.data.repository.query.Param("raceId") Long raceId, @org.springframework.data.repository.query.Param("kms") Float kms);
 }

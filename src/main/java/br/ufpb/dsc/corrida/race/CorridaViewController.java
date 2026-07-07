@@ -13,6 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import br.ufpb.dsc.corrida.race.InscricaoRepository;
+import br.ufpb.dsc.corrida.race.StatusInscricao;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +27,9 @@ public class CorridaViewController {
 
     @Autowired
     private OrganizerService organizerService;
+
+    @Autowired
+    private InscricaoRepository inscricaoRepository;
 
     // =========================================================================
     // Feed Público
@@ -50,10 +56,24 @@ public class CorridaViewController {
     }
 
     @GetMapping("/corridas/{slug}")
-    public String exibirDetalhes(@PathVariable String slug, Model model) {
+    public String exibirDetalhes(@PathVariable String slug, @AuthenticationPrincipal User usuarioLogado, Model model) {
         Race race = service.buscarPorSlug(slug);
+        
+        boolean isUserEnrolled = false;
+        if (usuarioLogado != null) {
+            isUserEnrolled = inscricaoRepository.existsByUsuarioAndCorridaAndStatus(usuarioLogado, race, StatusInscricao.ATIVA);
+        }
+        
+        boolean isFull = false;
+        if (race.getMaxInscricoes() != null) {
+            long count = inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.ATIVA);
+            isFull = count >= race.getMaxInscricoes();
+        }
+        
         model.addAttribute("corrida", race);
         model.addAttribute("activePage", "corridas");
+        model.addAttribute("isUserEnrolled", isUserEnrolled);
+        model.addAttribute("isFull", isFull);
         return "corrida/corrida-detalhes";
     }
 

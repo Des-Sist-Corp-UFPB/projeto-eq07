@@ -40,6 +40,19 @@ services:
       - corridas-net
 
   # ---------------------------------------------------------------------------
+  # Banco de dados MongoDB (Auditoria)
+  # ---------------------------------------------------------------------------
+  mongo:
+    image: mongo:latest
+    container_name: corridas-mongo-dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-dev-data:/data/db
+    networks:
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
   # ---------------------------------------------------------------------------
   app:
@@ -52,6 +65,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
       SPRING_DATASOURCE_USERNAME: corridasdb
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/auditoria_db
+      MAVEN_OPTS: "-Xmx1536m"
+    deploy:
+      resources:
+        limits:
+          memory: 3072M
     ports:
       - "8080:8080"
       - "5005:5005"
@@ -63,6 +82,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      mongo:
+        condition: service_started
     networks:
       - corridas-net
 
@@ -99,6 +120,7 @@ services:
 
 volumes:
   postgres-dev-data:
+  mongo-dev-data:
   maven-cache:
   trivy-cache:
 

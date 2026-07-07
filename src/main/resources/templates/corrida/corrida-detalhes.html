@@ -182,12 +182,25 @@
                                 <span class="text-2xl font-extrabold text-white" th:text="${corrida.valorInscricao != null && corrida.valorInscricao > 0} ? 'R$ ' + ${corrida.valorInscricao} : 'Grátis'">R$ 80,00</span>
                             </div>
 
-                            <!-- Enrollment placeholder section -->
-                            <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
-                                <button disabled title="Em breve" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm opacity-50 cursor-not-allowed glow-btn flex items-center justify-center gap-2">
-                                    Inscrever-se
-                                </button>
-                                <span class="bg-brand-500/20 text-brand-400 border border-brand-500/30 font-extrabold text-xs px-3 py-2 rounded-xl uppercase tracking-wider">Em breve</span>
+                            <!-- Enrollment section -->
+                            <div class="pt-4 border-t border-slate-800/80 flex flex-col gap-4">
+                                <div th:if="${isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                    </svg>
+                                    Você já está inscrito!
+                                </div>
+                                <div th:if="${isFull && !isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl font-bold">
+                                    Inscrições encerradas: Limite atingido
+                                </div>
+                                <form th:if="${!isUserEnrolled && !isFull && corrida.status.name() == 'PUBLICADA'}" th:action="@{|/corridas/${corrida.id}/inscrever|}" method="post">
+                                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm glow-btn hover:from-brand-500 hover:to-orange-400 transition-colors flex items-center justify-center gap-2">
+                                        Inscrever-se
+                                    </button>
+                                </form>
+                                <div th:if="${corrida.status.name() != 'PUBLICADA' && !isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-slate-800/50 text-slate-400 border border-slate-700/50 rounded-xl font-bold">
+                                    Inscrições Indisponíveis
+                                </div>
                             </div>
                         </div>
                     </div>

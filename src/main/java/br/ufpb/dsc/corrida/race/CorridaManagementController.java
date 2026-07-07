@@ -15,6 +15,15 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import br.ufpb.dsc.corrida.race.Inscricao;
+import br.ufpb.dsc.corrida.race.InscricaoRepository;
+import br.ufpb.dsc.corrida.race.InscricaoService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.beans.PropertyEditorSupport;
 import java.time.LocalDateTime;
@@ -28,6 +37,15 @@ public class CorridaManagementController {
 
     @Autowired
     private CorridaService service;
+
+    @Autowired
+    private InscricaoService inscricaoService;
+
+    @Autowired
+    private InscricaoRepository inscricaoRepository;
+
+    @Autowired
+    private RaceRepository raceRepository;
 
     @PostMapping("/organizacao/{orgId}/corridas")
     public String criarCorrida(
@@ -87,6 +105,75 @@ public class CorridaManagementController {
             @AuthenticationPrincipal User usuarioLogado) {
 
         service.cancelarCorrida(id, usuarioLogado);
+        return "redirect:/organizacao/" + orgId + "/corridas";
+    }
+
+    @PostMapping("/organizacao/{orgId}/corridas/{id}/publicar")
+    public String publicarCorrida(
+            @PathVariable Long orgId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal User usuarioLogado) {
+
+        service.publicarCorrida(id, usuarioLogado);
+        return "redirect:/organizacao/" + orgId + "/corridas";
+    }
+
+    @GetMapping("/organizacao/{orgId}/corridas/{id}/participantes")
+    public String listarParticipantes(
+            @PathVariable Long orgId,
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @AuthenticationPrincipal User usuarioLogado,
+            Model model) {
+        
+        Race race = service.buscarPorId(id);
+        if (!race.getOrganization().getId().equals(orgId)) {
+            throw new br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException("Acesso negado");
+        }
+
+        Pageable pageable = PageRequest.of(page, 50);
+        Page<Inscricao> inscricoes = inscricaoRepository.findByCorridaId(race.getId(), pageable);
+        
+        System.out.println("TOTAL ELEMENTOS: " + inscricoes.getTotalElements());
+        System.out.println("TOTAL PAGES: " + inscricoes.getTotalPages());
+        System.out.println("CONTENT SIZE: " + inscricoes.getContent().size());
+
+        model.addAttribute("inscricoes", inscricoes);
+        model.addAttribute("race", race);
+        model.addAttribute("orgId", orgId);
+        return "corrida/corrida-participantes";
+    }
+
+    @org.springframework.web.bind.annotation.PatchMapping("/organizacao/{orgId}/inscricoes/{inscricaoId}/check-in")
+    public String checkinHTMX(
+            @PathVariable Long orgId,
+            @PathVariable Long inscricaoId,
+            @RequestParam boolean presente,
+            @AuthenticationPrincipal User usuarioLogado,
+            Model model) {
+        
+        inscricaoService.marcarPresenca(usuarioLogado, inscricaoId, presente);
+        Inscricao inscricao = inscricaoRepository.findById(inscricaoId).orElseThrow();
+        model.addAttribute("inscricao", inscricao);
+        model.addAttribute("orgId", orgId);
+        return "corrida/fragments/inscricao-tr :: inscricaoRow";
+    }
+
+    @PostMapping("/organizacao/{orgId}/corridas/{id}/encerrar")
+    public String encerrarCorrida(
+            @PathVariable Long orgId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal User usuarioLogado) {
+        
+        Race race = service.buscarPorId(id);
+        if (!race.getOrganization().getId().equals(orgId)) {
+            throw new br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException("Acesso negado");
+        }
+
+        // Muda status (poderia ter um método no CorridaService, fazemos aqui por simplicidade ou invocamos service)
+        race.setStatus(StatusCorrida.ENCERRADA);
+        raceRepository.save(race);
+        inscricaoService.processarEncerramentoCorrida(race);
         return "redirect:/organizacao/" + orgId + "/corridas";
     }
 

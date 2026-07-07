@@ -70,15 +70,33 @@ public class OpenRouteServiceClient {
     public RotaDTO calcularRota(double largadaLng, double largadaLat,
                                 double chegadaLng, double chegadaLat) {
         var payload = Map.of(
-                "coordinates", new double[][]{{largadaLng, largadaLat}, {chegadaLng, chegadaLat}}
+                "coordinates", new double[][]{{largadaLng, largadaLat}, {chegadaLng, chegadaLat}},
+                "instructions", false,
+                "maneuvers", false,
+                "geometry_simplify", true
         );
+        logger.info("Solicitando rota ao ORS. Payload: {}", payload);
 
         try {
-            String responseBody = restClient.post()
+            byte[] responseBytes = restClient.post()
                     .uri("/v2/directions/foot-walking/geojson")
                     .body(payload)
                     .retrieve()
-                    .body(String.class);
+                    .body(byte[].class);
+
+            if (responseBytes == null) {
+                throw new ExternalServiceException(MSG_ROTA_FALHOU);
+            }
+
+            double sizeMB = responseBytes.length / (1024.0 * 1024.0);
+            logger.info("ORS Response Size: {} MB", String.format("%.2f", sizeMB));
+
+            if (sizeMB > 15.0) {
+                logger.error("Resposta do ORS muito grande ({} MB). Abortando para evitar OutOfMemory.", sizeMB);
+                throw new ExternalServiceException("A rota calculada é excessivamente longa e gerou dados demais. Tente pontos mais próximos.");
+            }
+
+            String responseBody = new String(responseBytes, java.nio.charset.StandardCharsets.UTF_8);
 
             return parseRotaResponse(responseBody);
 
@@ -112,14 +130,22 @@ public class OpenRouteServiceClient {
 
     private RotaDTO parseRotaResponse(String json) {
         try {
-            JsonNode root = objectMapper.readTree(json);
-            JsonNode summary = root
-                    .path("features").get(0)
-                    .path("properties")
-                    .path("summary");
+            // Evitamos usar objectMapper.readTree(json) porque ele constrói uma árvore DOM gigante
+            // na memória RAM para as milhares de coordenadas, causando OutOfMemoryError.
+            // Em vez disso, extraímos os 2 campos numéricos diretamente da String de forma cirúrgica.
+            
+            double distanceMeters = 0.0;
+            double durationSeconds = 0.0;
 
-            double distanceMeters = summary.path("distance").asDouble();
-            double durationSeconds = summary.path("duration").asDouble();
+            java.util.regex.Matcher mDist = java.util.regex.Pattern.compile("\"distance\"\\s*:\\s*([0-9.]+)").matcher(json);
+            if (mDist.find()) {
+                distanceMeters = Double.parseDouble(mDist.group(1));
+            }
+
+            java.util.regex.Matcher mDur = java.util.regex.Pattern.compile("\"duration\"\\s*:\\s*([0-9.]+)").matcher(json);
+            if (mDur.find()) {
+                durationSeconds = Double.parseDouble(mDur.group(1));
+            }
 
             BigDecimal distanciaKm = BigDecimal.valueOf(distanceMeters / 1000.0)
                     .setScale(2, RoundingMode.HALF_UP);
@@ -128,7 +154,7 @@ public class OpenRouteServiceClient {
             return new RotaDTO(json, distanciaKm, duracaoMin);
 
         } catch (Exception e) {
-            logger.error("Erro ao parsear resposta do ORS", e);
+            logger.error("Erro ao parsear resposta do ORS via Regex", e);
             throw new ExternalServiceException(MSG_ROTA_FALHOU);
         }
     }

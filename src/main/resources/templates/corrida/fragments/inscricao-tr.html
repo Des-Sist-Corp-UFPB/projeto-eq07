@@ -1,0 +1,25 @@
+<tr th:fragment="inscricaoRow" class="inscricao-row border-b border-slate-800/50 hover:bg-slate-800/30" th:classappend="${inscricao.compareceu} ? 'bg-emerald-900/10' : ''">
+    <td class="px-6 py-4">
+        <div class="font-bold text-white" th:text="${inscricao.usuario.username}">Nome</div>
+    </td>
+    <td class="px-6 py-4 text-sm text-slate-400" th:text="${#temporals.format(inscricao.dataInscricao, 'dd/MM/yyyy HH:mm')}">
+        01/01/2026
+    </td>
+    <td class="px-6 py-4 text-center">
+        <span th:if="${inscricao.status.name() == 'CANCELADA'}" class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">CANCELADA</span>
+        <span th:if="${inscricao.status.name() == 'ATIVA' && !inscricao.compareceu}" class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-bold">PENDENTE</span>
+        <span th:if="${inscricao.status.name() == 'ATIVA' && inscricao.compareceu}" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">PRESENTE</span>
+    </td>
+    <td class="px-6 py-4 text-right">
+        <button th:if="${inscricao.status.name() == 'ATIVA'}"
+                type="button"
+                th:attr="hx-patch=@{|/organizacao/${orgId}/inscricoes/${inscricao.id}/check-in?presente=${!inscricao.compareceu}|}"
+                hx-target="closest tr"
+                hx-swap="outerHTML"
+                class="px-3 py-1.5 rounded-lg font-bold text-xs transition-colors"
+                th:classappend="${inscricao.compareceu} ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-emerald-600 text-white hover:bg-emerald-500'"
+                th:text="${inscricao.compareceu} ? 'Desmarcar' : 'Check-in'">
+            Check-in
+        </button>
+    </td>
+</tr>

@@ -6,7 +6,33 @@
      LEFT SIDEBAR FRAGMENT
      Usage: <div th:replace="~{fragments/sidebar :: sidebar('inicio')}"></div>
 ════════════════════════════════════════════════ -->
+
+
 <aside th:fragment="sidebar(activePage)" class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[260px] bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 z-40">
+    <style type="text/tailwindcss">
+        /* Glow helpers */
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn      { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+
+        /* Carousel fade transitions */
+        .slide { transition: opacity 0.6s ease, transform 0.6s ease; }
+        .slide-hidden { opacity: 0; pointer-events: none; position: absolute; inset: 0; }
+        .slide-visible { opacity: 1; pointer-events: auto; position: relative; }
+
+        /* Horizontal scroll for athlete row */
+        .scroll-row { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+        .scroll-row::-webkit-scrollbar { height: 4px; }
+        .scroll-row::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Sidebar active link */
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+
+        /* Bottom nav active */
+        .bnav-link { @apply flex items-center gap-0.5 text-slate-500 hover:text-brand-400 transition-colors text-[10px] font-semibold; }
+        .bnav-link.active { @apply text-brand-400; }
+    </style>
 
     <!-- Brand -->
     <div class="px-6 pt-7 pb-6 border-b border-slate-800">
@@ -38,6 +64,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
             </svg>
             Procurar Corrida
+        </a>
+
+        <a sec:authorize="isAuthenticated()" th:href="@{/minhas-inscricoes}" th:class="'nav-link ' + (${activePage == 'minhas-inscricoes'} ? 'active' : '')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+            </svg>
+            Minhas Inscrições
         </a>
 
         <a sec:authorize="hasRole('ORGANIZADOR')" th:if="${userOrganizationId != null}" th:href="@{|/organizacao/${userOrganizationId}/corridas|}" th:class="'nav-link ' + (${activePage == 'minhas-corridas'} ? 'active' : '')">
