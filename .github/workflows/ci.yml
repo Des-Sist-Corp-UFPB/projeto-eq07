@@ -11,16 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      # 1. Inicia o Postgres via linha de comando 
-      - name: Iniciar o banco de dados Postgres no Docker
-        run: |
-          docker run -d --name postgres-teste-ci -p 5432:5432 -e POSTGRES_DB=corridas_dev -e POSTGRES_USER=corridasdb -e POSTGRES_PASSWORD=C@rR!d@db postgres:16
-
-      # 2. Aguarda alguns segundos para o Postgres terminar de ligar antes de rodar os testes
-      - name: Aguardar o Postgres inicializar
-        run: powershell -Command "Start-Sleep -Seconds 5"
-
+      
       - name: Configura JDK 22
         uses: actions/setup-java@v4
         with:
@@ -36,9 +27,4 @@ jobs:
       - name: Rodar testes
         run: ./mvnw verify
 
-      # 3. Limpa o container do servidor no final
-      - name: Parar e remover o container de teste
-        if: always()
-        run: |
-          docker stop postgres-teste-ci
-          docker rm postgres-teste-ci
+  
