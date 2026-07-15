@@ -185,6 +185,22 @@ public class CorridaService {
     // Consultas
     // =========================================================================
 
+    @Transactional
+    @Auditable(action = "RACE_PUBLISHED", resource = "Corrida")
+    public void publicarCorrida(Long id, UserDetails usuarioLogado) {
+        Race race = raceRepository.findById(id)
+                .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
+
+        verificarPropriedade(race.getOrganization(), usuarioLogado);
+
+        if (race.getStatus() != StatusCorrida.RASCUNHO) {
+            throw new IllegalStateException("Apenas corridas em rascunho podem ser publicadas.");
+        }
+
+        race.setStatus(StatusCorrida.PUBLICADA);
+        raceRepository.save(race);
+    }
+
     /**
      * Feed público: apenas corridas PUBLICADA com dataInicio no futuro.
      */

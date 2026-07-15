@@ -51,7 +51,7 @@ public class Race {
     @Column(name = "max_inscricoes")
     private Integer maxInscricoes;
 
-    @Column(name = "data_inicio", nullable = false)
+    @Column(nullable = false, name = "data_inicio")
     private OffsetDateTime dataInicio;
 
     @Enumerated(EnumType.STRING)
@@ -91,6 +91,9 @@ public class Race {
     @Column(name = "duracao_estimada_min")
     private Integer duracaoEstimadaMin;
 
+    @Column(name = "data_fim")
+    private OffsetDateTime dataFim;
+
     @Column(name = "rota_geojson", columnDefinition = "TEXT")
     private String rotaGeoJson;
 
@@ -117,4 +120,13 @@ public class Race {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void calculateDataFim() {
+        if (this.dataInicio != null) {
+            int duracao = this.duracaoEstimadaMin != null ? this.duracaoEstimadaMin : 240;
+            this.dataFim = this.dataInicio.plusMinutes(duracao);
+        }
+    }
 }

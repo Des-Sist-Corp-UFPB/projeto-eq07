@@ -44,6 +44,5 @@ management:
 
 logging:
   level:
-    # Corrigido de 'mercado' para o pacote real do seu projeto 'corrida'
-    br.ufpb.dsc.corrida: DEBUG
-    org.springframework.web: DEBUG
+    br.ufpb.dsc.corrida: INFO
+    org.springframework.web: INFO

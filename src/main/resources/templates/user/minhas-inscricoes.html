@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minhas Inscrições — Corrida DSC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            400: '#fb923c', 500: '#f97316',
+                            600: '#ea580c', 700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        /* Glow helpers */
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn      { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+
+        /* Carousel fade transitions */
+        .slide { transition: opacity 0.6s ease, transform 0.6s ease; }
+        .slide-hidden { opacity: 0; pointer-events: none; position: absolute; inset: 0; }
+        .slide-visible { opacity: 1; pointer-events: auto; position: relative; }
+
+        /* Horizontal scroll for athlete row */
+        .scroll-row { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+        .scroll-row::-webkit-scrollbar { height: 4px; }
+        .scroll-row::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Sidebar active link */
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+
+        /* Bottom nav active */
+        .bnav-link { @apply flex items-center gap-0.5 text-slate-500 hover:text-brand-400 transition-colors text-[10px] font-semibold; }
+        .bnav-link.active { @apply text-brand-400; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans">
+
+    <div th:replace="~{fragments/sidebar :: sidebar('minhas-inscricoes')}"></div>
+
+    <main class="md:ml-[260px] min-h-screen p-5 md:p-8">
+        <div class="max-w-5xl mx-auto space-y-6">
+            <h1 class="text-3xl font-extrabold text-white">Minhas Inscrições</h1>
+
+            <div th:if="${inscricoes.empty}" class="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center">
+                <p class="text-slate-400">Você não possui nenhuma inscrição ativa.</p>
+                <a th:href="@{/corridas}"
+                    class="mt-4 inline-block px-4 py-2 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-500">
+                    Procurar Corridas
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="inscricao : ${inscricoes}"
+                    class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden p-5 space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-brand-400 uppercase"
+                                th:text="${inscricao.corrida.categoria}">C5K</span>
+                            <h3 class="text-xl font-bold text-white mt-1" th:text="${inscricao.corrida.nome}">Corrida
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-sm text-slate-400">
+                        <p><strong class="text-slate-200">Data:</strong> <span
+                                th:text="${#temporals.format(inscricao.corrida.dataInicio, 'dd/MM/yyyy HH:mm')}">25/12</span>
+                        </p>
+                        <p><strong class="text-slate-200">Local:</strong> <span
+                                th:text="${inscricao.corrida.largadaEndereco}">Rua X</span></p>
+                        <p><strong class="text-slate-200">Inscrição feita em:</strong> <span
+                                th:text="${#temporals.format(inscricao.dataInscricao, 'dd/MM/yyyy')}">25/12</span></p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800 flex justify-between gap-2">
+                        <a th:href="@{|/corridas/${inscricao.corrida.slug}|}"
+                            class="flex-1 text-center py-2 bg-slate-800 text-white rounded-xl font-bold text-sm hover:bg-slate-700">Ver</a>
+                        <form th:action="@{|/inscricoes/${inscricao.id}/cancelar|}" method="post"
+                            onsubmit="return confirm('Tem certeza que deseja cancelar sua inscrição?');" class="flex-1">
+                            <button type="submit"
+                                class="w-full text-center py-2 bg-red-900/50 text-red-400 border border-red-800 rounded-xl font-bold text-sm hover:bg-red-800/50 transition-colors">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

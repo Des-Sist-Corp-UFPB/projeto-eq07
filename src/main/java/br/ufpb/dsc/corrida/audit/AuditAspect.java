@@ -223,8 +223,16 @@ public class AuditAspect {
         if (className.startsWith("java.")
                 || className.startsWith("javax.")
                 || className.startsWith("jakarta.")
-                || className.contains("sun.")) {
-            return value.toString();
+                || className.contains("sun.")
+                || className.startsWith("org.hibernate")
+                || className.startsWith("org.springframework")
+                || className.startsWith("org.slf4j")
+                || className.startsWith("ch.qos.logback")) {
+            return className; // Retorna apenas o nome da classe para não carregar toString() pesados
+        }
+        
+        if (visited.size() > 50) {
+            return "Max Depth Reached";
         }
 
         return mapearParaMapLimpoHelper(value, visited);
@@ -239,7 +247,9 @@ public class AuditAspect {
                 || lower.equals("accesstoken")
                 || lower.equals("refreshtoken")
                 || lower.equals("tokenredefinicao")
-                || lower.equals("resettoken");
+                || lower.equals("resettoken")
+                || lower.equals("rotageojson")
+                || lower.equals("mapa");
     }
 
     private Map<String, Object> mapearArgumentos(ProceedingJoinPoint joinPoint) {

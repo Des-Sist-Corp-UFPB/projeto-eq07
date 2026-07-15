@@ -5,6 +5,7 @@ import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
+import br.ufpb.dsc.corrida.exception.race.InscricaoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -82,6 +83,25 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
+
+
+    @ExceptionHandler(InscricaoException.class)
+    public ResponseEntity<String> tratarInscricaoException(InscricaoException ex, jakarta.servlet.http.HttpServletRequest request) {
+        
+        if (request.getHeader("HX-Request") != null) {
+            String html = String.format(
+                "<div id='toast-error' class='fixed bottom-4 right-4 bg-red-600 text-white px-6 py-4 rounded-xl shadow-lg font-bold flex items-center gap-3 z-50' " +
+                "hx-swap-oob='true'>" +
+                "<span>%s</span>" +
+                "<button onclick=\"this.parentElement.remove()\" class='text-white/80 hover:text-white'>&times;</button>" +
+                "</div>", 
+                ex.getMessage()
+            );
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(html);
+        }
+        throw ex; 
     }
 
     @ExceptionHandler(AcessoNaoPermitidoException.class)
