@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import br.ufpb.dsc.corrida.race.Inscricao;
-import br.ufpb.dsc.corrida.race.InscricaoRepository;
-import br.ufpb.dsc.corrida.race.InscricaoService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

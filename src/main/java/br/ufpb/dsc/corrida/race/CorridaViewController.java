@@ -13,9 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import br.ufpb.dsc.corrida.race.InscricaoRepository;
-import br.ufpb.dsc.corrida.race.StatusInscricao;
-
 import java.util.Arrays;
 import java.util.List;
 

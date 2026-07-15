@@ -1,7 +1,6 @@
 package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.event.RaceCompletedEvent;
-import br.ufpb.dsc.corrida.exception.CorridaNaoEncontradaException;
 import br.ufpb.dsc.corrida.exception.race.ConflitoHorarioException;
 import br.ufpb.dsc.corrida.exception.race.CorridaCheiaException;
 import br.ufpb.dsc.corrida.exception.race.InscricaoDuplicadaException;

@@ -5,9 +5,6 @@ import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
-import br.ufpb.dsc.corrida.exception.race.ConflitoHorarioException;
-import br.ufpb.dsc.corrida.exception.race.CorridaCheiaException;
-import br.ufpb.dsc.corrida.exception.race.InscricaoDuplicadaException;
 import br.ufpb.dsc.corrida.exception.race.InscricaoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,9 +89,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InscricaoException.class)
     public ResponseEntity<String> tratarInscricaoException(InscricaoException ex, jakarta.servlet.http.HttpServletRequest request) {
-        String acceptHeader = request.getHeader("Accept");
         
-        // Se a requisição veio do HTMX
         if (request.getHeader("HX-Request") != null) {
             String html = String.format(
                 "<div id='toast-error' class='fixed bottom-4 right-4 bg-red-600 text-white px-6 py-4 rounded-xl shadow-lg font-bold flex items-center gap-3 z-50' " +
@@ -106,15 +101,6 @@ public class GlobalExceptionHandler {
             );
             return ResponseEntity.status(HttpStatus.CONFLICT).body(html);
         }
-
-        // Fallback padrão se não for HTMX
-        var erro = new ErrorResponseDTO(
-                HttpStatus.CONFLICT.value(),
-                "Erro na inscrição",
-                ex.getMessage()
-        );
-        // Retornamos JSON se for API pura. Como o método retorna String, podemos lançar a exceção de volta ou mapear.
-        // O ideal é retornar JSON serializado, mas para simplificar:
         throw ex; 
     }
 

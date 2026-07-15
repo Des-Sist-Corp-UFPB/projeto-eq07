@@ -2,7 +2,6 @@ package br.ufpb.dsc.corrida.race;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

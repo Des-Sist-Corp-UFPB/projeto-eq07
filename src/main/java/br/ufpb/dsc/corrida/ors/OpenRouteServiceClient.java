@@ -3,7 +3,6 @@ package br.ufpb.dsc.corrida.ors;
 import br.ufpb.dsc.corrida.exception.ExternalServiceException;
 import br.ufpb.dsc.corrida.ors.dto.RotaDTO;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -62,7 +62,7 @@ public class OpenRouteServiceClientTest {
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(String.class)).thenThrow(mock(RestClientResponseException.class));
+        when(responseSpec.body(byte[].class)).thenThrow(mock(RestClientResponseException.class));
 
         assertThatThrownBy(() -> client.calcularRota(-34.863, -7.115, -34.863, -7.115))
                 .isInstanceOf(ExternalServiceException.class)
@@ -79,7 +79,7 @@ public class OpenRouteServiceClientTest {
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(String.class)).thenThrow(new ResourceAccessException("Timeout"));
+        when(responseSpec.body(byte[].class)).thenThrow(new ResourceAccessException("Timeout"));
 
         assertThatThrownBy(() -> client.calcularRota(-34.863, -7.115, -34.863, -7.115))
                 .isInstanceOf(ExternalServiceException.class)
