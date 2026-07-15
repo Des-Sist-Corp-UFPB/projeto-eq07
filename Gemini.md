@@ -9,7 +9,6 @@ This document serves as a context guide to help you understand the architecture,
 - **Project Name:** Corridas
 - **Application Type:** Full-Stack Application
 - **Backend:** Spring Boot (Java)
-- **Frontend:** Vue.js
 - **Goal:** Application for managing road races
 
 ---
@@ -65,61 +64,57 @@ Whenever generating code for this project, follow these rules:
 
 The project follows the standard Spring Boot layered structure. Below is the mapping of the main directories and files:
 
+
 ```
-├── .github/
+PROJETO-EQ07/
+├── .github/                      # Configurações do GitHub (CI/CD e Workflows)
 │   └── workflows/
-│       └── deploy.yml              # GitHub Actions workflow (CI/CD)
-├── frontend/                       # Project frontend (Vue.js)
-│   └── src/                        # Frontend source code
+│       ├── ci.yml                # Integração Contínua
+│       └── deploy.yml            # Deploy Automatizado
+├── docker/                       # Arquivos e configurações do Docker
+├── docs/                         # Documentação técnica do projeto
+├── logs/                         # Registros de log da aplicação
 ├── src/
 │   ├── main/
-│   │   ├── java/com/equipe07/projeto/
-│   │   │   ├── config/             # Global configurations (Security, CORS, etc.)
-│   │   │   ├── controller/         # REST endpoints (API entry point)
-│   │   │   ├── dto/                # Data Transfer Objects (Request and Response)
-│   │   │   ├── exception/          # Error handling and @ControllerAdvice
-│   │   │   ├── model/              # Database entities (JPA/Hibernate)
-│   │   │   ├── repository/         # Database access interfaces (Spring Data JPA)
-│   │   │   ├── service/            # Business rules and internal logic layer
-│   │   │   └── ProjetoApplication.java  # Main class that bootstraps Spring
+│   │   ├── java/br/ufpb/dsc/corrida/
+│   │   │   ├── config/           # Classes de configuração (Segurança, CORS, etc.)
+│   │   │   ├── exception/        # Tratamento global de exceções da API
+│   │   │   ├── home/             # Lógica relacionada à página/fluxo inicial
+│   │   │   ├── user/             # Módulo de Usuários (Domínio Principal)
+│   │   │   │   ├── dto/          # Objetos de Transferência de Dados (Data Transfer Objects)
+│   │   │   │   ├── AuthService.java
+│   │   │   │   ├── Genero.java
+│   │   │   │   ├── NivelCondicionamento.java
+│   │   │   │   ├── Papel.java
+│   │   │   │   ├── User.java     # Entidade de Domínio
+│   │   │   │   ├── UserInfo.java # Entidade complementar
+│   │   │   │   ├── UserInfoRepository.java
+│   │   │   │   ├── UserInfoService.java
+│   │   │   │   ├── UserRepository.java
+│   │   │   │   ├── UsuarioController.java       # Endpoints REST da API
+│   │   │   │   ├── UsuarioService.java          # Regras de Negócio
+│   │   │   │   └── UsuarioViewController.java   # Controle de Views (Thymeleaf)
+│   │   │   └── CorridaApplication.java          # Classe Principal do Spring Boot
 │   │   └── resources/
-│   │       ├── application-prod.properties  # Application configuration
-│   │       └── db/migration/       # Flyway scripts
-│   └── test/                       # Unit and Integration Tests (JUnit/Mockito)
-├── Dockerfile                      # Docker image build instructions
-├── docker-compose.yml              # Local orchestration (Spring + Postgres)
-├── pom.xml                         # Maven dependencies and build
-└── README.md                       # Documentation for human developers
-```
+│   │       ├── db/               # Scripts de banco de dados / Migrations (Flyway/Liquibase)
+│   │       ├── public/           # Arquivos estáticos globais (CSS, JS, Imagens)
+│   │       ├── templates/        # Views HTML renderizadas pelo servidor (Thymeleaf)
+│   │       │   ├── auth/         # Telas de login/autenticação
+│   │       │   ├── fragments/    # Componentes HTML reutilizáveis (Header, Footer, etc.)
+│   │       │   ├── index.html
+│   │       │   ├── minha-conta.html
+│   │       │   └── perfil-publico.html
+│   │       ├── application-dev.yml   # Propriedades de Desenvolvimento
+│   │       ├── application-prod.yml  # Propriedades de Produção
+│   │       ├── application-test.yml  # Propriedades de Teste
+│   │       └── application.yml       # Configurações Gerais do Spring
+│   └── test/                     # Estrutura de Testes Automatizados
+│       └── java/br/ufpb/dsc/corrida/
+│           ├── controller/       # Testes de Unidade e Integração dos Endpoints
+│           │   ├── UserInfoControllerTest.java
+│           │   └── UserInfoIntegrationTest.java
+│           ├── service/userinfo/ # Testes das Regras de Negócio
+│           │   └── UserInfoServiceTest.java
+│           └── CorridaApplicationTests.java
 
----
-
-## 🎨 7. Frontend Development Guidelines (Vue.js)
-
-When generating code, screens, or components for the user interface, follow the structural and technical governance rules below, based on the **Vue.js 3** ecosystem.
-
-### 🚨 Golden Rules (Critical)
-
-1. **Absolute Reuse and Generalization:** Before creating any new component, analyze the `src/components/` folder to check whether it already exists. If an existing component is similar to what you need, **refactor and generalize it** (via *props* and *slots*) to cover both use cases instead of duplicating code.
-2. **Focus on Spring Boot Integration:** All data flow, form handling, and state management should be designed with the Spring Boot API consumption in mind. Keep property names in `camelCase` and align objects with backend DTOs.
-3. **Strict Environment Variable Documentation:** Whenever you suggest or create a new environment variable (in the `.env` file), you **must document and thoroughly explain why it is needed** and where it applies.
-4. **Dependency Minimalism:** Avoid installing new dependencies (`npm install`). Try to solve problems using native Vue 3 features, plain CSS, or already-installed utilities. New libraries should only be suggested if strictly necessary and justified.
-
----
-
-### 📁 Standard Folder Structure (Vue.js)
-
-```
-├── src/
-│   ├── assets/          # Images, icons, and global style files
-│   ├── components/      # GENERIC and REUSABLE components (BaseButton, BaseModal)
-│   ├── composables/     # Shared logic / Custom Hooks (useAuth, useFetch)
-│   ├── router/          # Route configuration (Vue Router) and Route Guards
-│   ├── stores/          # Global state management (Pinia), if needed
-│   ├── views/           # Main pages tied to routes (LoginView, DashboardView)
-│   ├── services/        # HTTP clients (Axios) and requests to the Spring Boot API
-│   ├── App.vue          # Root application component
-│   └── main.js/ts       # Entry point that initializes the Vue instance
-├── .env.example         # Example of required environment variables
-└── package.json         # Project dependencies (keep as clean as possible)
 ```

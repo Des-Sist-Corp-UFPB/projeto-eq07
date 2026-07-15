@@ -5,7 +5,7 @@
 - **Disciplina**: Desenvolvimento de Sistemas Corporativos
 - **Professor**: Rodrigo Rebouças
 - **Instituição**: Universidade Federal da Paraíba — Campus IV
-- **Propósito**: Boilerplate educacional para alunos iniciarem seus projetos
+- **Propósito**: Sistema feito para gerenciar atividades de corridas. Organizadores e usuários podem estar participando e gerenciando corridas, realizando inscrições e compartilhando suas atividades.
 
 ## Stack Técnica
 | Camada | Tecnologia | Versão |
@@ -14,23 +14,72 @@
 | Framework | Spring Boot | 3.4.5 |
 | Build | Maven | 3.9+ |
 | Templates | Thymeleaf + HTMX | 3.x + 2.0.4 |
-| Frontend | Bootstrap | 5.3.3 |
+| Frontend Tailwind
 | Banco | PostgreSQL | 16 |
 | Migrations | Flyway | 11.x |
 | Segurança | Spring Security | 6.x |
 | Testes | JUnit 5 + Testcontainers | - |
 
-## Estrutura de Pacotes
-```
-br.ufpb.dsc.corrida
-├── config/          # Configurações Spring (Security, Web, etc.)
-├── controller/      # Controllers MVC (recebem requests HTTP)
-├── domain/          # Entidades JPA (mapeamento objeto-relacional)
-├── dto/             # Data Transfer Objects (Records Java)
-├── exception/       # Exceções de domínio
-├── repository/      # Interfaces Spring Data JPA
-└── service/         # Lógica de negócio (@Transactional)
-```
+## 📂 Arquitetura do Projeto
+
+Abaixo está a representação da estrutura de pastas e a organização arquitetural do sistema:
+
+```text
+PROJETO-EQ07/
+├── .github/                      # Configurações do GitHub (CI/CD e Workflows)
+│   └── workflows/
+│       ├── ci.yml                # Integração Contínua
+│       └── deploy.yml            # Deploy Automatizado
+├── docker/                       # Arquivos e configurações do Docker
+├── docs/                         # Documentação técnica do projeto
+├── logs/                         # Registros de log da aplicação
+├── src/
+│   ├── main/
+│   │   ├── java/br/ufpb/dsc/corrida/
+│   │   │   ├── config/           # Classes de configuração (Segurança, CORS, etc.)
+│   │   │   ├── exception/        # Tratamento global de exceções da API
+│   │   │   ├── home/
+│   │   ├── userConections/             # Módulo de Conexões de usuários
+│   │   │   │   ├── dto/
+│   │   │   │   ├── UserConections.java
+│   │   │   │   ├── UserConectionsRepository.java
+│   │   │   │   ├── UserConectionsService.java
+│   │   │   ├── user/
+│   │   │   │   ├── dto/      
+│   │   │   │   ├── AuthService.java
+│   │   │   │   ├── Genero.java
+│   │   │   │   ├── NivelCondicionamento.java
+│   │   │   │   ├── Papel.java
+│   │   │   │   ├── User.java     # Entidade de Domínio
+│   │   │   │   ├── UserInfo.java # Entidade complementar
+│   │   │   │   ├── UserInfoRepository.java
+│   │   │   │   ├── UserInfoService.java
+│   │   │   │   ├── UserRepository.java
+│   │   │   │   ├── UsuarioController.java       # Endpoints REST da API
+│   │   │   │   ├── UsuarioService.java          # Regras de Negócio
+│   │   │   │   └── UsuarioViewController.java   # Controle de Views (Thymeleaf)
+│   │   │   └── CorridaApplication.java          # Classe Principal do Spring Boot
+│   │   └── resources/
+│   │       ├── db/               # Scripts de banco de dados / Migrations (Flyway/Liquibase)
+│   │       ├── public/           # Arquivos estáticos globais (CSS, JS, Imagens)
+│   │       ├── templates/        # Views HTML renderizadas pelo servidor (Thymeleaf)
+│   │       │   ├── auth/         # Telas de login/autenticação
+│   │       │   ├── fragments/    # Componentes HTML reutilizáveis (Header, Footer, etc.)
+│   │       │   ├── index.html
+│   │       │   ├── minha-conta.html
+│   │       │   └── perfil-publico.html
+│   │       ├── application-dev.yml   # Propriedades de Desenvolvimento
+│   │       ├── application-prod.yml  # Propriedades de Produção
+│   │       ├── application-test.yml  # Propriedades de Teste
+│   │       └── application.yml       # Configurações Gerais do Spring
+│   └── test/                     # Estrutura de Testes Automatizados
+│       └── java/br/ufpb/dsc/corrida/
+│           ├── controller/       # Testes de Unidade e Integração dos Endpoints
+│           │   ├── UserInfoControllerTest.java
+│           │   └── UserInfoIntegrationTest.java
+│           ├── service/userinfo/ # Testes das Regras de Negócio
+│           │   └── UserInfoServiceTest.java
+│           └── CorridaApplicationTests.java
 
 ## Comandos Essenciais
 

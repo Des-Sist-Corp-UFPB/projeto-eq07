@@ -1,9 +1,14 @@
+server:
+  port: 8080
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/corridas_dev
-    username: corridasdb
-    password: C@rR!d@db
+    # Se DATABASE_URL for injetada pelo Docker, o Spring usa. Senão, adota o padrão local 'corridas_dev'
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/corridas_dev}
+    username: ${DB_USERNAME:corridasdb}
+    password: ${DB_PASSWORD:C@rR!d@db}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
   jpa:
     hibernate:
       ddl-auto: validate
@@ -13,15 +18,31 @@ spring:
         format_sql: true
   flyway:
     enabled: true
-    # Localização dos scripts de migração SQL
     locations: classpath:db/migration
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/audit_db}
 
 api:
   security:
     token:
-      secret: "teste_secret"
+      # Permite injetar um secret forte em produção. Se não houver, usa o padrão.
+      secret: ${API_SECURITY_TOKEN_SECRET:teste_secret}
+
+ors:
+  api-key: ${ORS_API_KEY:""}
+  base-url: ${ORS_BASE_URL:https://api.openrouteservice.org}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:
-    br.ufpb.dsc.mercado: DEBUG
-    org.springframework.web: DEBUG
+    br.ufpb.dsc.corrida: INFO
+    org.springframework.web: INFO

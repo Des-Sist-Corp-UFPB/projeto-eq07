@@ -1,0 +1,41 @@
+{
+  "id": "/",
+  "short_name": "CorridaApp",
+  "name": "Sistema de Corrida",
+  "description": "Plataforma para gerenciamento e acompanhamento de corridas urbanas.",
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#212529",
+  "display": "standalone",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/corrida-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/corrida-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot-mobile.png",
+      "sizes": "371x802",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tela Inicial no Celular"
+    },
+    {
+      "src": "/images/screenshot-desktop.png",
+      "sizes": "1893x907",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Painel de Controle no Computador"
+    }
+  ]
+}

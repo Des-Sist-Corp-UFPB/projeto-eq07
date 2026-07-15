@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Umami Analytics -->
+    <script defer src="https://umami.dsc.rodrigor.com/script.js" data-website-id="40e1c211-f336-42a8-b97c-01068e72a148"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs de Auditoria — Corrida DSC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Logs de Auditoria</h1>
+            <a href="/" class="text-blue-600 hover:underline">Voltar para Home</a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">ID / Data</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Ação</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Operador</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Recurso</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="log : ${logs}" class="hover:bg-gray-50 border-b">
+                        <td class="py-2 px-4">
+                            <span class="text-xs text-gray-500 block" th:text="${log.id}">ID</span>
+                            <span class="text-sm" th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}">Data</span>
+                        </td>
+                        <td class="py-2 px-4 text-sm" th:text="${log.action}">Ação</td>
+                        <td class="py-2 px-4">
+                            <span class="text-sm font-medium text-gray-900 block" th:text="${log.operator}">Operador</span>
+                            <span class="text-xs text-gray-500" th:text="${log.ip}">IP</span>
+                        </td>
+                        <td class="py-2 px-4">
+                            <span class="text-sm block" th:text="${log.resource}">Recurso</span>
+                            <span class="text-xs text-gray-500" th:text="'ID: ' + ${log.targetId}">Target ID</span>
+                        </td>
+                        <td class="py-2 px-4 text-sm">
+                            <span th:if="${log.errorMessage == null}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Sucesso</span>
+                            <span th:if="${log.errorMessage != null}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:title="${log.errorMessage}">Falha</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(logs)}">
+                        <td colspan="5" class="py-4 text-center text-gray-500">Nenhum log de auditoria encontrado.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

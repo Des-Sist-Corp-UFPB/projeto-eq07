@@ -83,13 +83,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // === AUTORIZAÇÃO DE REQUISIÇÕES ===
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas para realizar login e registro não necessitam de autenticação
                         .requestMatchers(HttpMethod.POST, "/user/login", "/user/registrar").permitAll()
-                        // Qualquer outra requisição exige autenticação
+                        .requestMatchers(HttpMethod.GET, "/user/*", "/user/*/profile").permitAll()
+                        .requestMatchers("/ping", "/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/corridas", "/corridas/**", "/api/geo/search").permitAll()
+                        .requestMatchers("/organizacao/*/corridas/**").hasRole("ORGANIZADOR")
+                        .requestMatchers("/login", "/registrar", "/registrar/organizador", "/organizacao/*", "/css/**", "/js/**", "/images/**", 
+                                                    "/webjars/**", "/manifest.json", "/sw.js", "/corrida.ico"
+                                                ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .permitAll()
                 )
                 // === CSRF (Cross-Site Request Forgery) ===
                 // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
