@@ -44,7 +44,8 @@ public class LiteLlmClient {
             3. Responda EXCLUSIVAMENTE no formato JSON a seguir, sem texto externo: \
                {"apto": true} ou {"apto": false, "resposta": "Justificativa clara e sem alarmismo."} \
             4. Use "apto: false" apenas quando os dados indicarem risco relevante e observável. \
-            5. Nunca invente dados. Se não houver informações suficientes, retorne {"apto": true}.
+            5. Nunca invente dados. Se não houver informações suficientes, retorne {"apto": true}. \
+            6. Dê sempre prioridade absoluta ao valor numérico informado no campo 'Distância' (em km) para avaliar o esforço físico exigido pela corrida. A 'Categoria' da corrida é apenas uma classificação nominal e pode diferir da distância real do percurso.
             """;
 
     private final RestClient restClient;
@@ -84,8 +85,13 @@ public class LiteLlmClient {
      * @throws LlmUnavailableException se timeout, erro de rede ou resposta inválida (após retentativa)
      */
     public EligibilityResponse check(String userContext, String raceContext) {
+        log.info("[LiteLlmClient] Iniciando checagem via LLM. Modelo: {}, Temp: {}", model, temperature);
+        log.debug("[LiteLlmClient] Contexto Usuario: {}", userContext);
+        log.debug("[LiteLlmClient] Contexto Corrida: {}", raceContext);
         String userMessage = buildUserMessage(userContext, raceContext);
-        return callWithRetry(userMessage, 2);
+        EligibilityResponse response = callWithRetry(userMessage, 2);
+        log.info("[LiteLlmClient] Checagem via LLM retornou: apto={}, resposta={}", response.apto(), response.resposta());
+        return response;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -95,7 +101,7 @@ public class LiteLlmClient {
             return doCall(userMessage);
         } catch (LlmUnavailableException e) {
             if (attemptsLeft > 1) {
-                log.warn("LLM retornou erro/timeout. Retentando... ({} tentativas restantes)", attemptsLeft - 1);
+                log.warn("[LiteLlmClient] LLM retornou erro/timeout. Retentando... ({} tentativas restantes)", attemptsLeft - 1);
                 return callWithRetry(userMessage, attemptsLeft - 1);
             }
             throw e;
@@ -114,19 +120,21 @@ public class LiteLlmClient {
         );
 
         try {
+            log.info("[LiteLlmClient] Enviando payload HTTP POST para o proxy...");
             String rawJson = restClient.post()
                     .uri("/v1/chat/completions")
                     .body(payload)
                     .retrieve()
                     .body(String.class);
 
+            log.debug("[LiteLlmClient] Resposta JSON recebida: {}", rawJson);
             return parseResponse(rawJson);
 
         } catch (ResourceAccessException e) {
-            log.error("Timeout ou erro de rede ao chamar LiteLLM: {}", e.getMessage());
+            log.error("[LiteLlmClient] Timeout ou erro de rede ao chamar LiteLLM: {}", e.getMessage());
             throw new LlmUnavailableException("LLM timeout", e);
         } catch (RestClientResponseException e) {
-            log.error("LiteLLM retornou erro HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            log.error("[LiteLlmClient] LiteLLM retornou erro HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw new LlmUnavailableException("LLM HTTP error " + e.getStatusCode(), e);
         }
     }
@@ -136,9 +144,10 @@ public class LiteLlmClient {
             // Extrai o conteúdo da mensagem do payload de resposta do OpenAI
             var root = objectMapper.readTree(rawJson);
             String content = root.path("choices").path(0).path("message").path("content").asText();
+            log.info("[LiteLlmClient] Mensagem extraida da resposta: {}", content);
             return objectMapper.readValue(content, EligibilityResponse.class);
         } catch (JsonProcessingException e) {
-            log.error("Falha ao parsear resposta da LLM: {}", rawJson);
+            log.error("[LiteLlmClient] Falha ao parsear resposta da LLM: {}", rawJson);
             throw new LlmUnavailableException("LLM invalid JSON response", e);
         }
     }

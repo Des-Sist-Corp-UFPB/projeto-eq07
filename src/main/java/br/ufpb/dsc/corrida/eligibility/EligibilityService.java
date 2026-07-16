@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class EligibilityService {
 
+    private static final Logger log = LoggerFactory.getLogger(EligibilityService.class);
+
     /** Logger dedicado para auditoria de checagens de elegibilidade. Acesso restrito em produção. */
     private static final Logger AUDIT_LOG = LoggerFactory.getLogger("ELIGIBILITY_AUDIT");
 
@@ -79,6 +81,8 @@ public class EligibilityService {
      */
     @Cacheable(value = "eligibilityChecks", key = "#userId + '-' + #raceId + '-' + T(br.ufpb.dsc.corrida.eligibility.EligibilityService).profileHash(#userId, @userInfoRepository)")
     public EligibilityResult check(Long userId, Long raceId) {
+        log.info("[EligibilityService] Iniciando checagem de elegibilidade para usuarioId={} e corridaId={}", userId, raceId);
+
         // ── 1. Buscar dados ────────────────────────────────────────────────────
         Optional<UserInfo> userInfoOpt = userInfoRepository.findByUsuarioId(userId);
         Race race = raceRepository.findById(raceId)
@@ -86,6 +90,7 @@ public class EligibilityService {
 
         // ── 2. Verificar consentimento ─────────────────────────────────────────
         if (userInfoOpt.isEmpty() || !Boolean.TRUE.equals(userInfoOpt.get().getConsentimentoSaude())) {
+            log.info("[EligibilityService] Checagem abortada: usuarioId={} nao concedeu consentimento para processamento de dados de saude", userId);
             AUDIT_LOG.info("userId={} raceId={} timestamp={} source={} result=apto:true",
                     userId, raceId, Instant.now(), EligibilitySource.NO_CONSENT);
             return EligibilityResult.of(EligibilityResponse.fallback(), EligibilitySource.NO_CONSENT);
@@ -95,6 +100,7 @@ public class EligibilityService {
 
         // ── 3. Rate limiting ───────────────────────────────────────────────────
         if (isRateLimited(userId)) {
+            log.warn("[EligibilityService] Checagem abortada: usuarioId={} atingiu o limite de requisicoes (rate limit)", userId);
             AUDIT_LOG.warn("userId={} raceId={} timestamp={} source={} result=apto:true (rate limited)",
                     userId, raceId, Instant.now(), EligibilitySource.RATE_LIMITED);
             return EligibilityResult.of(EligibilityResponse.fallback(), EligibilitySource.RATE_LIMITED);
@@ -108,9 +114,11 @@ public class EligibilityService {
         Instant timestamp = Instant.now();
         String rawResponse = null;
         try {
+            log.info("[EligibilityService] Chamando a LLM para fazer a avaliacao de risco do atleta...");
             EligibilityResponse response = llmClient.check(userContext, raceContext);
             rawResponse = response.toString();
 
+            log.info("[EligibilityService] LLM retornou com sucesso. Apto: {}", response.apto());
             AUDIT_LOG.info("userId={} raceId={} timestamp={} source={} apto={} prompt=[{}|{}] raw={}",
                     userId, raceId, timestamp, EligibilitySource.LLM_ASSESSED,
                     response.apto(), userContext, raceContext, rawResponse);
@@ -122,6 +130,7 @@ public class EligibilityService {
                     ? EligibilitySource.LLM_TIMEOUT
                     : EligibilitySource.LLM_ERROR;
 
+            log.error("[EligibilityService] Erro ou timeout na chamada da LLM. Aplicando fallback de seguranca (apto: true). Erro: {}", e.getMessage());
             AUDIT_LOG.error("userId={} raceId={} timestamp={} source={} error={} result=apto:true (fallback)",
                     userId, raceId, timestamp, source, e.getMessage());
 

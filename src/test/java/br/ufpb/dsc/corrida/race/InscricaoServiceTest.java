@@ -101,9 +101,10 @@ class InscricaoServiceTest {
     void inscrever_conflitoHorario() {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
         when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
-        
+
         Race outraCorrida = new Race();
         outraCorrida.setId(20L);
+        // outraCorrida começa 30 min depois de race, e dura 120 min → sobrepõe race (120 min)
         outraCorrida.setDataInicio(race.getDataInicio().plusMinutes(30));
         outraCorrida.setDuracaoEstimadaMin(120);
 
@@ -111,7 +112,10 @@ class InscricaoServiceTest {
         outraInscricao.setCorrida(outraCorrida);
         outraInscricao.setStatus(StatusInscricao.ATIVA);
 
-        when(inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA)).thenReturn(java.util.List.of(outraInscricao));
+        when(inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA))
+                .thenReturn(java.util.List.of(outraInscricao));
+
+        // REMOVIDO: O stubbing do raceRepository.findByOrganization_Organizer_Usuario(user)
 
         assertThrows(ConflitoHorarioException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }

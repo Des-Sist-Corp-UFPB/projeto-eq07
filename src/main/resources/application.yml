@@ -50,9 +50,9 @@ logging:
     ELIGIBILITY_AUDIT: INFO
 
 litellm:
-  base-url: ${LITELLM_BASE_URL:https://llm.rodrigor.com}
-  api-key: ${LITELLM_API_KEY:sk-ivdkbnUwyFCPx5Cinwj_UBVz4ijT_S_YEqgZvWesymE}
-  model: ${LITELLM_MODEL:gpt-4o}
+  base-url: ${LITELLM_BASE_URL:""}
+  api-key: ${LITELLM_API_KEY:""}
+  model: ${LITELLM_MODEL:""}
   temperature: ${LITELLM_TEMPERATURE:0.1}
   timeout-ms: ${LITELLM_TIMEOUT_MS:10000}
   cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}

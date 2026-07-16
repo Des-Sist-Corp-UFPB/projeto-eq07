@@ -38,7 +38,6 @@ public class CorridaValidationTest {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
-/** 
     @Test
     @DisplayName("Should fail validation if dataInicio is in the past")
     void shouldFailIfDataInicioInPast() {
@@ -56,7 +55,8 @@ public class CorridaValidationTest {
                 -7.115,
                 -34.863,
                 "Chegada",
-                Set.of(BeneficioCorrida.AGUA)
+                Set.of(BeneficioCorrida.AGUA),
+                null, null, null, null
         );
 
         Set<ConstraintViolation<CriarCorridaDTO>> violations = validator.validate(dto);
@@ -81,7 +81,8 @@ public class CorridaValidationTest {
                 -7.115,
                 -34.863,
                 "Chegada",
-                Set.of(BeneficioCorrida.AGUA)
+                Set.of(BeneficioCorrida.AGUA),
+                null, null, null, null
         );
 
         Set<ConstraintViolation<CriarCorridaDTO>> violations = validator.validate(dto);
@@ -106,5 +107,4 @@ public class CorridaValidationTest {
         String slug = service.gerarSlugUnico("Corrida de Teste 2026", 2026);
         assertThat(slug).isEqualTo("corrida-de-teste-2026-2");
     }
-        */
 }

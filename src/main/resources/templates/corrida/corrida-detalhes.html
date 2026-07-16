@@ -351,17 +351,17 @@
 
             // ── 1. Disparo silencioso após carregamento ──────────────────────
             document.addEventListener('DOMContentLoaded', function () {
-                if (!enrollForm || !csrfToken) return; // Usuário não autenticado ou sem botão
+                if (!enrollForm) return; // Usuário não autenticado ou sem botão
 
                 fetch('/api/races/' + RACE_ID + '/eligibility-check', {
                     method: 'POST',
-                    headers: { [csrfHeader]: csrfToken }
                 })
                 .then(function (res) {
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     return res.json();
                 })
                 .then(function (data) {
+                    console.log(data)
                     eligibilityState = data;
                     console.debug('[Eligibility] resultado:', data.apto, '| fonte: API');
                 })

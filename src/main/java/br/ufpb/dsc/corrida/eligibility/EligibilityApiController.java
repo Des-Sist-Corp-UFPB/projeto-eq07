@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/api/races")
 public class EligibilityApiController {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EligibilityApiController.class);
+
     private final EligibilityService eligibilityService;
 
     public EligibilityApiController(EligibilityService eligibilityService) {
@@ -42,14 +44,17 @@ public class EligibilityApiController {
             @AuthenticationPrincipal User user) {
 
         if (user == null) {
-            // Usuário não autenticado — retorna apto para não bloquear visitantes
+            log.info("[EligibilityApiController] Chamada recebida para corrida id={}, mas usuario nao esta autenticado. Retornando apto: true por padrao.", raceId);
             return ResponseEntity.ok(Map.of("apto", true));
         }
 
-        
+        log.info("[EligibilityApiController] Recebida chamada de avaliacao de risco. Corrida ID: {}, Usuario: {}", raceId, user.getUsername());
 
         EligibilityResult result = eligibilityService.check(user.getId(), raceId);
         EligibilityResponse resp = result.response();
+
+        log.info("[EligibilityApiController] Checagem finalizada para corrida ID: {}. Apto: {}, Fonte do resultado: {}", 
+                raceId, resp.apto(), result.source());
 
         Map<String, Object> body = resp.apto()
                 ? Map.of("apto", true)
