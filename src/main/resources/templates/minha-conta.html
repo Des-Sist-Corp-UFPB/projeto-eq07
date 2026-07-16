@@ -231,6 +231,21 @@
                             th:text="${userInfo?.notasMedicas}"></textarea>
                     </div>
 
+                    <!-- Row 5: consentimentoSaude -->
+                    <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-4 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer select-none group">
+                            <input id="consentimentoSaude" type="checkbox" class="mt-0.5 w-4 h-4 rounded border-slate-600 bg-slate-700 text-brand-500 accent-orange-500 cursor-pointer"
+                                   th:checked="${userInfo?.consentimentoSaude}" />
+                            <span class="text-sm text-slate-300 leading-snug group-hover:text-slate-200 transition-colors">
+                                <strong class="text-slate-100 font-semibold block mb-0.5">Consentimento para análise de risco com IA</strong>
+                                Autorizo que meus dados de saúde (idade, condicionamento físico e observações médicas) sejam usados
+                                para gerar <em>alertas informativos</em> antes da inscrição em corridas. Estes alertas
+                                são gerados por IA e <strong>não substituem avaliação médica</strong>.
+                                Você pode revogar este consentimento a qualquer momento.
+                            </span>
+                        </label>
+                    </div>
+
                     <!-- Submit -->
                     <div class="flex items-center justify-between pt-2">
                         <!-- Stats badge (only when profile exists) -->
@@ -434,7 +449,8 @@
                 dataNasc: document.getElementById('dataNasc').value || null,
                 fotoPerfil: base64Foto || null,
                 nivelCondicionamento: document.getElementById('nivelCondicionamento').value || null,
-                notasMedicas: document.getElementById('notasMedicas').value.trim() || null
+                notasMedicas: document.getElementById('notasMedicas').value.trim() || null,
+                consentimentoSaude: document.getElementById('consentimentoSaude').checked
             };
 
             try {

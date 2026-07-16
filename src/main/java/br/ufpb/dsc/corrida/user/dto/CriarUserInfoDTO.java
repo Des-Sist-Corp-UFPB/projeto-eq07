@@ -42,5 +42,7 @@ public record CriarUserInfoDTO(
 
         NivelCondicionamento nivelCondicionamento,
 
-        String notasMedicas
+        String notasMedicas,
+
+        Boolean consentimentoSaude
 ) {}

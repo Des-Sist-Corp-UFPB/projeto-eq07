@@ -21,6 +21,7 @@ public record UserInfoRespostaDTO(
         String fotoPerfil,
         NivelCondicionamento nivelCondicionamento,
         String notasMedicas,
+        Boolean consentimentoSaude,
         OffsetDateTime criadoEm,
         OffsetDateTime atualizadoEm
 ) {
@@ -41,6 +42,7 @@ public record UserInfoRespostaDTO(
                 userInfo.getFotoPerfil(),
                 userInfo.getNivelCondicionamento(),
                 userInfo.getNotasMedicas(),
+                userInfo.getConsentimentoSaude(),
                 userInfo.getCriadoEm(),
                 userInfo.getAtualizadoEm()
         );

@@ -20,11 +20,13 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
 
     @Query("SELECT COUNT(i) FROM Inscricao i " +
            "WHERE i.usuario.id = :userId " +
+           "AND i.corrida.id <> :raceId " +
            "AND i.status = 'ATIVA' " +
            "AND i.corrida.dataInicio < :novoEndTime " +
            "AND i.corrida.dataFim > :novoStartTime")
     long countOverlappingInscricoes(
             @Param("userId") Long userId, 
+            @Param("raceId") Long raceId,
             @Param("novoStartTime") OffsetDateTime novoStartTime, 
             @Param("novoEndTime") OffsetDateTime novoEndTime);
 

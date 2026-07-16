@@ -100,13 +100,17 @@ public class CorridaViewController {
         verificarPropriedade(orgId, usuarioLogado);
 
         CriarCorridaDTO emptyForm = new CriarCorridaDTO(
-                null, null, null, null, null, null, null, null, null, null, null, null, null, null
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
         );
 
         model.addAttribute("corrida", emptyForm);
         model.addAttribute("orgId", orgId);
         model.addAttribute("categorias", Arrays.asList(CategoriaCorrida.values()));
         model.addAttribute("beneficios", Arrays.asList(BeneficioCorrida.values()));
+        model.addAttribute("terrenos", Arrays.asList(Terreno.values()));
+        model.addAttribute("climas", Arrays.asList(ClimaEsperado.values()));
+        model.addAttribute("niveis", Arrays.asList(NivelDificuldade.values()));
         model.addAttribute("isEdicao", false);
         model.addAttribute("activePage", "minhas-corridas");
         return "corrida/corrida-form";
@@ -139,7 +143,11 @@ public class CorridaViewController {
                 race.getChegadaLat(),
                 race.getChegadaLng(),
                 race.getChegadaEndereco(),
-                race.getBeneficios()
+                race.getBeneficios(),
+                race.getTerreno(),
+                race.getGanhoElevacao(),
+                race.getClimaEsperado(),
+                race.getNivelDificuldade()
         );
 
         model.addAttribute("corrida", form);
@@ -147,6 +155,9 @@ public class CorridaViewController {
         model.addAttribute("raceId", id);
         model.addAttribute("categorias", Arrays.asList(CategoriaCorrida.values()));
         model.addAttribute("beneficios", Arrays.asList(BeneficioCorrida.values()));
+        model.addAttribute("terrenos", Arrays.asList(Terreno.values()));
+        model.addAttribute("climas", Arrays.asList(ClimaEsperado.values()));
+        model.addAttribute("niveis", Arrays.asList(NivelDificuldade.values()));
         model.addAttribute("isEdicao", true);
         model.addAttribute("activePage", "minhas-corridas");
         return "corrida/corrida-form";

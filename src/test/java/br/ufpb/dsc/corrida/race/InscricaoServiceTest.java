@@ -56,20 +56,21 @@ class InscricaoServiceTest {
         org.setId(1L);
         race.setOrganization(org);
     }
-
     @Test
     @DisplayName("inscrever() - deve realizar inscricao com sucesso")
     void inscrever_sucesso() {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
         when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
-        when(inscricaoRepository.countOverlappingInscricoes(eq(1L), any(OffsetDateTime.class), any(OffsetDateTime.class))).thenReturn(0L);
-        when(raceRepository.countOverlappingOrganizedRaces(eq(1L), any(OffsetDateTime.class), any(OffsetDateTime.class))).thenReturn(0L);
+        when(inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA)).thenReturn(java.util.Collections.emptyList());
+        when(raceRepository.findByOrganization_Organizer_Usuario(user)).thenReturn(java.util.Collections.emptyList());
         
         Inscricao inscricao = new Inscricao();
         inscricao.setId(100L);
+        inscricao.setUsuario(user);
+        inscricao.setCorrida(race);
         when(inscricaoRepository.save(any(Inscricao.class))).thenReturn(inscricao);
 
-        Inscricao result = inscricaoService.inscrever(user, 10L);
+        Inscricao result = inscricaoService.inscrever(user, 10L, false);
 
         assertNotNull(result);
         verify(inscricaoRepository).save(any(Inscricao.class));
@@ -83,7 +84,7 @@ class InscricaoServiceTest {
         when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
         when(inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.ATIVA)).thenReturn(50L);
 
-        assertThrows(CorridaCheiaException.class, () -> inscricaoService.inscrever(user, 10L));
+        assertThrows(CorridaCheiaException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }
 
     @Test
@@ -92,7 +93,7 @@ class InscricaoServiceTest {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
         when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(true);
 
-        assertThrows(InscricaoDuplicadaException.class, () -> inscricaoService.inscrever(user, 10L));
+        assertThrows(InscricaoDuplicadaException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }
 
     @Test
@@ -101,9 +102,18 @@ class InscricaoServiceTest {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
         when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
         
-        when(inscricaoRepository.countOverlappingInscricoes(eq(1L), any(OffsetDateTime.class), any(OffsetDateTime.class))).thenReturn(1L);
+        Race outraCorrida = new Race();
+        outraCorrida.setId(20L);
+        outraCorrida.setDataInicio(race.getDataInicio().plusMinutes(30));
+        outraCorrida.setDuracaoEstimadaMin(120);
 
-        assertThrows(ConflitoHorarioException.class, () -> inscricaoService.inscrever(user, 10L));
+        Inscricao outraInscricao = new Inscricao();
+        outraInscricao.setCorrida(outraCorrida);
+        outraInscricao.setStatus(StatusInscricao.ATIVA);
+
+        when(inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA)).thenReturn(java.util.List.of(outraInscricao));
+
+        assertThrows(ConflitoHorarioException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }
     
     @Test

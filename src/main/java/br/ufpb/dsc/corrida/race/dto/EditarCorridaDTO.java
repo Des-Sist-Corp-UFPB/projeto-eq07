@@ -2,6 +2,9 @@ package br.ufpb.dsc.corrida.race.dto;
 
 import br.ufpb.dsc.corrida.race.BeneficioCorrida;
 import br.ufpb.dsc.corrida.race.CategoriaCorrida;
+import br.ufpb.dsc.corrida.race.Terreno;
+import br.ufpb.dsc.corrida.race.ClimaEsperado;
+import br.ufpb.dsc.corrida.race.NivelDificuldade;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -44,5 +47,13 @@ public record EditarCorridaDTO(
         @NotNull Double chegadaLng,
         @NotBlank String chegadaEndereco,
 
-        Set<BeneficioCorrida> beneficios
+        Set<BeneficioCorrida> beneficios,
+
+        Terreno terreno,
+
+        Integer ganhoElevacao,
+
+        ClimaEsperado climaEsperado,
+
+        NivelDificuldade nivelDificuldade
 ) {}

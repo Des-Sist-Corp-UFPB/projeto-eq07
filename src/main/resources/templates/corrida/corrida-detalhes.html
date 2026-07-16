@@ -7,6 +7,8 @@
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="_csrf" th:content="${_csrf?.token}" />
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}" />
     <title th:text="${corrida.nome} + ' — Details — Corrida DSC'">Detalhes da Corrida — Corrida DSC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,6 +41,10 @@
 
         .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
         .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+
+        /* === Risk Alert Modal === */
+        #risk-modal { display:none; }
+        #risk-modal.is-open { display:flex; }
     </style>
 </head>
 
@@ -196,8 +202,12 @@
                                 <div th:if="${isFull && !isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl font-bold">
                                     Inscrições encerradas: Limite atingido
                                 </div>
-                                <form th:if="${!isUserEnrolled && !isFull && corrida.status.name() == 'PUBLICADA'}" th:action="@{|/corridas/${corrida.id}/inscrever|}" method="post">
-                                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm glow-btn hover:from-brand-500 hover:to-orange-400 transition-colors flex items-center justify-center gap-2">
+                                <form id="enrollment-form"
+                                      th:if="${!isUserEnrolled && !isFull && corrida.status.name() == 'PUBLICADA'}"
+                                      th:action="@{|/corridas/${corrida.id}/inscrever|}" method="post">
+                                    <input type="hidden" name="riskAcknowledged" id="risk-acknowledged-input" value="false" />
+                                    <button id="enroll-btn" type="submit"
+                                            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm glow-btn hover:from-brand-500 hover:to-orange-400 transition-colors flex items-center justify-center gap-2">
                                         Inscrever-se
                                     </button>
                                 </form>
@@ -211,6 +221,56 @@
             </div>
         </div>
     </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MODAL: Alerta de Risco Informativo
+         Acessibilidade: role=alertdialog, aria-modal=true, foco aprisionado
+    ════════════════════════════════════════════════════════════════════════ -->
+    <div id="risk-modal"
+         role="alertdialog"
+         aria-modal="true"
+         aria-labelledby="risk-modal-title"
+         aria-describedby="risk-modal-desc"
+         class="fixed inset-0 z-50 items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+
+        <div class="bg-slate-900 border border-amber-600/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <!-- Cabeçalho -->
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-amber-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 id="risk-modal-title" class="text-base font-bold text-white">Alerta de Saúde — Informativo</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Gerado automaticamente com base no seu perfil. Não é um laudo médico.</p>
+                </div>
+            </div>
+
+            <!-- Aviso legal -->
+            <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 leading-relaxed">
+                Este alerta é gerado automaticamente por um sistema de inteligência artificial com base no seu perfil e nas características da corrida.
+                <strong>Não substitui avaliação médica.</strong> Consulte um profissional de saúde antes de tomar qualquer decisão.
+            </div>
+
+            <!-- Conteúdo da análise -->
+            <p id="risk-modal-desc" class="text-sm text-slate-300 leading-relaxed"></p>
+
+            <!-- Ações -->
+            <div class="flex flex-col sm:flex-row gap-2 pt-2">
+                <button id="risk-cancel-btn"
+                        class="flex-1 py-2.5 px-4 rounded-xl border border-slate-700 text-slate-300 font-semibold text-sm hover:bg-slate-800 transition-colors"
+                        onclick="closeRiskModal()">
+                    Cancelar
+                </button>
+                <button id="risk-proceed-btn"
+                        class="flex-1 py-2.5 px-4 rounded-xl bg-amber-600/80 hover:bg-amber-600 text-white font-bold text-sm transition-colors"
+                        onclick="proceedWithRisk()">
+                    Inscrever-se mesmo assim
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -266,6 +326,107 @@
                 }
             }
         });
+        /*]]>*/
+    </script>
+
+    <!-- ════════════════════════════════════════════════════════════════════════
+         ELIGIBILITY CHECK — carregado de forma silenciosa após DOMContentLoaded
+         Nunca bloqueia o fluxo de inscrição. Falhas = fallback seguro (apto: true)
+    ════════════════════════════════════════════════════════════════════════════ -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        (function () {
+            const RACE_ID = [[${corrida.id}]];
+            const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+            // Estado cliente: null = ainda verificando, true/false = resultado recebido
+            let eligibilityState = null;   // null | { apto: bool, resposta: string|null }
+
+            const enrollForm   = document.getElementById('enrollment-form');
+            const enrollBtn    = document.getElementById('enroll-btn');
+            const riskInput    = document.getElementById('risk-acknowledged-input');
+            const modal        = document.getElementById('risk-modal');
+            const modalDesc    = document.getElementById('risk-modal-desc');
+
+            // ── 1. Disparo silencioso após carregamento ──────────────────────
+            document.addEventListener('DOMContentLoaded', function () {
+                if (!enrollForm || !csrfToken) return; // Usuário não autenticado ou sem botão
+
+                fetch('/api/races/' + RACE_ID + '/eligibility-check', {
+                    method: 'POST',
+                    headers: { [csrfHeader]: csrfToken }
+                })
+                .then(function (res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function (data) {
+                    eligibilityState = data;
+                    console.debug('[Eligibility] resultado:', data.apto, '| fonte: API');
+                })
+                .catch(function (err) {
+                    // Fallback seguro — qualquer falha = não bloquear inscrição
+                    eligibilityState = { apto: true, resposta: null };
+                    console.warn('[Eligibility] check indisponível, prosseguindo normalmente.', err);
+                });
+            });
+
+            // ── 2. Interceptação do botão Inscrever-se ───────────────────────
+            if (enrollBtn) {
+                enrollBtn.addEventListener('click', function (e) {
+                    // Se ainda não recebeu resposta ou está apto, deixa submeter normalmente
+                    if (!eligibilityState || eligibilityState.apto) return;
+
+                    // Risco identificado → mostrar modal
+                    e.preventDefault();
+                    modalDesc.textContent = eligibilityState.resposta || '';
+                    openRiskModal();
+                });
+            }
+
+            // ── 3. Controle do modal ─────────────────────────────────────────
+            window.openRiskModal = function () {
+                modal.classList.add('is-open');
+                // Foco no primeiro botão focável
+                const firstFocusable = modal.querySelector('button');
+                if (firstFocusable) firstFocusable.focus();
+            };
+
+            window.closeRiskModal = function () {
+                modal.classList.remove('is-open');
+                if (enrollBtn) enrollBtn.focus();
+            };
+
+            window.proceedWithRisk = function () {
+                // Usuário optou por prosseguir mesmo com o alerta
+                if (riskInput) riskInput.value = 'true';
+                closeRiskModal();
+                if (enrollForm) enrollForm.submit();
+            };
+
+            // ── 4. Fechar com Escape ─────────────────────────────────────────
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal && modal.classList.contains('is-open')) {
+                    closeRiskModal();
+                }
+            });
+
+            // ── 5. Foco aprisionado no modal ─────────────────────────────────
+            if (modal) {
+                modal.addEventListener('keydown', function (e) {
+                    if (e.key !== 'Tab') return;
+                    const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const first = focusable[0];
+                    const last  = focusable[focusable.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault(); last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault(); first.focus();
+                    }
+                });
+            }
+        })();
         /*]]>*/
     </script>
 </body>

@@ -182,6 +182,9 @@ public class CorridaManagementController {
         model.addAttribute("orgId", orgId);
         model.addAttribute("categorias", Arrays.asList(CategoriaCorrida.values()));
         model.addAttribute("beneficios", Arrays.asList(BeneficioCorrida.values()));
+        model.addAttribute("terrenos", Arrays.asList(Terreno.values()));
+        model.addAttribute("climas", Arrays.asList(ClimaEsperado.values()));
+        model.addAttribute("niveis", Arrays.asList(NivelDificuldade.values()));
         model.addAttribute("isEdicao", isEdicao);
     }
 

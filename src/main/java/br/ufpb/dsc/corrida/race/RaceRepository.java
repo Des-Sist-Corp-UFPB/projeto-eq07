@@ -24,11 +24,13 @@ public interface RaceRepository extends JpaRepository<Race, Long> {
 
     @Query("SELECT COUNT(r) FROM Race r " +
            "WHERE r.organization.organizer.usuario.id = :userId " +
+           "AND r.id <> :raceId " +
            "AND r.status NOT IN ('CANCELADA', 'ENCERRADA') " +
            "AND r.dataInicio < :novoEndTime " +
            "AND r.dataFim > :novoStartTime")
     long countOverlappingOrganizedRaces(
             @Param("userId") Long userId, 
+            @Param("raceId") Long raceId,
             @Param("novoStartTime") OffsetDateTime novoStartTime, 
             @Param("novoEndTime") OffsetDateTime novoEndTime);
 

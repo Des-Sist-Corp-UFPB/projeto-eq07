@@ -46,3 +46,13 @@ logging:
   level:
     br.ufpb.dsc.corrida: INFO
     org.springframework.web: INFO
+    # Logger dedicado para auditoria de elegibilidade — saída deve ter acesso restrito em produção
+    ELIGIBILITY_AUDIT: INFO
+
+litellm:
+  base-url: ${LITELLM_BASE_URL:https://llm.rodrigor.com}
+  api-key: ${LITELLM_API_KEY:sk-ivdkbnUwyFCPx5Cinwj_UBVz4ijT_S_YEqgZvWesymE}
+  model: ${LITELLM_MODEL:gpt-4o}
+  temperature: ${LITELLM_TEMPERATURE:0.1}
+  timeout-ms: ${LITELLM_TIMEOUT_MS:10000}
+  cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}

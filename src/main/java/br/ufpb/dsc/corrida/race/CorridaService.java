@@ -93,6 +93,10 @@ public class CorridaService {
         race.setBeneficios(dto.beneficios() != null ? new HashSet<>(dto.beneficios()) : new HashSet<>());
         race.setStatus(StatusCorrida.RASCUNHO);
         race.setSlug(gerarSlugUnico(dto.nome(), dto.dataInicio().getYear()));
+        race.setTerreno(dto.terreno());
+        race.setGanhoElevacao(dto.ganhoElevacao());
+        race.setClimaEsperado(dto.climaEsperado());
+        race.setNivelDificuldade(dto.nivelDificuldade());
 
         // Calcula rota via ORS (ExternalServiceException propaga para o controller)
         RotaDTO rota = orsClient.calcularRota(dto.largadaLng(), dto.largadaLat(),
@@ -139,6 +143,10 @@ public class CorridaService {
         race.setLargadaEndereco(dto.largadaEndereco());
         race.setChegadaEndereco(dto.chegadaEndereco());
         race.setBeneficios(dto.beneficios() != null ? new HashSet<>(dto.beneficios()) : new HashSet<>());
+        race.setTerreno(dto.terreno());
+        race.setGanhoElevacao(dto.ganhoElevacao());
+        race.setClimaEsperado(dto.climaEsperado());
+        race.setNivelDificuldade(dto.nivelDificuldade());
 
         // ORS optimization: só re-chama se as coordenadas mudaram
         boolean coordenadasMudaram =

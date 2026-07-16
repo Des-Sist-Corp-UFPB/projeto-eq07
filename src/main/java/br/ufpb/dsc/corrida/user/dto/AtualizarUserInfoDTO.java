@@ -28,5 +28,7 @@ public record AtualizarUserInfoDTO(
         LocalDate dataNasc,
         String fotoPerfil,
         NivelCondicionamento nivelCondicionamento,
-        String notasMedicas
+        String notasMedicas,
+
+        Boolean consentimentoSaude
 ) {}

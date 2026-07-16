@@ -90,6 +90,7 @@ public class SecurityConfig {
                         .requestMatchers("/ping", "/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/corridas", "/corridas/**", "/api/geo/search").permitAll()
                         .requestMatchers("/organizacao/*/corridas/**").hasRole("ORGANIZADOR")
+                        .requestMatchers(HttpMethod.POST, "/api/races/*/eligibility-check").authenticated()
                         .requestMatchers("/login", "/registrar", "/registrar/organizador", "/organizacao/*", "/css/**", "/js/**", "/images/**", 
                                                     "/webjars/**", "/manifest.json", "/sw.js", "/corrida.ico"
                                                 ).permitAll()

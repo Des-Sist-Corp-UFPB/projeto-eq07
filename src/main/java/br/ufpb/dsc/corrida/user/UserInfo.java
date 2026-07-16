@@ -64,6 +64,10 @@ public class UserInfo {
     @Column(name = "notas_medicas", columnDefinition = "TEXT")
     private String notasMedicas;
 
+    /** Consentimento para processamento de dados sensíveis de saúde via LLM. */
+    @Column(name = "consentimento_saude", nullable = false)
+    private Boolean consentimentoSaude = false;
+
     /** Timestamp de criação do registro (gerado automaticamente). */
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
