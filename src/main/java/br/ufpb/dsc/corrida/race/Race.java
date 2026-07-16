@@ -108,6 +108,25 @@ public class Race {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private Set<BeneficioCorrida> beneficios = new HashSet<>();
 
+    // === Campos para análise de risco via LLM ===
+    @Enumerated(EnumType.STRING)
+    @Column(name = "terreno", columnDefinition = "terreno_corrida")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private Terreno terreno;
+
+    @Column(name = "ganho_elevacao")
+    private Integer ganhoElevacao;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clima_esperado", columnDefinition = "clima_corrida")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private ClimaEsperado climaEsperado;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nivel_dificuldade", columnDefinition = "dificuldade_corrida")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private NivelDificuldade nivelDificuldade;
+
     // === Organização ===
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = false)

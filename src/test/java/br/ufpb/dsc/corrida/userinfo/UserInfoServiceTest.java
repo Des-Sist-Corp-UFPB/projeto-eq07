@@ -65,7 +65,8 @@ class UserInfoServiceTest {
                 LocalDate.of(1995, 5, 20),
                 null,
                 NivelCondicionamento.INTERMEDIATE,
-                null
+                null,
+                true
         );
     }
 
@@ -101,7 +102,7 @@ class UserInfoServiceTest {
     void criar_deveRetornarValidacao_quandoPesoInvalido() {
         var dtoInvalido = new CriarUserInfoDTO(
                 1L, 0.0f, 175.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, null, null
+                LocalDate.of(1995, 5, 20), null, null, null, true
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
@@ -119,7 +120,7 @@ class UserInfoServiceTest {
     void criar_deveRetornarValidacao_quandoAlturaInvalida() {
         var dtoInvalido = new CriarUserInfoDTO(
                 1L, 70.0f, -1.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, null, null
+                LocalDate.of(1995, 5, 20), null, null, null, true
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
@@ -198,7 +199,7 @@ class UserInfoServiceTest {
     void atualizar_deveRetornarNaoEncontrado_quandoNaoExiste() {
         when(userInfoRepository.findByUsuarioId(99L)).thenReturn(Optional.empty());
 
-        var dto = new AtualizarUserInfoDTO(80.0f, null, null, null, null, null, null);
+        var dto = new AtualizarUserInfoDTO(80.0f, null, null, null, null, null, null, true);
 
         assertThatThrownBy(() -> service.atualizar(99L, dto))
                 .isInstanceOf(UserInfoNaoEncontradoException.class);
@@ -217,7 +218,7 @@ class UserInfoServiceTest {
 
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info));
 
-        var dto = new AtualizarUserInfoDTO(0.0f, null, null, null, null, null, null);
+        var dto = new AtualizarUserInfoDTO(0.0f, null, null, null, null, null, null, true);
 
         assertThatThrownBy(() -> service.atualizar(1L, dto))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -237,7 +238,7 @@ class UserInfoServiceTest {
 
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info));
 
-        var dto = new AtualizarUserInfoDTO(null, -5.0f, null, null, null, null, null);
+        var dto = new AtualizarUserInfoDTO(null, -5.0f, null, null, null, null, null, true);
 
         assertThatThrownBy(() -> service.atualizar(1L, dto))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -258,7 +259,7 @@ class UserInfoServiceTest {
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info));
         when(userInfoRepository.save(any(UserInfo.class))).thenReturn(info);
 
-        var dto = new AtualizarUserInfoDTO(85.0f, null, null, null, null, null, null);
+        var dto = new AtualizarUserInfoDTO(85.0f, null, null, null, null, null, null, true);
 
         UserInfoRespostaDTO resultado = service.atualizar(1L, dto);
 

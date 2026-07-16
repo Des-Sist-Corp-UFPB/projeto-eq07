@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class InscricaoController {
@@ -15,13 +16,12 @@ public class InscricaoController {
     private InscricaoService inscricaoService;
 
     @PostMapping("/corridas/{id}/inscrever")
-    public String inscrever(@AuthenticationPrincipal User user, @PathVariable("id") Long raceId) {
-        Inscricao inscricao = inscricaoService.inscrever(user, raceId);
-        // Retorna para a página da corrida, com HTMX ou redirecionamento padrão
-        return "redirect:/corridas/" + inscricao.getCorrida().getSlug(); 
-        // OBS: Idealmente deve pegar o slug. O redirecionamento pode ser pro painel "Minhas Inscrições"
-        // Retornando redirect direto para a aba de inscricoes:
-        // return "redirect:/minhas-inscricoes";
+    public String inscrever(
+            @AuthenticationPrincipal User user,
+            @PathVariable("id") Long raceId,
+            @RequestParam(value = "riskAcknowledged", required = false, defaultValue = "false") boolean riskAcknowledged) {
+        Inscricao inscricao = inscricaoService.inscrever(user, raceId, riskAcknowledged);
+        return "redirect:/corridas/" + inscricao.getCorrida().getSlug();
     }
 
 

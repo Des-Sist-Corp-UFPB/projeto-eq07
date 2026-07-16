@@ -63,7 +63,7 @@ class UserInfoControllerTest {
                 Genero.MALE, 0.0f,
                 LocalDate.of(1995, 5, 20),
                 null, NivelCondicionamento.INTERMEDIATE, null,
-                null, null
+                true, null, null
         );
     }
 
@@ -104,7 +104,7 @@ class UserInfoControllerTest {
     void post_deveRetornar201_comSucesso() throws Exception {
         CriarUserInfoDTO dto = new CriarUserInfoDTO(
                 1L, 70.5f, 175.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null
+                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null, true
         );
 
         when(userInfoService.criar(any(CriarUserInfoDTO.class))).thenReturn(respostaDTO);
@@ -123,7 +123,7 @@ class UserInfoControllerTest {
     void post_deveRetornar409_quandoJaExiste() throws Exception {
         CriarUserInfoDTO dto = new CriarUserInfoDTO(
                 1L, 70.5f, 175.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null
+                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null, true
         );
 
         when(userInfoService.criar(any(CriarUserInfoDTO.class)))
@@ -142,7 +142,7 @@ class UserInfoControllerTest {
     void post_deveRetornar404_quandoUsuarioNaoExiste() throws Exception {
         CriarUserInfoDTO dto = new CriarUserInfoDTO(
                 999L, 70.5f, 175.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null
+                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null, true
         );
 
         when(userInfoService.criar(any(CriarUserInfoDTO.class)))
@@ -164,13 +164,13 @@ class UserInfoControllerTest {
     @DisplayName("PUT /user-info/{usuarioId} — delega para service.atualizar() e retorna 200")
     void put_deveRetornar200_comSucesso() throws Exception {
         AtualizarUserInfoDTO dto = new AtualizarUserInfoDTO(
-                85.0f, null, null, null, null, null, null
+                85.0f, null, null, null, null, null, null, true
         );
 
         UserInfoRespostaDTO atualizado = new UserInfoRespostaDTO(
                 1L, 1L, 85.0f, 175.0f, Genero.MALE, 0.0f,
                 LocalDate.of(1995, 5, 20), null, NivelCondicionamento.INTERMEDIATE, null,
-                null, null
+                true, null, null
         );
 
         when(userInfoService.atualizar(eq(1L), any(AtualizarUserInfoDTO.class))).thenReturn(atualizado);
@@ -188,7 +188,7 @@ class UserInfoControllerTest {
     @DisplayName("PUT /user-info/{usuarioId} — propaga 404 quando service lança UserInfoNaoEncontradoException")
     void put_deveRetornar404_quandoNaoEncontrado() throws Exception {
         AtualizarUserInfoDTO dto = new AtualizarUserInfoDTO(
-                85.0f, null, null, null, null, null, null
+                85.0f, null, null, null, null, null, null, true
         );
 
         when(userInfoService.atualizar(eq(99L), any(AtualizarUserInfoDTO.class)))
@@ -216,7 +216,7 @@ class UserInfoControllerTest {
         UserInfoRespostaDTO atualizado = new UserInfoRespostaDTO(
                 1L, 1L, 70.0f, 175.0f, Genero.MALE, 0.0f,
                 LocalDate.of(1995, 5, 20), "/uploads/perfil/teste.png", 
-                NivelCondicionamento.INTERMEDIATE, null, null, null
+                NivelCondicionamento.INTERMEDIATE, null, true, null, null
         );
 
         when(userInfoService.uploadFotoPerfil(eq(1L), any())).thenReturn(atualizado);

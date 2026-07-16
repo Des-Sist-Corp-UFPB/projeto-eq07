@@ -143,6 +143,50 @@
                     </div>
                 </div>
 
+                <!-- ───────────────────────────────────────────────────────
+                     Características de Risco da Corrida (usadas na análise IA)
+                ─────────────────────────────────────────────────────────── -->
+                <div class="border-t border-slate-800/80 pt-6 space-y-4">
+                    <h2 class="text-base font-bold text-white uppercase tracking-wider text-xs text-brand-400">
+                        Características da Corrida
+                        <span class="text-slate-500 font-normal normal-case ml-2 text-xs">(usadas na análise de risco por IA)</span>
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="form-label" for="terreno">Terreno</label>
+                            <select id="terreno" th:field="*{terreno}" class="form-select">
+                                <option value="">— Não especificado —</option>
+                                <option th:each="t : ${terrenos}" th:value="${t}" th:text="${t.label}" />
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="climaEsperado">Clima Esperado</label>
+                            <select id="climaEsperado" th:field="*{climaEsperado}" class="form-select">
+                                <option value="">— Não especificado —</option>
+                                <option th:each="c : ${climas}" th:value="${c}" th:text="${c.label}" />
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="nivelDificuldade">Nível de Dificuldade</label>
+                            <select id="nivelDificuldade" th:field="*{nivelDificuldade}" class="form-select">
+                                <option value="">— Não especificado —</option>
+                                <option th:each="n : ${niveis}" th:value="${n}" th:text="${n.label}" />
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="ganhoElevacao">Ganho de Elevação (m)
+                                <span class="text-slate-600 normal-case font-normal">(opcional)</span>
+                            </label>
+                            <input type="number" min="0" id="ganhoElevacao" th:field="*{ganhoElevacao}"
+                                   class="form-input" placeholder="Ex.: 350" />
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Percurso / Geocoding / Maps Section -->
                 <div class="border-t border-slate-800/80 pt-6 space-y-6">
                     <h2 class="text-base font-bold text-white uppercase tracking-wider text-xs text-brand-400">Definição do Percurso</h2>

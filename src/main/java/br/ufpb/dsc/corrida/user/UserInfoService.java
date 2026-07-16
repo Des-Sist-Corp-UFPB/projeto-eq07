@@ -85,6 +85,7 @@ public class UserInfoService {
         userInfo.setFotoPerfil(dto.fotoPerfil());
         userInfo.setNivelCondicionamento(dto.nivelCondicionamento());
         userInfo.setNotasMedicas(dto.notasMedicas());
+        userInfo.setConsentimentoSaude(Boolean.TRUE.equals(dto.consentimentoSaude()));
         userInfo.setTotalKmRun(0.0f);
 
         var salvo = userInfoRepository.save(userInfo);
@@ -154,6 +155,9 @@ public class UserInfoService {
         }
         if (dto.notasMedicas() != null) {
             userInfo.setNotasMedicas(dto.notasMedicas());
+        }
+        if (dto.consentimentoSaude() != null) {
+            userInfo.setConsentimentoSaude(dto.consentimentoSaude());
         }
 
         var atualizado = userInfoRepository.save(userInfo);

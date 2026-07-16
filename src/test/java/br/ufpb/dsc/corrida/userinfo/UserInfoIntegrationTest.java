@@ -96,7 +96,7 @@ class UserInfoIntegrationTest {
         return new CriarUserInfoDTO(
                 usuarioId, 70.5f, 175.0f, Genero.MALE,
                 LocalDate.of(1995, 5, 20),
-                null, NivelCondicionamento.INTERMEDIATE, null
+                null, NivelCondicionamento.INTERMEDIATE, null, true
         );
     }
 
@@ -136,7 +136,7 @@ class UserInfoIntegrationTest {
     void post_deveRetornar404_quandoUsuarioNaoExiste() {
         var dto = new CriarUserInfoDTO(
                 99999L, 70.5f, 175.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.BEGINNER, null
+                LocalDate.of(1995, 5, 20), null, NivelCondicionamento.BEGINNER, null, true
         );
 
         HttpEntity<CriarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());
@@ -153,7 +153,7 @@ class UserInfoIntegrationTest {
     void post_deveRetornar400_quandoPesoInvalido() {
         var dto = new CriarUserInfoDTO(
                 usuarioId, 0.0f, 175.0f, Genero.MALE,
-                LocalDate.of(1995, 5, 20), null, null, null
+                LocalDate.of(1995, 5, 20), null, null, null, true
         );
 
         // Need a fresh user for this test since the original user already has a record
@@ -207,7 +207,7 @@ class UserInfoIntegrationTest {
     @DisplayName("PUT /user/userInfo/{usuarioId} → 200 OK com campos atualizados")
     void put_deveRetornar200_comDadosAtualizados() {
         var dto = new AtualizarUserInfoDTO(
-                85.0f, 180.0f, null, null, null, null, null
+                85.0f, 180.0f, null, null, null, null, null, true
         );
 
         HttpEntity<AtualizarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());
@@ -226,7 +226,7 @@ class UserInfoIntegrationTest {
     @DisplayName("PUT /user/userInfo/{usuarioId} → 400 Bad Request se validação falha")
     void put_deveRetornar400_quandoValidacaoFalha() {
         var dto = new AtualizarUserInfoDTO(
-                -10.0f, null, null, null, null, null, null
+                -10.0f, null, null, null, null, null, null, true
         );
 
         HttpEntity<AtualizarUserInfoDTO> request = new HttpEntity<>(dto, authHeaders());

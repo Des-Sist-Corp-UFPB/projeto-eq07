@@ -83,7 +83,6 @@ public class CorridaServiceTest {
     // =========================================================================
     // Criação
     // =========================================================================
-
     @Test
     @DisplayName("criarCorrida — success")
     void criarCorridaSuccess() {
@@ -97,7 +96,8 @@ public class CorridaServiceTest {
         CriarCorridaDTO dto = new CriarCorridaDTO(
                 "Super Corrida", "Desc", null, BigDecimal.TEN, 100,
                 OffsetDateTime.now().plusDays(5), CategoriaCorrida.C5K,
-                -7.115, -34.863, "Start", -7.125, -34.873, "End", Collections.emptySet()
+                -7.115, -34.863, "Start", -7.125, -34.873, "End", Collections.emptySet(),
+                null, null, null, null
         );
 
         Race race = service.criarCorrida(dto, 100L, ownerUser);
@@ -120,7 +120,8 @@ public class CorridaServiceTest {
         CriarCorridaDTO dto = new CriarCorridaDTO(
                 "Maratona", "Desc", null, BigDecimal.ZERO, 10,
                 OffsetDateTime.now().plusDays(5), CategoriaCorrida.C5K,
-                0.0, 0.0, "Start", 1.0, 1.0, "End", Collections.emptySet()
+                0.0, 0.0, "Start", 1.0, 1.0, "End", Collections.emptySet(),
+                null, null, null, null
         );
 
         assertThatThrownBy(() -> service.criarCorrida(dto, 100L, nonOwnerUser))
@@ -152,7 +153,8 @@ public class CorridaServiceTest {
         EditarCorridaDTO dto = new EditarCorridaDTO(
                 "Maratona Modificada", "Desc", null, BigDecimal.ZERO, 10,
                 OffsetDateTime.now().plusDays(2), CategoriaCorrida.C5K,
-                -7.11, -34.86, "Start", -8.00, -35.00, "End", Collections.emptySet() // different llegada
+                -7.11, -34.86, "Start", -8.00, -35.00, "End", Collections.emptySet(), // different llegada
+                null, null, null, null
         );
 
         Race updated = service.editarCorrida(500L, dto, ownerUser);
@@ -185,7 +187,8 @@ public class CorridaServiceTest {
         EditarCorridaDTO dto = new EditarCorridaDTO(
                 "Maratona Modificada", "Desc", null, BigDecimal.ZERO, 10,
                 OffsetDateTime.now().plusDays(2), CategoriaCorrida.C5K,
-                -7.11, -34.86, "Start", -7.12, -34.87, "End", Collections.emptySet()
+                -7.11, -34.86, "Start", -7.12, -34.87, "End", Collections.emptySet(),
+                null, null, null, null
         );
 
         Race updated = service.editarCorrida(500L, dto, ownerUser);
@@ -209,7 +212,8 @@ public class CorridaServiceTest {
         EditarCorridaDTO dto = new EditarCorridaDTO(
                 "Maratona", "Desc", null, BigDecimal.ZERO, 10,
                 OffsetDateTime.now().plusDays(2), CategoriaCorrida.C5K,
-                0.0, 0.0, "Start", 1.0, 1.0, "End", Collections.emptySet()
+                0.0, 0.0, "Start", 1.0, 1.0, "End", Collections.emptySet(),
+                null, null, null, null
         );
 
         assertThatThrownBy(() -> service.editarCorrida(500L, dto, nonOwnerUser))
@@ -230,7 +234,8 @@ public class CorridaServiceTest {
         EditarCorridaDTO dto = new EditarCorridaDTO(
                 "Maratona", "Desc", null, BigDecimal.ZERO, 10,
                 OffsetDateTime.now().plusHours(12), CategoriaCorrida.C5K,
-                0.0, 0.0, "Start", 1.0, 1.0, "End", Collections.emptySet()
+                0.0, 0.0, "Start", 1.0, 1.0, "End", Collections.emptySet(),
+                null, null, null, null
         );
 
         assertThatThrownBy(() -> service.editarCorrida(500L, dto, ownerUser))
@@ -305,7 +310,6 @@ public class CorridaServiceTest {
 
         assertThat(result).containsExactly(futurePublic);
     }
-
     @Test
     @DisplayName("listarHistorico — returns only ENCERRADA races")
     void listarHistoricoReturnsOnlyEncerrada() {

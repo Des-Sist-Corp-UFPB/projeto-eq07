@@ -35,6 +35,14 @@ ors:
   api-key: ${ORS_API_KEY:eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMzMGZjNjY1ZjgyYTQyN2Y5MDA3M2UxMzQyNzMxMzVlIiwiaCI6Im11cm11cjY0In0=}
   base-url: ${ORS_BASE_URL:https://api.openrouteservice.org} 
 
+litellm:
+  base-url: ${LITELLM_BASE_URL:""}
+  api-key: ${LITELLM_API_KEY:""}
+  model: ${LITELLM_MODEL:""}
+  temperature: ${LITELLM_TEMPERATURE:0.1}
+  timeout-ms: ${LITELLM_TIMEOUT_MS:10000}
+  cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}
+
 logging:
   level:
     level:

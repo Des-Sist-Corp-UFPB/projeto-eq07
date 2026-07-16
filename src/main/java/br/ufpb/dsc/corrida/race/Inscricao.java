@@ -47,6 +47,9 @@ public class Inscricao {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StatusInscricao status = StatusInscricao.ATIVA;
 
+    @Column(name = "alerta_risco_reconhecido", nullable = false)
+    private boolean alertaRiscoReconhecido = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

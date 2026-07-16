@@ -124,7 +124,7 @@ class InscricaoIntegrationTest {
     @DisplayName("Fluxo completo de Inscricao e Encerramento com ganho de KM")
     void testFluxoCompletoInscricaoEncerramento() {
         // 1. Atleta se inscreve
-        Inscricao inscricao = inscricaoService.inscrever(atleta, corrida.getId());
+        Inscricao inscricao = inscricaoService.inscrever(atleta, corrida.getId(), false);
         assertNotNull(inscricao.getId());
 
         // 2. Verifica banco

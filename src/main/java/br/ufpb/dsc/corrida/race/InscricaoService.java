@@ -27,7 +27,7 @@ public class InscricaoService {
     }
 
     @Transactional
-    public Inscricao inscrever(User user, Long raceId) {
+    public Inscricao inscrever(User user, Long raceId, boolean riskAcknowledged) {
         Race race = raceRepository.findById(raceId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada."));
 
@@ -49,21 +49,46 @@ public class InscricaoService {
         int duracao = race.getDuracaoEstimadaMin() != null ? race.getDuracaoEstimadaMin() : 240;
         OffsetDateTime raceEnd = raceStart.plusMinutes(duracao);
 
-        long inscricoesOverlapping = inscricaoRepository.countOverlappingInscricoes(user.getId(), raceStart, raceEnd);
-        if (inscricoesOverlapping > 0) {
-            throw new ConflitoHorarioException("Conflito de horário com outra corrida inscrita.");
+        // Validar conflitos com outras inscrições ativas
+        java.util.List<Inscricao> minhasInscricoes = inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA);
+        for (Inscricao insc : minhasInscricoes) {
+            if (insc.getCorrida().getId().equals(raceId)) {
+                continue;
+            }
+            OffsetDateTime otherStart = insc.getCorrida().getDataInicio();
+            if (otherStart == null) continue;
+            int otherDur = insc.getCorrida().getDuracaoEstimadaMin() != null ? insc.getCorrida().getDuracaoEstimadaMin() : 240;
+            OffsetDateTime otherEnd = otherStart.plusMinutes(otherDur);
+
+            if (otherStart.isBefore(raceEnd) && otherEnd.isAfter(raceStart)) {
+                throw new ConflitoHorarioException("Conflito de horário com outra corrida inscrita.");
+            }
         }
 
-        // Regra: Conflito de Horário (com eventos organizados por ele)
-        long organizedOverlapping = raceRepository.countOverlappingOrganizedRaces(user.getId(), raceStart, raceEnd);
-        if (organizedOverlapping > 0) {
-            throw new ConflitoHorarioException("Conflito de horário com uma corrida que você organiza.");
+        // Validar conflitos com corridas que ele organiza
+        java.util.List<Race> minhasCorridasOrganizadas = raceRepository.findByOrganization_Organizer_Usuario(user);
+        for (Race orgRace : minhasCorridasOrganizadas) {
+            if (orgRace.getId().equals(raceId)) {
+                continue;
+            }
+            if (orgRace.getStatus() == StatusCorrida.CANCELADA || orgRace.getStatus() == StatusCorrida.ENCERRADA) {
+                continue;
+            }
+            OffsetDateTime otherStart = orgRace.getDataInicio();
+            if (otherStart == null) continue;
+            int otherDur = orgRace.getDuracaoEstimadaMin() != null ? orgRace.getDuracaoEstimadaMin() : 240;
+            OffsetDateTime otherEnd = otherStart.plusMinutes(otherDur);
+
+            if (otherStart.isBefore(raceEnd) && otherEnd.isAfter(raceStart)) {
+                throw new ConflitoHorarioException("Conflito de horário com uma corrida que você organiza.");
+            }
         }
 
         Inscricao inscricao = new Inscricao();
         inscricao.setUsuario(user);
         inscricao.setCorrida(race);
         inscricao.setStatus(StatusInscricao.ATIVA);
+        inscricao.setAlertaRiscoReconhecido(riskAcknowledged);
 
         return inscricaoRepository.save(inscricao);
     }
