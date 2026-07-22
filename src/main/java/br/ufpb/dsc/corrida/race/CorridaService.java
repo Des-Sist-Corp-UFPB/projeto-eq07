@@ -251,6 +251,12 @@ public class CorridaService {
     public Race buscarPorSlug(String slug) {
         // Atributo customizado (Requisito do relatório)
         io.opentelemetry.api.trace.Span.current().setAttribute("corrida.slug", slug);
+
+        // Log estruturado com SLF4J 2.0 (Requisito do relatório - Logs no Loki)
+        logger.atInfo()
+              .setMessage("Buscando detalhes da corrida pública")
+              .addKeyValue("corrida.slug", slug)
+              .log();
         
         Race race = raceRepository.findBySlug(slug)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
@@ -265,7 +271,10 @@ public class CorridaService {
     @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.validarStatus")
     private void validarStatusCorrida(Race race) {
         if (race.getStatus() == StatusCorrida.CANCELADA) {
-            throw new CorridaNaoEncontradaException("Corrida não encontrada");
+            CorridaNaoEncontradaException erro = new CorridaNaoEncontradaException("Corrida não encontrada");
+            // Log de erro com exceção (Requisito do relatório - Logs no Loki)
+            logger.error("Acesso bloqueado: a corrida {} está CANCELADA", race.getSlug(), erro);
+            throw erro;
         }
     }
 

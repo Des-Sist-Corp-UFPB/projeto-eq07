@@ -10,6 +10,9 @@ COPY src ./src
 # 2. Compila direto (ele vai baixar as dependências direto aqui, muito mais rápido)
 RUN mvn clean package -DskipTests -B -q
 
+# 3. Baixa o agente do OpenTelemetry aqui no builder (que já tem curl e internet garantida)
+RUN curl -L -o /build/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+
 # ---- Stage 2: Runtime Stage -------------------------------------------------
 FROM eclipse-temurin:22-jre-jammy AS runtime
 
@@ -24,6 +27,8 @@ WORKDIR /app
 
 # Copy only the compiled monolith JAR from the builder stage
 COPY --from=builder /build/target/*.jar app.jar
+# Copia o agente do OTel baixado no passo anterior
+COPY --from=builder /build/opentelemetry-javaagent.jar app-agent.jar
 
 # Set ownership of the application file to the non-root user
 RUN chown appuser:appgroup app.jar
@@ -38,8 +43,9 @@ EXPOSE 8080
 # COMENTADO: HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 #    CMD wget -qO- http://localhost:8080/ping || exit 1
 
-# Production JVM optimizations
+# Production JVM optimizations com o Agente injetado
 ENTRYPOINT ["java", \
+    "-javaagent:app-agent.jar", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
     "-jar", "app.jar"]
