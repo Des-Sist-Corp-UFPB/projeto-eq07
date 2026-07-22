@@ -67,6 +67,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/auditoria_db
       MAVEN_OPTS: "-Xmx1536m"
+      OTEL_SERVICE_NAME: eq07-corrida
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
     deploy:
       resources:
         limits:
@@ -84,6 +90,22 @@ services:
         condition: service_healthy
       mongo:
         condition: service_started
+      otel-lgtm:
+        condition: service_started
+    networks:
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
+  # OpenTelemetry LGTM Stack (Loki, Grafana, Tempo, Mimir)
+  # Acesse o Grafana em: http://localhost:3000
+  # ---------------------------------------------------------------------------
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
     networks:
       - corridas-net
 

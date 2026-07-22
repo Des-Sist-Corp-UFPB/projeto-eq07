@@ -124,6 +124,18 @@
             <version>${webjars-htmx.version}</version>
         </dependency>
 
+        <!-- === OPENTELEMETRY === -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>1.40.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
         <!-- === DEV TOOLS (apenas desenvolvimento) === -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
