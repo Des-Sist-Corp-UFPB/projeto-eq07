@@ -20,10 +20,9 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# O restante do código-fonte é montado via volume no docker-compose.
-# Isso permite hot-reload sem reconstruir a imagem.
+COPY opentelemetry-javaagent.jar /app/otel.jar
 
 EXPOSE 8080
 
 # Spring DevTools requer o argumento -Dspring-boot.run.fork=false para funcionar em container
-CMD ["mvn", "spring-boot:run", "-DskipTests", "-Dspring-boot.run.jvmArguments=-Xmx1536m -Dspring.profiles.active=dev"]
+CMD ["mvn", "spring-boot:run", "-DskipTests", "-Dspring-boot.run.jvmArguments=-Xmx1536m -javaagent:/app/otel.jar -Dspring.profiles.active=dev"]

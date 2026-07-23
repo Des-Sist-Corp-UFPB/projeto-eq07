@@ -25,6 +25,8 @@ WORKDIR /app
 # Copy only the compiled monolith JAR from the builder stage
 COPY --from=builder /build/target/*.jar app.jar
 
+COPY opentelemetry-javaagent.jar /app/otel.jar
+
 # Set ownership of the application file to the non-root user
 RUN chown appuser:appgroup app.jar
 
@@ -42,4 +44,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
+    "-javaagent:/app/otel.jar", \
     "-jar", "app.jar"]

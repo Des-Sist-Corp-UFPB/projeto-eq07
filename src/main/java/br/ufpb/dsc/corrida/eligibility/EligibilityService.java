@@ -130,7 +130,7 @@ public class EligibilityService {
                     ? EligibilitySource.LLM_TIMEOUT
                     : EligibilitySource.LLM_ERROR;
 
-            log.error("[EligibilityService] Erro ou timeout na chamada da LLM. Aplicando fallback de seguranca (apto: true). Erro: {}", e.getMessage());
+            log.error("[EligibilityService] Erro ou timeout na chamada da LLM. Aplicando fallback de seguranca (apto: true).", e);
             AUDIT_LOG.error("userId={} raceId={} timestamp={} source={} error={} result=apto:true (fallback)",
                     userId, raceId, timestamp, source, e.getMessage());
 

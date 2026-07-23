@@ -42,15 +42,6 @@ services:
   # ---------------------------------------------------------------------------
   # Banco de dados MongoDB (Auditoria)
   # ---------------------------------------------------------------------------
-  mongo:
-    image: mongo:latest
-    container_name: corridas-mongo-dev
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-dev-data:/data/db
-    networks:
-      - corridas-net
 
   # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
@@ -67,6 +58,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/auditoria_db
       MAVEN_OPTS: "-Xmx1536m"
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-dsc-eq07}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-lgtm:4318}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+      OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
     deploy:
       resources:
         limits:
@@ -82,8 +80,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mongo:
-        condition: service_started
     networks:
       - corridas-net
 
@@ -101,6 +97,15 @@ services:
       - postgres
     networks:
       - corridas-net
+
+
+  otel-lgtm:
+    image: grafana/otel-lgtm
+    container_name: otel-lgtm
+    ports:
+      - "3000:3000"  
+      - "4317:4317"
+      - "4318:4318"
 
   # ---------------------------------------------------------------------------
   # Trivy: scanner de vulnerabilidades (roda e sai — profile: scan)

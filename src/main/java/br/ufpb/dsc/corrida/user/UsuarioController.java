@@ -34,10 +34,15 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Controller
 @RequestMapping("/user")
 public class UsuarioController {
     
+    private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
+
     @Autowired
     private UsuarioService service;
 
@@ -59,9 +64,11 @@ public class UsuarioController {
             service.registrar(usuarioDTO);
             return "redirect:/login?success=true";
         } catch (UsuarioJaExistenteException e) {
+            log.warn("Tentativa de registrar usuário já existente: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
             return "auth/registrar";
         } catch (Exception e) {
+            log.error("Erro inesperado ao registrar usuário", e);
             model.addAttribute("error", "Ocorreu um erro inesperado. Tente novamente.");
             return "auth/registrar";
         }
