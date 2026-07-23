@@ -116,15 +116,6 @@ services:
     networks:
       - corridas-net
 
-
-  otel-lgtm:
-    image: grafana/otel-lgtm
-    container_name: otel-lgtm
-    ports:
-      - "3000:3000"  
-      - "4317:4317"
-      - "4318:4318"
-
   # ---------------------------------------------------------------------------
   # Trivy: scanner de vulnerabilidades (roda e sai — profile: scan)
   # Uso: docker compose -f docker/docker-compose.dev.yml --profile scan up trivy
