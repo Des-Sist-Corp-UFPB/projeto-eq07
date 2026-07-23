@@ -1,6 +1,5 @@
 package br.ufpb.dsc.corrida.config.security;
 
-import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
