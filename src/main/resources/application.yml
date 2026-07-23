@@ -43,6 +43,8 @@ management:
       show-details: always
 
 logging:
+  pattern:
+    console: "%d{HH:mm:ss} %-5level [trace_id=%X{trace_id} span_id=%X{span_id}] %logger - %msg%n"
   level:
     br.ufpb.dsc.corrida: INFO
     org.springframework.web: INFO
