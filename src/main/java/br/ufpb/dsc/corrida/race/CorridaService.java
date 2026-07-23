@@ -266,8 +266,6 @@ public class CorridaService {
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
         
         validarStatusCorrida(race);
-        simularOperacaoLentaDeRelatorio();
-        
         return race;
     }
 
