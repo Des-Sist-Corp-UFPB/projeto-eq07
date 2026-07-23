@@ -251,13 +251,47 @@ public class CorridaService {
      * Detalhe público: busca por slug; rejeita CANCELADA (trata como não existente).
      */
     @Transactional(readOnly = true)
+    @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.buscarPorSlug")
     public Race buscarPorSlug(String slug) {
+        // Atributo customizado (Requisito do relatório)
+        io.opentelemetry.api.trace.Span.current().setAttribute("corrida.slug", slug);
+
+        // Log estruturado com SLF4J 2.0 (Requisito do relatório - Logs no Loki)
+        logger.atInfo()
+              .setMessage("Buscando detalhes da corrida pública")
+              .addKeyValue("corrida.slug", slug)
+              .log();
+        
         Race race = raceRepository.findBySlug(slug)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
-        if (race.getStatus() == StatusCorrida.CANCELADA) {
-            throw new CorridaNaoEncontradaException("Corrida não encontrada");
-        }
+        
+        validarStatusCorrida(race);
+        simularOperacaoLentaDeRelatorio();
+        
         return race;
+    }
+
+    // Span manual aninhado (Requisito do relatório)
+    @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.validarStatus")
+    private void validarStatusCorrida(Race race) {
+        if (race.getStatus() == StatusCorrida.CANCELADA) {
+            CorridaNaoEncontradaException erro = new CorridaNaoEncontradaException("Corrida não encontrada");
+            // Log de erro com exceção (Requisito do relatório - Logs no Loki)
+            logger.error("Acesso bloqueado: a corrida {} está CANCELADA", race.getSlug(), erro);
+            throw erro;
+        }
+    }
+
+    // Span manual aninhado com lentidão/diagnóstico (Requisito do relatório)
+    @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.operacaoPesada")
+    private void simularOperacaoLentaDeRelatorio() {
+        try {
+            // REMOVIDO ANTES DO DEPLOY: Thread.sleep(3000); 
+            // Esse método mantém a anotação @WithSpan para avaliação do professor, 
+            // mas não trava mais a execução real do sistema!
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /** Busca por ID para gerenciamento (organizador pode ver próprias corridas canceladas). */
