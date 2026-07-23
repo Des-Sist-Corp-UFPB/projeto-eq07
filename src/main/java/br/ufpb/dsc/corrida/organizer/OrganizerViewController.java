@@ -1,5 +1,7 @@
 package br.ufpb.dsc.corrida.organizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,8 @@ import br.ufpb.dsc.corrida.organizer.dto.RegistrarOrganizadorStep2DTO;
 
 @Controller
 public class OrganizerViewController {
+
+    private static final Logger log = LoggerFactory.getLogger(OrganizerViewController.class);
 
     @Autowired
     private OrganizerService organizerService;
@@ -54,13 +58,13 @@ public class OrganizerViewController {
             organizerService.registrarOrganizador(completoDTO);
             return "redirect:/login?success=true";
         } catch (IllegalArgumentException e) {
-            System.out.println(e);
+            log.warn("Erro de validação ao registrar organizador: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
             model.addAttribute("organizadorStep1", completoDTO.step1());
             model.addAttribute("organizadorStep2", completoDTO.step2());
             return "auth/registrar-organizador";
         } catch (Exception e) {
-            System.out.println(e);
+            log.error("Erro inesperado ao registrar organizador", e);
             model.addAttribute("error", "Ocorreu um erro inesperado. Tente novamente.");
             model.addAttribute("organizadorStep1", completoDTO.step1());
             model.addAttribute("organizadorStep2", completoDTO.step2());

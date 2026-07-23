@@ -5,6 +5,8 @@ import br.ufpb.dsc.corrida.race.RaceRepository;
 import br.ufpb.dsc.corrida.user.UserInfo;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;
 import br.ufpb.dsc.corrida.exception.CorridaNaoEncontradaException;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,8 +81,9 @@ public class EligibilityService {
      * @param raceId ID da corrida
      * @return resultado da análise com campo {@code source} indicando a origem
      */
+    @WithSpan("eligibility.check-risk")
     @Cacheable(value = "eligibilityChecks", key = "#userId + '-' + #raceId + '-' + T(br.ufpb.dsc.corrida.eligibility.EligibilityService).profileHash(#userId, @userInfoRepository)")
-    public EligibilityResult check(Long userId, Long raceId) {
+    public EligibilityResult check(@SpanAttribute("user.id") Long userId, @SpanAttribute("race.id") Long raceId) {
         log.info("[EligibilityService] Iniciando checagem de elegibilidade para usuarioId={} e corridaId={}", userId, raceId);
 
         // ── 1. Buscar dados ────────────────────────────────────────────────────
@@ -130,7 +133,7 @@ public class EligibilityService {
                     ? EligibilitySource.LLM_TIMEOUT
                     : EligibilitySource.LLM_ERROR;
 
-            log.error("[EligibilityService] Erro ou timeout na chamada da LLM. Aplicando fallback de seguranca (apto: true). Erro: {}", e.getMessage());
+            log.error("[EligibilityService] Erro ou timeout na chamada da LLM. Aplicando fallback de seguranca (apto: true).", e);
             AUDIT_LOG.error("userId={} raceId={} timestamp={} source={} error={} result=apto:true (fallback)",
                     userId, raceId, timestamp, source, e.getMessage());
 

@@ -131,7 +131,7 @@ public class LiteLlmClient {
             return parseResponse(rawJson);
 
         } catch (ResourceAccessException e) {
-            log.error("[LiteLlmClient] Timeout ou erro de rede ao chamar LiteLLM: {}", e.getMessage());
+            log.error("[LiteLlmClient] Timeout ou erro de rede ao chamar LiteLLM", e);
             throw new LlmUnavailableException("LLM timeout", e);
         } catch (RestClientResponseException e) {
             log.error("[LiteLlmClient] LiteLLM retornou erro HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());

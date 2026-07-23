@@ -12,6 +12,9 @@ import br.ufpb.dsc.corrida.ors.dto.RotaDTO;
 import br.ufpb.dsc.corrida.race.dto.CriarCorridaDTO;
 import br.ufpb.dsc.corrida.race.dto.EditarCorridaDTO;
 import br.ufpb.dsc.corrida.user.User;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +70,10 @@ public class CorridaService {
      *                                      organizador de {@code organizationId}
      * @throws ExternalServiceException     se o ORS não responder
      */
+    @WithSpan("race.criar-corrida")
     @Transactional
     @Auditable(action = "RACE_CREATED", resource = "Corrida")
-    public Race criarCorrida(CriarCorridaDTO dto, Long organizationId, UserDetails usuarioLogado) {
+    public Race criarCorrida(CriarCorridaDTO dto, @SpanAttribute("organization.id") Long organizationId, UserDetails usuarioLogado) {
         Organization org = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Organização não encontrada"));
 
@@ -247,7 +251,7 @@ public class CorridaService {
      * Detalhe público: busca por slug; rejeita CANCELADA (trata como não existente).
      */
     @Transactional(readOnly = true)
-    @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.buscarPorSlug")
+    @WithSpan("CorridaService.buscarPorSlug")
     public Race buscarPorSlug(String slug) {
         // Atributo customizado (Requisito do relatório)
         io.opentelemetry.api.trace.Span.current().setAttribute("corrida.slug", slug);
@@ -262,31 +266,17 @@ public class CorridaService {
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
         
         validarStatusCorrida(race);
-        simularOperacaoLentaDeRelatorio();
-        
         return race;
     }
 
     // Span manual aninhado (Requisito do relatório)
-    @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.validarStatus")
+    @WithSpan("CorridaService.validarStatus")
     private void validarStatusCorrida(Race race) {
         if (race.getStatus() == StatusCorrida.CANCELADA) {
             CorridaNaoEncontradaException erro = new CorridaNaoEncontradaException("Corrida não encontrada");
             // Log de erro com exceção (Requisito do relatório - Logs no Loki)
             logger.error("Acesso bloqueado: a corrida {} está CANCELADA", race.getSlug(), erro);
             throw erro;
-        }
-    }
-
-    // Span manual aninhado com lentidão/diagnóstico (Requisito do relatório)
-    @io.opentelemetry.instrumentation.annotations.WithSpan("CorridaService.operacaoPesada")
-    private void simularOperacaoLentaDeRelatorio() {
-        try {
-            // REMOVIDO ANTES DO DEPLOY: Thread.sleep(3000); 
-            // Esse método mantém a anotação @WithSpan para avaliação do professor, 
-            // mas não trava mais a execução real do sistema!
-        } catch (Exception e) {
-            Thread.currentThread().interrupt();
         }
     }
 

@@ -209,3 +209,70 @@ base_projeto/
   - [GeocodingApiController.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/GeocodingApiController.java) (REST API Proxy para chamadas do front-end)
   - [RotaDTO.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/dto/RotaDTO.java) (DTO de transferência da rota calculada)
   - [application.yml](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/resources/application.yml) (definição de chaves e URLs do serviço)
+
+---
+
+## Observabilidade / Variáveis de Ambiente (OpenTelemetry & LGTM)
+
+A aplicação conta com observabilidade unificada baseada no padrão **OpenTelemetry (OTel)**, exportando os 3 sinais de telemetria (**Traces**, **Métricas** e **Logs**) via protocolo **OTLP** para o backend central Grafana (LGTM / Prometheus + Tempo + Loki).
+
+### Variáveis de Ambiente OpenTelemetry
+
+| Variável de Ambiente | Obrigatória | Propósito | Motivo / Utilidade | Onde obter o valor | Exemplo / Formato |
+|---|---|---|---|---|---|
+| `OTEL_SERVICE_NAME` | **Sim** | Identificador único da aplicação / equipe | Usado para filtrar e correlacionar Traces, Métricas e Logs no Grafana centralizado da turma | Padrão definido pela disciplina (`dsc-eqNN` ou `aps-eqNN`) | `OTEL_SERVICE_NAME=dsc-eq07` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | **Sim** | Endpoint de ingestão do coletor OTLP | Define para onde o Java Agent envia os dados via HTTP/protobuf | Servidor central da turma ou container local LGTM | `OTEL_EXPORTER_OTLP_ENDPOINT=https://` (prod) ou `http://localhost:4318` (local) |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | **Sim** | Protocolo de transporte OTLP | Define a serialização no canal de envio (ex: HTTP protobuf) | Padrão OpenTelemetry OTLP | `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Não / Prod | Cabeçalho HTTP com Token Bearer | Autenticação no coletor OTLP centralizado da disciplina (**NUNCA comitar!**) | Canal oficial da disciplina no Discord | `OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer SEU_TOKEN_AQUI` |
+| `OTEL_TRACES_EXPORTER` | **Sim** | Exportador de Tracing | Ativa o envio de rastros de requisições e queries SQL para o Tempo | Padrão OpenTelemetry | `OTEL_TRACES_EXPORTER=otlp` |
+| `OTEL_METRICS_EXPORTER` | **Sim** | Exportador de Métricas | Ativa o envio de métricas de JVM (heap, GC, threads), HTTP e métricas customizadas para o Prometheus | Padrão OpenTelemetry | `OTEL_METRICS_EXPORTER=otlp` |
+| `OTEL_LOGS_EXPORTER` | **Sim** | Exportador de Logs | Intercepta logs do Logback e os envia ao Loki correlacionados com `trace_id` e `span_id` | Padrão OpenTelemetry | `OTEL_LOGS_EXPORTER=otlp` |
+
+### Como Executar com Observabilidade
+
+#### Execução Local (com Java Agent anexado)
+```bash
+# Definir variáveis de ambiente
+export OTEL_SERVICE_NAME=dsc-eq07
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=otlp
+
+# Rodar a aplicação com o agente OpenTelemetry
+java -javaagent:opentelemetry-javaagent.jar -jar target/mercado-0.0.1-SNAPSHOT.jar
+```
+
+#### Execução via Docker Compose
+```bash
+docker compose -f docker/docker-compose.dev.yml up --build
+```
+
+### Como Validar a Telemetria no Grafana
+
+1. **Métricas (Prometheus)**:
+   - Acesse o Grafana → menu **Dashboards**.
+   - Filtre por `service.name = dsc-eq07`.
+   - Visualize os gráficos de uso de memória JVM, atividade de threads, throughput de requisições HTTP e latência.
+
+2. **Logs Correlacionados (Loki)**:
+   - Acesse o Grafana → menu **Explore** → selecione a fonte de dados **Loki**.
+   - Execute a consulta LogQL: `{service_name="dsc-eq07"}`.
+   - Verifique se os registros de log exibem os atributos do MDC (`requestId`, `userId`, `clientIp`) e o `trace_id`.
+   - Ao clicar em uma linha de log com `trace_id`, clique no botão para navegar diretamente para o rastro correspondente no Tempo.
+
+3. **Traces Distribuidos (Tempo)**:
+   - Acesse o Grafana → menu **Explore** → selecione a fonte de dados **Tempo**.
+   - Filtre por `Service Name = dsc-eq07`.
+   - Clique em um trace para inspecionar a cascata completa de execução (requisição HTTP → controller → queries SQL / serviços externos).
+
+### Instrumentação Manual (@WithSpan)
+
+Para atender aos requisitos de telemetria refinada e fornecer visibilidade sobre passos críticos de negócio, métodos do domínio foram anotados com `@WithSpan` e `@SpanAttribute` da biblioteca OpenTelemetry Instrumentation.
+
+| Classe | Método | Nome do Span (`@WithSpan`) | Atributos Customizados (`@SpanAttribute`) | Motivo da Escolha |
+|---|---|---|---|---|
+| `EligibilityService` | `check(userId, raceId)` | `eligibility.check-risk` | `user.id`, `race.id` | Medir a latência do pipeline de elegibilidade do atleta (consulta de consentimento, rate-limit, cache e chamada à LLM). |
+| `InscricaoService` | `inscrever(user, raceId, riskAcknowledged)` | `race.inscrever-atleta` | `race.id`, `risk.acknowledged` | Isolar a duração da validação de regras de negócio de inscrição (duplicidade, limite de vagas, conflitos de horário). |
+| `CorridaService` | `criarCorrida(dto, organizationId, userDetails)` | `race.criar-corrida` | `organization.id` | Monitorar o tempo gasto na validação de permissões de organização e na criação da corrida. |

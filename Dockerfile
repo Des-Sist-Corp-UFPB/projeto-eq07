@@ -30,6 +30,8 @@ COPY --from=builder /build/target/*.jar app.jar
 # Copia o agente do OTel baixado no passo anterior
 COPY --from=builder /build/opentelemetry-javaagent.jar app-agent.jar
 
+COPY opentelemetry-javaagent.jar /app/otel.jar
+
 # Set ownership of the application file to the non-root user
 RUN chown appuser:appgroup app.jar
 
@@ -48,4 +50,5 @@ ENTRYPOINT ["java", \
     "-javaagent:app-agent.jar", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
+    "-javaagent:/app/otel.jar", \
     "-jar", "app.jar"]

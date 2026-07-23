@@ -27,10 +27,14 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 
 @Controller
 public class CorridaManagementController {
+
+    private static final Logger log = LoggerFactory.getLogger(CorridaManagementController.class);
 
     @Autowired
     private CorridaService service;
@@ -62,6 +66,7 @@ public class CorridaManagementController {
             service.criarCorrida(dto, orgId, usuarioLogado);
             return "redirect:/organizacao/" + orgId + "/corridas";
         } catch (ExternalServiceException e) {
+            log.warn("Erro ao criar corrida para orgId={}: {}", orgId, e.getMessage(), e);
             model.addAttribute("errorMessage", e.getMessage());
             populateFormModel(model, orgId, false);
             model.addAttribute("corrida", dto);
@@ -88,6 +93,7 @@ public class CorridaManagementController {
             service.editarCorrida(id, dto, usuarioLogado);
             return "redirect:/organizacao/" + orgId + "/corridas";
         } catch (ExternalServiceException | IllegalStateException e) {
+            log.warn("Erro ao editar corrida id={}: {}", id, e.getMessage(), e);
             model.addAttribute("errorMessage", e.getMessage());
             populateFormModel(model, orgId, true);
             model.addAttribute("raceId", id);
@@ -131,9 +137,8 @@ public class CorridaManagementController {
         Pageable pageable = PageRequest.of(page, 50);
         Page<Inscricao> inscricoes = inscricaoRepository.findByCorridaId(race.getId(), pageable);
         
-        System.out.println("TOTAL ELEMENTOS: " + inscricoes.getTotalElements());
-        System.out.println("TOTAL PAGES: " + inscricoes.getTotalPages());
-        System.out.println("CONTENT SIZE: " + inscricoes.getContent().size());
+        log.debug("Inscrições buscadas para corrida id={}: totalElements={}, totalPages={}, contentSize={}",
+                race.getId(), inscricoes.getTotalElements(), inscricoes.getTotalPages(), inscricoes.getContent().size());
 
         model.addAttribute("inscricoes", inscricoes);
         model.addAttribute("race", race);

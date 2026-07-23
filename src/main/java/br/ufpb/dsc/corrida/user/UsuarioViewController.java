@@ -1,6 +1,8 @@
 package br.ufpb.dsc.corrida.user;
 
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;   
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,6 +45,8 @@ public class UsuarioViewController {
 
     @Autowired
     private OrganizerService organizerService;
+
+    private static final Logger log = LoggerFactory.getLogger(UsuarioViewController.class);
     
     @GetMapping("/registrar")
     public String exibirFormularioRegistro(Model model) {
@@ -57,7 +61,7 @@ public class UsuarioViewController {
 
     @GetMapping("/minhaConta")
     public String minhaConta(@AuthenticationPrincipal User usuario, Model model) {
-        System.out.println(usuario);
+        log.debug("Acessando minhaConta para usuario: {}", usuario != null ? usuario.getUsername() : null);
         if (usuario != null) {
             try {
                 UserInfoRespostaDTO userInfo = userInfoService.buscarPorUsuarioId(usuario.getId());

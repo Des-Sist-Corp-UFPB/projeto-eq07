@@ -36,11 +36,12 @@ RUN groupadd --gid 1001 mercado && \
 
 WORKDIR /app
 
-# Copiar apenas o JAR do estágio anterior
+# Copiar apenas o JAR do estágio anterior e o agente OTel
 COPY --from=builder /build/target/*.jar app.jar
+COPY opentelemetry-javaagent.jar /app/otel.jar
 
 # Definir owner do arquivo
-RUN chown mercado:mercado app.jar
+RUN chown mercado:mercado app.jar /app/otel.jar
 
 # Trocar para usuário não-root
 USER mercado
@@ -57,5 +58,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
+    "-javaagent:/app/otel.jar", \
     "-Dspring.profiles.active=prod", \
     "-jar", "app.jar"]
