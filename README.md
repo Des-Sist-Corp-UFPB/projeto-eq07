@@ -266,3 +266,13 @@ docker compose -f docker/docker-compose.dev.yml up --build
    - Acesse o Grafana → menu **Explore** → selecione a fonte de dados **Tempo**.
    - Filtre por `Service Name = dsc-eq07`.
    - Clique em um trace para inspecionar a cascata completa de execução (requisição HTTP → controller → queries SQL / serviços externos).
+
+### Instrumentação Manual (@WithSpan)
+
+Para atender aos requisitos de telemetria refinada e fornecer visibilidade sobre passos críticos de negócio, métodos do domínio foram anotados com `@WithSpan` e `@SpanAttribute` da biblioteca OpenTelemetry Instrumentation.
+
+| Classe | Método | Nome do Span (`@WithSpan`) | Atributos Customizados (`@SpanAttribute`) | Motivo da Escolha |
+|---|---|---|---|---|
+| `EligibilityService` | `check(userId, raceId)` | `eligibility.check-risk` | `user.id`, `race.id` | Medir a latência do pipeline de elegibilidade do atleta (consulta de consentimento, rate-limit, cache e chamada à LLM). |
+| `InscricaoService` | `inscrever(user, raceId, riskAcknowledged)` | `race.inscrever-atleta` | `race.id`, `risk.acknowledged` | Isolar a duração da validação de regras de negócio de inscrição (duplicidade, limite de vagas, conflitos de horário). |
+| `CorridaService` | `criarCorrida(dto, organizationId, userDetails)` | `race.criar-corrida` | `organization.id` | Monitorar o tempo gasto na validação de permissões de organização e na criação da corrida. |

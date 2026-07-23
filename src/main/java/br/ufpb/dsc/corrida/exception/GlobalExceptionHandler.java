@@ -6,6 +6,8 @@ import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.race.InscricaoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,10 +25,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     // === Exceções de negócio (já existentes no projeto) ===
 
     @ExceptionHandler(CorridaNaoEncontradaException.class)
     public ResponseEntity<ErrorResponseDTO> tratarCorridaNaoEncontrada(CorridaNaoEncontradaException ex) {
+        log.warn("[Exception] Corrida não encontrada: {}", ex.getMessage());
         var erro = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),
                 "Não encontrado",
@@ -156,6 +161,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> tratarExcecaoGenerica(Exception ex) {
+        log.error("[Exception] Exceção não tratada capturada pelo GlobalExceptionHandler: {}", ex.getMessage(), ex);
         var erro = new ErrorResponseDTO(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro interno",

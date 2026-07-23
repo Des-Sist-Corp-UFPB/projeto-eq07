@@ -12,6 +12,9 @@ import br.ufpb.dsc.corrida.ors.dto.RotaDTO;
 import br.ufpb.dsc.corrida.race.dto.CriarCorridaDTO;
 import br.ufpb.dsc.corrida.race.dto.EditarCorridaDTO;
 import br.ufpb.dsc.corrida.user.User;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +70,10 @@ public class CorridaService {
      *                                      organizador de {@code organizationId}
      * @throws ExternalServiceException     se o ORS não responder
      */
+    @WithSpan("race.criar-corrida")
     @Transactional
     @Auditable(action = "RACE_CREATED", resource = "Corrida")
-    public Race criarCorrida(CriarCorridaDTO dto, Long organizationId, UserDetails usuarioLogado) {
+    public Race criarCorrida(CriarCorridaDTO dto, @SpanAttribute("organization.id") Long organizationId, UserDetails usuarioLogado) {
         Organization org = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Organização não encontrada"));
 

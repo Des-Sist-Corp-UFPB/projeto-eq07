@@ -7,6 +7,8 @@ import br.ufpb.dsc.corrida.exception.race.CorridaCheiaException;
 import br.ufpb.dsc.corrida.exception.race.InscricaoDuplicadaException;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.user.User;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +28,9 @@ public class InscricaoService {
         this.eventPublisher = eventPublisher;
     }
 
+    @WithSpan("race.inscrever-atleta")
     @Transactional
-    public Inscricao inscrever(User user, Long raceId, boolean riskAcknowledged) {
+    public Inscricao inscrever(User user, @SpanAttribute("race.id") Long raceId, @SpanAttribute("risk.acknowledged") boolean riskAcknowledged) {
         Race race = raceRepository.findById(raceId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada."));
 
