@@ -12,7 +12,7 @@
 <body class="bg-gray-100 p-8">
     <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Logs de Auditoria</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Logs de Auditoria (PostgreSQL)</h1>
             <a href="/" class="text-blue-600 hover:underline">Voltar para Home</a>
         </div>
         
@@ -21,30 +21,33 @@
                 <thead>
                     <tr class="bg-gray-50">
                         <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">ID / Data</th>
-                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Ação</th>
-                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Operador</th>
-                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Recurso</th>
-                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Status</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Ação / Método</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Usuário / IP</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Recurso / Target ID</th>
+                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Status Code</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="log : ${logs}" class="hover:bg-gray-50 border-b">
                         <td class="py-2 px-4">
                             <span class="text-xs text-gray-500 block" th:text="${log.id}">ID</span>
-                            <span class="text-sm" th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}">Data</span>
+                            <span class="text-sm" th:text="${#temporals.format(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}">Data</span>
                         </td>
-                        <td class="py-2 px-4 text-sm" th:text="${log.action}">Ação</td>
+                        <td class="py-2 px-4 text-sm">
+                            <span class="font-medium text-gray-900 block" th:text="${log.action}">Ação</span>
+                            <span class="text-xs text-gray-500" th:text="${log.httpMethod}">HTTP</span>
+                        </td>
                         <td class="py-2 px-4">
-                            <span class="text-sm font-medium text-gray-900 block" th:text="${log.operator}">Operador</span>
-                            <span class="text-xs text-gray-500" th:text="${log.ip}">IP</span>
+                            <span class="text-sm font-medium text-gray-900 block" th:text="${log.userId != null ? log.userId : 'anonymous'}">Usuário</span>
+                            <span class="text-xs text-gray-500" th:text="${log.clientIp}">IP</span>
                         </td>
                         <td class="py-2 px-4">
                             <span class="text-sm block" th:text="${log.resource}">Recurso</span>
-                            <span class="text-xs text-gray-500" th:text="'ID: ' + ${log.targetId}">Target ID</span>
+                            <span class="text-xs text-gray-500" th:text="${log.targetId != null ? 'ID: ' + log.targetId : ''}">Target ID</span>
                         </td>
                         <td class="py-2 px-4 text-sm">
-                            <span th:if="${log.errorMessage == null}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Sucesso</span>
-                            <span th:if="${log.errorMessage != null}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:title="${log.errorMessage}">Falha</span>
+                            <span th:if="${log.errorMessage == null}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800" th:text="${log.statusCode != null ? log.statusCode : '200'}">200</span>
+                            <span th:if="${log.errorMessage != null}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:title="${log.errorMessage}" th:text="${log.statusCode != null ? log.statusCode : '500'}">500</span>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(logs)}">

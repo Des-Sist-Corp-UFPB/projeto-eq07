@@ -19,7 +19,7 @@ public class AuditLogController {
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public String listarAuditoria(Model model) {
-        List<AuditLog> logs = auditLogRepository.findAll();
+        List<AuditLog> logs = auditLogRepository.findAllByOrderByCreatedAtDesc();
         model.addAttribute("logs", logs);
         return "admin/auditoria";
     }

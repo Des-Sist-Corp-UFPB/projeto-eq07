@@ -125,7 +125,7 @@ public class UserInfoService {
      * @throws IllegalArgumentException       se peso ou altura fornecidos forem ≤ 0
      */
     @Transactional
-    @Auditable(action = "UPDATE_USER_INFO", resource = "USER_INFO")
+    @Auditable(action = "UPDATE_USER_INFO", resource = "USER_INFO", entityClass = UserInfo.class, idParam = "usuarioId")
     public UserInfoRespostaDTO atualizar(Long usuarioId, AtualizarUserInfoDTO dto) {
         log.info("Atualizando UserInfo para usuarioId={}", usuarioId);
 
@@ -175,7 +175,7 @@ public class UserInfoService {
      * @throws RuntimeException se houver falha de I/O
      */
     @Transactional
-    @Auditable(action = "UPDATE_PROFILE_PHOTO", resource = "USER_INFO")
+    @Auditable(action = "UPDATE_PROFILE_PHOTO", resource = "USER_INFO", entityClass = UserInfo.class, idParam = "usuarioId")
     public UserInfoRespostaDTO uploadFotoPerfil(Long usuarioId, MultipartFile file) {
         log.info("Iniciando upload de foto de perfil para usuarioId={}", usuarioId);
 

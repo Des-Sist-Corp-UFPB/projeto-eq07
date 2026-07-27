@@ -56,7 +56,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
       SPRING_DATASOURCE_USERNAME: corridasdb
       SPRING_DATASOURCE_PASSWORD: C@rR!d@db
-      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/auditoria_db
       MAVEN_OPTS: "-Xmx1536m"
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:dsc-eq07}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-lgtm:4318}
@@ -80,8 +79,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mongo:
-        condition: service_started
       otel-lgtm:
         condition: service_started
     networks:

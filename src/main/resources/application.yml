@@ -19,9 +19,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-  data:
-    mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/audit_db}
+
+audit:
+  trusted-proxies: ${AUDIT_TRUSTED_PROXIES:127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
 
 api:
   security:

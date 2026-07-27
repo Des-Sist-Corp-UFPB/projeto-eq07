@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.race;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.event.RaceCompletedEvent;
 import br.ufpb.dsc.corrida.exception.CorridaNaoEncontradaException;
 import br.ufpb.dsc.corrida.exception.race.ConflitoHorarioException;
@@ -30,6 +31,7 @@ public class InscricaoService {
 
     @WithSpan("race.inscrever-atleta")
     @Transactional
+    @Auditable(action = "RACE_ENROLLMENT", resource = "INSCRICAO", idParam = "raceId")
     public Inscricao inscrever(User user, @SpanAttribute("race.id") Long raceId, @SpanAttribute("risk.acknowledged") boolean riskAcknowledged) {
         Race race = raceRepository.findById(raceId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada."));
@@ -97,6 +99,7 @@ public class InscricaoService {
     }
 
     @Transactional
+    @Auditable(action = "CANCEL_ENROLLMENT", resource = "INSCRICAO", entityClass = Inscricao.class, idParam = "inscricaoId")
     public void cancelar(User user, Long inscricaoId) {
         Inscricao inscricao = inscricaoRepository.findById(inscricaoId)
                 .orElseThrow(() -> new RuntimeException("Inscrição não encontrada."));
@@ -110,6 +113,7 @@ public class InscricaoService {
     }
 
     @Transactional
+    @Auditable(action = "CONFIRM_ATTENDANCE", resource = "INSCRICAO", entityClass = Inscricao.class, idParam = "inscricaoId")
     public void marcarPresenca(User organizador, Long inscricaoId, boolean presente) {
         Inscricao inscricao = inscricaoRepository.findById(inscricaoId)
                 .orElseThrow(() -> new RuntimeException("Inscrição não encontrada."));

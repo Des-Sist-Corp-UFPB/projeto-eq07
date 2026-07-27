@@ -46,6 +46,9 @@ public class SecurityConfig {
     @Autowired
     private AutenticacaoFilter autenticacaoFilter;
 
+    @Autowired
+    private br.ufpb.dsc.corrida.audit.AuditContextFilter auditContextFilter;
+
     /**
      * Define o algoritmo de codificação de senhas.
      *
@@ -114,7 +117,8 @@ public class SecurityConfig {
                 // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
-                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(auditContextFilter, AutenticacaoFilter.class);
 
         return http.build();
     }
