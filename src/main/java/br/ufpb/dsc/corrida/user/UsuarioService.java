@@ -33,6 +33,7 @@ public class UsuarioService {
     private TokenService tokenService;
 
 
+    @Auditable(action = "REGISTER_USER", resource = "USER")
     public String registrar(RegistrarUsuarioDTO usuarioDTO) {
         log.info("Iniciando serviço de registro de usuário");
         if (repository.existsByLogin(usuarioDTO.login())) {
@@ -55,7 +56,7 @@ public class UsuarioService {
         return tokenService.criarToken((User) autenticacao.getPrincipal());
     }
 
-    @Auditable(action = "EDIT_USER", resource = "USER")
+    @Auditable(action = "EDIT_USER", resource = "USER", entityClass = User.class, idParam = "id")
     public User editar(EditarUsuarioDTO dadosUsuario, Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         User usuarioLogado = (User) auth.getPrincipal();
@@ -67,7 +68,7 @@ public class UsuarioService {
         return usuario;
     }
 
-    @Auditable(action = "DELETE_USER", resource = "USER")
+    @Auditable(action = "DELETE_USER", resource = "USER", entityClass = User.class, idParam = "id")
     public void deletar(Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         User usuarioLogado = (User) auth.getPrincipal();

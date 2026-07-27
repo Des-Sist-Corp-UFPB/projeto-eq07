@@ -1,13 +1,14 @@
 package br.ufpb.dsc.corrida.audit;
 
 import br.ufpb.dsc.corrida.race.Race;
-import br.ufpb.dsc.corrida.race.RaceRepository;
+import br.ufpb.dsc.corrida.user.dto.LoginDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,10 +35,7 @@ public class AuditAspectTest {
     private MethodSignature methodSignature;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
-
-    @Mock
-    private RaceRepository raceRepository;
+    private AuditLogService auditLogService;
 
     @InjectMocks
     private AuditAspect aspect;
@@ -54,11 +53,7 @@ public class AuditAspectTest {
         private String token;
         private String accessToken;
         private String refreshToken;
-        private String tokenRedefinicao;
-        private String resetToken;
-        
-        @lombok.ToString.Exclude
-        private String confidentialNotes;
+        private String cpf;
     }
 
     @BeforeEach
@@ -66,37 +61,45 @@ public class AuditAspectTest {
         auditable = mock(Auditable.class);
         lenient().when(auditable.action()).thenReturn("RACE_CREATED");
         lenient().when(auditable.resource()).thenReturn("Corrida");
+        lenient().when(auditable.entityClass()).thenReturn((Class) Void.class);
+        lenient().when(auditable.idParam()).thenReturn("");
+
+        AuditContext.setUserId("user_test");
+        AuditContext.setRequestId("req_123");
+        AuditContext.setClientIp("192.168.1.100");
+        AuditContext.setUserAgent("JUnit/TestAgent");
+        AuditContext.setHttpMethod("POST");
+        AuditContext.setResource("/api/races");
+        AuditContext.setStatusCode(201);
     }
 
-    /*@Test
-    @DisplayName("Should successfully sanitize sensitive and excluded fields")
+    @AfterEach
+    void tearDown() {
+        AuditContext.clear();
+    }
+
+    @Test
+    @DisplayName("Should successfully sanitize sensitive fields into *****")
     void shouldSanitizeSensitiveData() {
         DummyClass dummy = new DummyClass(
                 "john_doe", "pass123", "senha123", "tok123",
-                "access123", "refresh123", "redef123", "reset123",
-                "do not look"
+                "access123", "refresh123", "12345678900"
         );
 
         Map<String, Object> cleanMap = AuditAspect.mapearParaMapLimpo(dummy);
 
         assertThat(cleanMap).isNotNull();
         assertThat(cleanMap.get("username")).isEqualTo("john_doe");
-        
-        // Excluded sensitive names
-        assertThat(cleanMap).doesNotContainKey("password");
-        assertThat(cleanMap).doesNotContainKey("senha");
-        assertThat(cleanMap).doesNotContainKey("token");
-        assertThat(cleanMap).doesNotContainKey("accessToken");
-        assertThat(cleanMap).doesNotContainKey("refreshToken");
-        assertThat(cleanMap).doesNotContainKey("tokenRedefinicao");
-        assertThat(cleanMap).doesNotContainKey("resetToken");
-        
-        // Excluded @ToString.Exclude fields
-        assertThat(cleanMap).doesNotContainKey("confidentialNotes");
-    } */
+        assertThat(cleanMap.get("password")).isEqualTo("*****");
+        assertThat(cleanMap.get("senha")).isEqualTo("*****");
+        assertThat(cleanMap.get("token")).isEqualTo("*****");
+        assertThat(cleanMap.get("accessToken")).isEqualTo("*****");
+        assertThat(cleanMap.get("refreshToken")).isEqualTo("*****");
+        assertThat(cleanMap.get("cpf")).isEqualTo("*****");
+    }
 
     @Test
-    @DisplayName("Should log successful method execution and publish success event")
+    @DisplayName("Should log successful method execution and call saveAuditLogAsync")
     void shouldAuditSuccess() throws Throwable {
         Race mockRace = new Race();
         mockRace.setId(100L);
@@ -111,19 +114,54 @@ public class AuditAspectTest {
 
         assertThat(result).isEqualTo(mockRace);
 
-        ArgumentCaptor<AuditLogEvent> eventCaptor = ArgumentCaptor.forClass(AuditLogEvent.class);
-        verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
+        ArgumentCaptor<AuditLog> logCaptor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogService, times(1)).saveAuditLogAsync(logCaptor.capture());
 
-        AuditLogEvent publishedEvent = eventCaptor.getValue();
-        assertThat(publishedEvent.isSuccess()).isTrue();
-        assertThat(publishedEvent.getAuditLog().getAction()).isEqualTo("RACE_CREATED");
-        assertThat(publishedEvent.getAuditLog().getResource()).isEqualTo("Corrida");
-        assertThat(publishedEvent.getAuditLog().getTargetId()).isEqualTo("100");
-        assertThat(publishedEvent.getAuditLog().getErrorMessage()).isNull();
+        AuditLog savedLog = logCaptor.getValue();
+        assertThat(savedLog.getAction()).isEqualTo("RACE_CREATED");
+        assertThat(savedLog.getResource()).isEqualTo("Corrida");
+        assertThat(savedLog.getUserId()).isEqualTo("user_test");
+        assertThat(savedLog.getRequestId()).isEqualTo("req_123");
+        assertThat(savedLog.getClientIp()).isEqualTo("192.168.1.100");
+        assertThat(savedLog.getUserAgent()).isEqualTo("JUnit/TestAgent");
+        assertThat(savedLog.getHttpMethod()).isEqualTo("POST");
+        assertThat(savedLog.getStatusCode()).isEqualTo(201);
+        assertThat(savedLog.getTargetId()).isEqualTo("100");
+        assertThat(savedLog.getErrorMessage()).isNull();
     }
 
     @Test
-    @DisplayName("Should log failed method execution, append _FAILED to action, store error message, publish fail event and rethrow exception")
+    @DisplayName("Should audit LOGIN action correctly and extract username from LoginDto even if unauthenticated prior to call")
+    void shouldAuditLoginAction() throws Throwable {
+        AuditContext.clear(); // unauthenticated initially
+        Auditable loginAuditable = mock(Auditable.class);
+        when(loginAuditable.action()).thenReturn("LOGIN");
+        when(loginAuditable.resource()).thenReturn("USER");
+        when(loginAuditable.entityClass()).thenReturn((Class) Void.class);
+        when(loginAuditable.idParam()).thenReturn("");
+
+        LoginDto credenciais = new LoginDto("john_login", "pass123");
+        when(joinPoint.getSignature()).thenReturn(methodSignature);
+        when(methodSignature.getParameterNames()).thenReturn(new String[]{"credenciais"});
+        when(joinPoint.getArgs()).thenReturn(new Object[]{credenciais});
+        when(joinPoint.proceed()).thenReturn("eyJhbGciOiJIUzI1NiJ9.fakeTokenString");
+
+        Object result = aspect.audit(joinPoint, loginAuditable);
+
+        assertThat(result).isNotNull();
+
+        ArgumentCaptor<AuditLog> logCaptor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogService, times(1)).saveAuditLogAsync(logCaptor.capture());
+
+        AuditLog savedLog = logCaptor.getValue();
+        assertThat(savedLog.getAction()).isEqualTo("LOGIN");
+        assertThat(savedLog.getResource()).isEqualTo("USER");
+        assertThat(savedLog.getUserId()).isEqualTo("john_login");
+        assertThat(savedLog.getEntityAfter()).contains("*****");
+    }
+
+    @Test
+    @DisplayName("Should log failed method execution, append _FAILED to action, store error message and rethrow exception")
     void shouldAuditFailure() throws Throwable {
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getParameterNames()).thenReturn(new String[]{"id"});
@@ -134,13 +172,13 @@ public class AuditAspectTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Validation error");
 
-        ArgumentCaptor<AuditLogEvent> eventCaptor = ArgumentCaptor.forClass(AuditLogEvent.class);
-        verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
+        ArgumentCaptor<AuditLog> logCaptor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogService, times(1)).saveAuditLogAsync(logCaptor.capture());
 
-        AuditLogEvent publishedEvent = eventCaptor.getValue();
-        assertThat(publishedEvent.isSuccess()).isFalse();
-        assertThat(publishedEvent.getAuditLog().getAction()).isEqualTo("RACE_CREATED_FAILED");
-        assertThat(publishedEvent.getAuditLog().getErrorMessage()).isEqualTo("Validation error");
-        assertThat(publishedEvent.getAuditLog().getTargetId()).isEqualTo("100");
+        AuditLog savedLog = logCaptor.getValue();
+        assertThat(savedLog.getAction()).isEqualTo("RACE_CREATED_FAILED");
+        assertThat(savedLog.getErrorMessage()).isEqualTo("Validation error");
+        assertThat(savedLog.getTargetId()).isEqualTo("100");
+        assertThat(savedLog.getUserId()).isEqualTo("user_test");
     }
 }

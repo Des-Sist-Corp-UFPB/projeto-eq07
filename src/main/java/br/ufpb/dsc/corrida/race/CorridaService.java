@@ -125,7 +125,7 @@ public class CorridaService {
      * @throws IllegalStateException        se a corrida começa em menos de 24h
      */
     @Transactional
-    @Auditable(action = "RACE_UPDATED", resource = "Corrida")
+    @Auditable(action = "RACE_UPDATED", resource = "Corrida", entityClass = Race.class, idParam = "id")
     public Race editarCorrida(Long id, EditarCorridaDTO dto, UserDetails usuarioLogado) {
         Race race = raceRepository.findById(id)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
@@ -183,7 +183,7 @@ public class CorridaService {
     // =========================================================================
 
     @Transactional
-    @Auditable(action = "RACE_CANCELLED", resource = "Corrida")
+    @Auditable(action = "RACE_CANCELLED", resource = "Corrida", entityClass = Race.class, idParam = "id")
     public void cancelarCorrida(Long id, UserDetails usuarioLogado) {
         Race race = raceRepository.findById(id)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
@@ -198,7 +198,7 @@ public class CorridaService {
     // =========================================================================
 
     @Transactional
-    @Auditable(action = "RACE_PUBLISHED", resource = "Corrida")
+    @Auditable(action = "RACE_PUBLISHED", resource = "Corrida", entityClass = Race.class, idParam = "id")
     public void publicarCorrida(Long id, UserDetails usuarioLogado) {
         Race race = raceRepository.findById(id)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));

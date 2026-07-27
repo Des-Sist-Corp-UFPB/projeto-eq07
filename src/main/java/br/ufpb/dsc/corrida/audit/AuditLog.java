@@ -1,18 +1,25 @@
 package br.ufpb.dsc.corrida.audit;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.UUID;
 
-@Document(collection = "audit_logs")
+@Entity
+@Table(name = "audit_logs")
 @Getter
 @Setter
 @Builder
@@ -21,30 +28,54 @@ import java.util.Map;
 public class AuditLog {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Indexed
-    private String action;
+    @Column(name = "user_id")
+    private String userId;
 
-    @Indexed
-    private String operator;
+    @Column(name = "request_id", length = 100)
+    private String requestId;
 
-    private String ip;
+    @Column(name = "client_ip", length = 45)
+    private String clientIp;
 
+    @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
 
+    @Column(name = "http_method", length = 10)
     private String httpMethod;
 
+    @Column(name = "resource")
     private String resource;
 
+    @Column(name = "action")
+    private String action;
+
+    @Column(name = "status_code")
+    private Integer statusCode;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "entity_before", columnDefinition = "jsonb")
+    private String entityBefore;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "entity_after", columnDefinition = "jsonb")
+    private String entityAfter;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "target_id")
     private String targetId;
 
-    private Map<String, Object> stateBefore;
-
-    private Map<String, Object> stateAfter;
-
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Indexed(expireAfterSeconds = 7776000)
-    private Instant timestamp;
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+    }
 }

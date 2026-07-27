@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.eligibility;
 
+import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.race.Race;
 import br.ufpb.dsc.corrida.race.RaceRepository;
 import br.ufpb.dsc.corrida.user.UserInfo;
@@ -83,6 +84,7 @@ public class EligibilityService {
      */
     @WithSpan("eligibility.check-risk")
     @Cacheable(value = "eligibilityChecks", key = "#userId + '-' + #raceId + '-' + T(br.ufpb.dsc.corrida.eligibility.EligibilityService).profileHash(#userId, @userInfoRepository)")
+    @Auditable(action = "ELIGIBILITY_CHECK", resource = "ELIGIBILITY", idParam = "raceId")
     public EligibilityResult check(@SpanAttribute("user.id") Long userId, @SpanAttribute("race.id") Long raceId) {
         log.info("[EligibilityService] Iniciando checagem de elegibilidade para usuarioId={} e corridaId={}", userId, raceId);
 

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import br.ufpb.dsc.corrida.audit.AuditLogRepository;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
 import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
@@ -52,8 +51,6 @@ public class UsuarioController {
     @Autowired
     private UserConnectionService userConnectionService;
 
-    @Autowired
-    private AuditLogRepository auditLogRepository;
 
     @PostMapping("/registrar")
     public String registrarUsuario(@ModelAttribute("usuario") @Valid RegistrarUsuarioDTO usuarioDTO, BindingResult bindingResult, Model model) {
