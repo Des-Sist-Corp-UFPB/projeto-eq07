@@ -77,7 +77,8 @@ public class AuditContextFilter extends OncePerRequestFilter {
         }
         return remoteAddr;
     }
-
+    
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     private boolean isTrustedProxy(String remoteAddr) {
         if (remoteAddr == null) {
             return false;
