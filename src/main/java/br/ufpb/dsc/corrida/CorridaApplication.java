@@ -10,7 +10,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "br.ufpb.dsc.corrida.race",
     "br.ufpb.dsc.corrida.organizer",
     "br.ufpb.dsc.corrida.userConections",
-    "br.ufpb.dsc.corrida.audit"
+    "br.ufpb.dsc.corrida.audit",
+    "br.ufpb.dsc.corrida.featuretoggle",
 })
 public class CorridaApplication {
 

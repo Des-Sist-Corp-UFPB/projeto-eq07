@@ -6,6 +6,7 @@ import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoJaExistenteException;
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.exception.race.InscricaoException;
+import br.ufpb.dsc.corrida.featuretoggle.FeatureDisabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
 
 /**
  * Tratamento centralizado de exceções para toda a API.
@@ -155,6 +158,20 @@ public class GlobalExceptionHandler {
                 mensagem
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    // === Feature Toggle ===
+
+    /**
+     * Trata tentativas de acesso a funcionalidades protegidas por Feature Flag desabilitada.
+     * Retorna HTTP 503 Service Unavailable para sinalizar indisponibilidade temporária do recurso.
+     */
+    @ExceptionHandler(FeatureDisabledException.class)
+    public ResponseEntity<Map<String, String>> tratarFeatureDesabilitada(FeatureDisabledException ex) {
+        log.warn("[FeatureToggle] Acesso bloqueado: feature '{}' está desabilitada.", ex.getFeatureKey());
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("error", ex.getMessage()));
     }
 
     // === Fallback genérico (qualquer outra exceção) ===
