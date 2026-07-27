@@ -41,6 +41,10 @@ public class AuditAspect {
     private AuditLogService auditLogService;
 
     @Autowired(required = false)
+    @org.springframework.context.annotation.Lazy
+    private br.ufpb.dsc.corrida.featuretoggle.FeatureToggleService featureToggleService;
+
+    @Autowired(required = false)
     private EntityManager entityManager;
 
     private static final ObjectMapper jsonMapper = new ObjectMapper()
@@ -50,6 +54,11 @@ public class AuditAspect {
 
     @Around("@annotation(auditable)")
     public Object audit(ProceedingJoinPoint joinPoint, Auditable auditable) throws Throwable {
+        if (featureToggleService != null && !featureToggleService.isFeatureEnabled("AUDIT_NEW_PIPELINE")) {
+            log.debug("[Audit] Auditoria ignorada pois o feature flag 'AUDIT_NEW_PIPELINE' está desabilitado.");
+            return joinPoint.proceed();
+        }
+
         // 1. Snapshot dos dados do contexto na thread síncrona HTTP
         AuditContextSnapshot snapshot = AuditContext.getSnapshot();
 
