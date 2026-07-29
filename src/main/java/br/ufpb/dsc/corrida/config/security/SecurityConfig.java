@@ -97,11 +97,20 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/registrar", "/registrar/organizador", "/organizacao/*", "/css/**", "/js/**", "/images/**", 
                                                     "/webjars/**", "/manifest.json", "/sw.js", "/corrida.ico"
                                                 ).permitAll()
+                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMINISTRADOR")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler((request, response, authentication) -> {
+                            boolean isAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"));
+                            if (isAdmin) {
+                                response.sendRedirect("/admin");
+                            } else {
+                                response.sendRedirect("/");
+                            }
+                        })
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

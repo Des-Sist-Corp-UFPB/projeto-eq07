@@ -20,10 +20,7 @@ public class AuditLogService {
 
     @Async("auditTaskExecutor")
     public void saveAuditLogAsync(AuditLog auditLog) {
-        if (featureToggleService != null && !featureToggleService.isFeatureEnabled("AUDIT_NEW_PIPELINE")) {
-            log.debug("[Audit] Log de auditoria ignorado pois o feature flag 'AUDIT_NEW_PIPELINE' está desabilitado.");
-            return;
-        }
+
 
         try {
             AuditLog salvo = auditLogRepository.save(auditLog);

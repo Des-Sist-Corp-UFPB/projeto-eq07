@@ -59,7 +59,7 @@
             Início
         </a>
 
-        <a th:href="@{/corridas}" th:class="'nav-link ' + (${activePage == 'corridas'} ? 'active' : '')">
+        <a th:if="${@featureToggleService.isFeatureEnabled('SEARCH_RACES')}" th:href="@{/corridas}" th:class="'nav-link ' + (${activePage == 'corridas'} ? 'active' : '')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 flex-shrink-0">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
             </svg>
@@ -73,7 +73,7 @@
             Minhas Inscrições
         </a>
 
-        <a sec:authorize="hasRole('ORGANIZADOR')" th:if="${userOrganizationId != null}" th:href="@{|/organizacao/${userOrganizationId}/corridas|}" th:class="'nav-link ' + (${activePage == 'minhas-corridas'} ? 'active' : '')">
+        <a sec:authorize="hasRole('ORGANIZADOR')" th:if="${userOrganizationId != null and @featureToggleService.isFeatureEnabled('CREATE_RACE')}" th:href="@{|/organizacao/${userOrganizationId}/corridas|}" th:class="'nav-link ' + (${activePage == 'minhas-corridas'} ? 'active' : '')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 flex-shrink-0">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
             </svg>
@@ -97,6 +97,15 @@
                 <span>Solicitações</span>
             </div>
             <span th:if="${pendingRequestsCount > 0}" th:text="${pendingRequestsCount}" class="bg-brand-500 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full glow-orange">3</span>
+        </a>
+
+        <!-- Painel Admin -->
+        <a sec:authorize="hasRole('ADMINISTRADOR')" th:href="@{/admin}" th:class="'nav-link ' + (${activePage == 'admin'} ? 'active' : '')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+            </svg>
+            Painel Admin
         </a>
 
         <!-- Login / Sign Up — only for anonymous (logged-out) users -->

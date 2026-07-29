@@ -33,6 +33,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Papel papel;
     private Boolean deletado;
+    private Boolean bloqueado;
 
     public User(RegistrarUsuarioDTO usuario) {
         var bcrypt = new BCryptPasswordEncoder();
@@ -42,6 +43,7 @@ public class User implements UserDetails {
         this.senha = bcrypt.encode(usuario.senha());
         this.papel = Papel.USUARIO;
         this.deletado = false;
+        this.bloqueado = false;
     }
 
     public User(br.ufpb.dsc.corrida.organizer.dto.RegistrarOrganizadorStep1DTO usuario, Papel papel) {
@@ -52,6 +54,7 @@ public class User implements UserDetails {
         this.senha = bcrypt.encode(usuario.senha());
         this.papel = papel;
         this.deletado = false;
+        this.bloqueado = false;
     }
 
     public void editar(EditarUsuarioDTO dadosUsuario) {
@@ -84,5 +87,10 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return login;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.bloqueado == null || !this.bloqueado;
     }
 }

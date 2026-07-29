@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import br.ufpb.dsc.corrida.user.User;
 
 /**
  * Implementação de {@link FeatureToggleProvider} que consulta o banco de dados PostgreSQL
@@ -28,24 +32,43 @@ import org.springframework.stereotype.Component;
 public class DatabaseFeatureToggleProvider implements FeatureToggleProvider {
 
     private final FeatureFlagRepository featureFlagRepository;
+    private final UserFeatureFlagRepository userFeatureFlagRepository;
+
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private DatabaseFeatureToggleProvider self;
 
     /**
      * {@inheritDoc}
      *
-     * <p>Resultados {@code true} são cacheados. Resultados {@code false} são sempre consultados
-     * no banco de dados para detectar habilitações imediatamente.
-     *
-     * <p>Se a chave não existir no banco, retorna {@code false} por padrão (fail-safe).
+     * <p>Verifica o banco globalmente via cache. Se não estiver ativo globalmente,
+     * verifica a permissão específica do usuário logado (sem cache global).
      */
     @Override
-    @Cacheable(value = "featureFlags", key = "#featureKey", unless = "#result == false")
     public boolean isEnabled(String featureKey) {
+        boolean globalEnabled = self.isGlobalEnabled(featureKey);
+
+        if (globalEnabled) {
+            return true;
+        }
+
+        // Verifica permissão específica do usuário logado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User user) {
+            return userFeatureFlagRepository.existsByUserIdAndFeatureName(user.getId(), featureKey);
+        }
+
+        return false;
+    }
+
+    /**
+     * Verifica globalmente se a flag está ativa e faz cache se for `true`.
+     */
+    @Cacheable(value = "featureFlags", key = "#featureKey", unless = "#result == false")
+    public boolean isGlobalEnabled(String featureKey) {
         return featureFlagRepository.findByKeyName(featureKey)
                 .map(FeatureFlag::isEnabled)
-                .orElseGet(() -> {
-                    log.warn("[FeatureToggle] Flag '{}' não encontrada no banco de dados. Retornando false por padrão.", featureKey);
-                    return false;
-                });
+                .orElse(false);
     }
 
     /**
