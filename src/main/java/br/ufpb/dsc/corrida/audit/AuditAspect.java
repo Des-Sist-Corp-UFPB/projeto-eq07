@@ -54,8 +54,9 @@ public class AuditAspect {
 
     @Around("@annotation(auditable)")
     public Object audit(ProceedingJoinPoint joinPoint, Auditable auditable) throws Throwable {
+
+        // 0. Verifica se a pipeline de auditoria está ativa
         if (featureToggleService != null && !featureToggleService.isFeatureEnabled("AUDIT_NEW_PIPELINE")) {
-            log.debug("[Audit] Auditoria ignorada pois o feature flag 'AUDIT_NEW_PIPELINE' está desabilitado.");
             return joinPoint.proceed();
         }
 

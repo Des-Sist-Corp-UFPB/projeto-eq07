@@ -14,6 +14,7 @@ import br.ufpb.dsc.corrida.race.dto.EditarCorridaDTO;
 import br.ufpb.dsc.corrida.user.User;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import br.ufpb.dsc.corrida.featuretoggle.FeatureToggle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,8 @@ public class CorridaService {
      */
     @WithSpan("race.criar-corrida")
     @Transactional
-    @Auditable(action = "RACE_CREATED", resource = "Corrida")
+    @Auditable(action = "CRIAR_CORRIDA", resource = "Race")
+    @FeatureToggle("CREATE_RACE")
     public Race criarCorrida(CriarCorridaDTO dto, @SpanAttribute("organization.id") Long organizationId, UserDetails usuarioLogado) {
         Organization org = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Organização não encontrada"));
@@ -217,6 +219,8 @@ public class CorridaService {
      * Feed público: apenas corridas PUBLICADA com dataInicio no futuro.
      */
     @Transactional(readOnly = true)
+    @Auditable(action = "LISTAR_CORRIDAS", resource = "Race")
+    @FeatureToggle("SEARCH_RACES")
     public Page<Race> listarCorridas(Pageable pageable) {
         OffsetDateTime agora = OffsetDateTime.now();
         return raceRepository.findAllByStatusInAndDataInicioAfter(List.of(StatusCorrida.PUBLICADA), agora, pageable);

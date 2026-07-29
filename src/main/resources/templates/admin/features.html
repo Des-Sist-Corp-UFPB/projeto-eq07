@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Funcionalidades — Corrida DSC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" th:href="@{/corrida.ico}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+
+<div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
+
+<main class="md:ml-[260px] min-h-screen px-5 md:px-8 py-8">
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white">Feature Toggles</h1>
+                <p class="text-sm text-slate-400 mt-1">Ative ou desative funcionalidades do sistema em tempo real</p>
+            </div>
+            <a th:href="@{/admin}" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">← Voltar</a>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden glow-card p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="feature : ${featuresPage.content}" class="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shadow-lg"
+                             th:classappend="${feature.enabled} ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-slate-600'">
+                            <svg th:if="${feature.enabled}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            <svg th:unless="${feature.enabled}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold border"
+                              th:classappend="${feature.enabled} ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-700/50 text-slate-400 border-slate-700'"
+                              th:text="${feature.enabled ? 'LIGADO' : 'DESLIGADO'}">
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1" th:text="${feature.keyName}"></h3>
+                    <p class="text-sm text-slate-400 mb-5 min-h-[40px]" th:text="${feature.description}"></p>
+                    <button class="w-full py-2.5 rounded-xl font-bold text-sm transition-all"
+                            th:classappend="${feature.enabled} ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-brand-600 text-white hover:bg-brand-500 glow-btn'"
+                            th:data-feature="${feature.keyName}"
+                            onclick="toggleFeature(this.getAttribute('data-feature'))">
+                        <span th:if="${feature.enabled}">Desativar</span>
+                        <span th:unless="${feature.enabled}">Ativar</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(featuresPage.content)}" class="py-12 text-center text-slate-500">
+                Nenhuma funcionalidade cadastrada no banco.
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    function toggleFeature(keyName) {
+        if(confirm("Deseja alternar o status global desta funcionalidade?")) {
+            fetch('/api/admin/features/' + keyName + '/toggle', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(response => {
+                if(response.ok) {
+                    location.reload();
+                } else {
+                    alert("Erro ao alternar o status da feature.");
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

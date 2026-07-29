@@ -162,16 +162,22 @@ public class GlobalExceptionHandler {
 
     // === Feature Toggle ===
 
-    /**
-     * Trata tentativas de acesso a funcionalidades protegidas por Feature Flag desabilitada.
-     * Retorna HTTP 503 Service Unavailable para sinalizar indisponibilidade temporária do recurso.
-     */
     @ExceptionHandler(FeatureDisabledException.class)
-    public ResponseEntity<Map<String, String>> tratarFeatureDesabilitada(FeatureDisabledException ex) {
+    public Object tratarFeatureDesabilitada(FeatureDisabledException ex, jakarta.servlet.http.HttpServletRequest request) {
         log.warn("[FeatureToggle] Acesso bloqueado: feature '{}' está desabilitada.", ex.getFeatureKey());
+
+        String acceptHeader = request.getHeader("Accept");
+        
+        // Se a requisição veio de uma página HTML (Navegador)
+        if (acceptHeader != null && acceptHeader.contains("text/html")) {
+            // Levanta a exceção para que o Spring lide com a página de erro (Whitelabel/HTML) e não retorne JSON na tela
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Esta funcionalidade (" + ex.getFeatureKey() + ") está temporariamente desativada.");
+        }
+
+        // Se for API/Mobile/XHR, devolve JSON padrão
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(Map.of("error", ex.getMessage()));
+                .body(Map.of("error", "Esta funcionalidade (" + ex.getFeatureKey() + ") está temporariamente desativada."));
     }
 
     // === Fallback genérico (qualquer outra exceção) ===
