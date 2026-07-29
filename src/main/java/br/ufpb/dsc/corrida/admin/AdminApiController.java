@@ -24,7 +24,7 @@ public class AdminApiController {
     public ResponseEntity<?> toggleUserBlock(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow();
         Boolean blocked = user.getBloqueado();
-        user.setBloqueado(blocked == null ? true : !blocked);
+        user.setBloqueado(blocked == null || !blocked);
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
