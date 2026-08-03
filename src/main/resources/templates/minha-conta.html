@@ -126,6 +126,20 @@
                 </div>
             </div>
 
+            <!-- ── ALERT BANNER (CPF obrigatório para corrida paga) ── -->
+            <div th:if="${param.cpfObrigatorio != null || (cpfObrigatorio ?: false)}"
+                class="flex items-start gap-3 bg-red-500/10 border border-red-500/40 rounded-2xl p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                <div>
+                    <p class="text-sm font-bold text-red-400">CPF Obrigatório</p>
+                    <p class="text-xs text-red-300/90 mt-0.5">Para se inscrever em corridas pagas, você precisa cadastrar seu CPF para emissão da cobrança Pix.</p>
+                </div>
+            </div>
+
             <!-- ── TOAST NOTIFICATION ── -->
             <div id="toast"
                 class="hidden fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl text-sm font-semibold max-w-sm"
@@ -204,6 +218,14 @@
                             <input id="dataNasc" type="date" class="form-input" th:value="${userInfo?.dataNasc}"
                                 required />
                         </div>
+                    </div>
+
+                    <!-- Row 2.5: CPF -->
+                    <div>
+                        <label for="cpf" class="form-label">CPF <span class="text-slate-600 normal-case font-normal">(obrigatório para corridas pagas)</span></label>
+                        <input id="cpf" type="text" maxlength="14" placeholder="000.000.000-00" class="form-input font-mono"
+                               th:value="${userInfo?.cpfFormatado}" oninput="mascaraCPF(this)" />
+                        <p id="erro-cpf" class="text-xs text-red-400 mt-1 hidden"></p>
                     </div>
 
                     <!-- Row 3: nivelCondicionamento -->
@@ -335,7 +357,7 @@
     <script th:inline="javascript">
         // ── Data injected from server ──────────────────
         const USUARIO_ID = /*[[${usuarioId}]]*/ null;
-        const PROFILE_EXISTS = /*[[${userInfo != null}]]*/ false;
+        const PROFILE_EXISTS = /*[[${profileExists}]]*/ false;
         let base64Foto = /*[[${userInfo?.fotoPerfil}]]*/ null;
 
         // ── Avatar live preview ────────────────────────
@@ -431,6 +453,15 @@
             return valid;
         }
 
+        // ── CPF Mask ──────────────────────────────────────────
+        function mascaraCPF(input) {
+            let v = input.value.replace(/\D/g, '').slice(0, 11);
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            input.value = v;
+        }
+
         // ── Form submit ────────────────────────────────
         async function submitForm(event) {
             event.preventDefault();
@@ -441,6 +472,8 @@
             btn.disabled = true;
             btn.textContent = 'Salvando...';
 
+            const rawCpf = document.getElementById('cpf').value.replace(/\D/g, '');
+
             const payload = {
                 usuarioId: USUARIO_ID,
                 peso: parseFloat(document.getElementById('peso').value),
@@ -450,7 +483,8 @@
                 fotoPerfil: base64Foto || null,
                 nivelCondicionamento: document.getElementById('nivelCondicionamento').value || null,
                 notasMedicas: document.getElementById('notasMedicas').value.trim() || null,
-                consentimentoSaude: document.getElementById('consentimentoSaude').checked
+                consentimentoSaude: document.getElementById('consentimentoSaude').checked,
+                cpf: rawCpf.length === 11 ? rawCpf : null
             };
 
             try {

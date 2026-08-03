@@ -3,6 +3,7 @@ package br.ufpb.dsc.corrida.user.dto;
 import br.ufpb.dsc.corrida.user.Genero;
 import br.ufpb.dsc.corrida.user.NivelCondicionamento;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 
@@ -17,6 +18,8 @@ import java.time.LocalDate;
  * @param fotoPerfil         Nova URL da foto de perfil (opcional)
  * @param nivelCondicionamento Novo nível de condicionamento (opcional)
  * @param notasMedicas       Novas observações médicas (opcional)
+ * @param consentimentoSaude Consentimento para análise de risco (opcional)
+ * @param cpf                CPF somente dígitos, 11 chars (opcional)
  */
 public record AtualizarUserInfoDTO(
         @Positive(message = "O peso deve ser maior que 0")
@@ -29,6 +32,8 @@ public record AtualizarUserInfoDTO(
         String fotoPerfil,
         NivelCondicionamento nivelCondicionamento,
         String notasMedicas,
+        Boolean consentimentoSaude,
 
-        Boolean consentimentoSaude
+        @Pattern(regexp = "^\\d{11}$", message = "CPF deve conter exatamente 11 dígitos")
+        String cpf
 ) {}

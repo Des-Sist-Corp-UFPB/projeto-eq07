@@ -1,0 +1,28 @@
+-- =============================================================
+-- V15: Integração Mercado Pago (Pix) — Dados Legados (DML)
+-- =============================================================
+-- Esta migration roda em transação SEPARADA, após V14 ser
+-- commitada. Os novos valores de enum (AGUARDANDO_PAGAMENTO,
+-- CONFIRMADA) já estão disponíveis neste ponto.
+--
+-- DECISÃO DE NEGÓCIO (Grandfathering):
+-- Inscrições com status 'ATIVA' em corridas pagas (valorInscricao > 0)
+-- que foram confirmadas ANTES da integração Mercado Pago foram
+-- aceitas pelo sistema antigo sem processamento de pagamento.
+-- Decisão: essas inscrições permanecem com status 'ATIVA' (legado).
+-- Elas NÃO são migradas para 'CONFIRMADA' para preservar a distinção
+-- entre inscrições legadas e novas inscrições confirmadas via Pix.
+--
+-- Se no futuro for necessário reportar inscrições legadas sem pagamento,
+-- adicione uma coluna boolean 'legado_sem_pagamento' em nova migration.
+--
+-- Novas inscrições:
+-- - Corridas gratuitas   → status 'CONFIRMADA'
+-- - Corridas pagas       → AGUARDANDO_PAGAMENTO → CONFIRMADA (via webhook)
+-- - Status 'ATIVA'       → continua válido apenas para inscrições legadas
+-- =============================================================
+
+-- Migration intencionalmente sem operações de dados.
+-- O comportamento de grandfathering é implementado por omissão:
+-- não alteramos as inscrições existentes.
+SELECT 1;

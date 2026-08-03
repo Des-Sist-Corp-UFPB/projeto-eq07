@@ -1,5 +1,6 @@
 server:
   port: 8080
+
 spring:
   datasource:
     # Se DATABASE_URL for injetada pelo Docker, o Spring usa. Senão, adota o padrão local 'corridas_dev'
@@ -19,6 +20,23 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@corridadsc.com}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 5
+        queue-capacity: 100
 
 audit:
   trusted-proxies: ${AUDIT_TRUSTED_PROXIES:127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
@@ -58,3 +76,12 @@ litellm:
   temperature: ${LITELLM_TEMPERATURE:0.1}
   timeout-ms: ${LITELLM_TIMEOUT_MS:10000}
   cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}
+
+# ─── Mercado Pago ────────────────────────────────────────────
+mercadopago:
+  access-token: ${MP_ACCESS_TOKEN:TEST-0000000000000000-000000-00000000000000000000000000000000-000000000}
+  public-key: ${MP_PUBLIC_KEY:TEST-00000000-0000-0000-0000-000000000000}
+  webhook-secret: ${MP_WEBHOOK_SECRET:}
+  webhook-base-url: ${MP_WEBHOOK_BASE_URL:http://localhost:8080}
+  sandbox: ${MP_SANDBOX:true}
+
