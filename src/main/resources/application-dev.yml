@@ -39,6 +39,13 @@ litellm:
   timeout-ms: ${LITELLM_TIMEOUT_MS:10000}
   cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}
 
+mercadopago:
+  access-token: ${MP_ACCESS_TOKEN:}
+  public-key: ${MP_PUBLIC_KEY:}
+  webhook-secret: 
+  webhook-base-url: ${MP_WEBHOOK_BASE_URL:http://localhost:8080}
+  sandbox: ${MP_SANDBOX:true}
+
 logging:
   level:
     level:

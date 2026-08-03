@@ -191,27 +191,93 @@
                                 <span class="text-2xl font-extrabold text-white" th:text="${corrida.valorInscricao != null && corrida.valorInscricao > 0} ? 'R$ ' + ${corrida.valorInscricao} : 'Grátis'">R$ 80,00</span>
                             </div>
 
-                            <!-- Enrollment section -->
+                            <!-- Enrollment & Payment section -->
                             <div class="pt-4 border-t border-slate-800/80 flex flex-col gap-4">
-                                <div th:if="${isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                    </svg>
-                                    Você já está inscrito!
+
+                                <!-- Caso 1: Usuário já está inscrito e pago (CONFIRMADA / ATIVA) -->
+                                <div th:if="${isUserEnrolled}" class="space-y-3">
+                                    <div class="flex items-center justify-center gap-2 p-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        </svg>
+                                        Você já está inscrito!
+                                    </div>
+                                    <a th:if="${inscricaoUsuario != null}" th:href="@{/inscricoes/{id}/comprovante(id=${inscricaoUsuario.id})}"
+                                       class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-colors">
+                                        Ver Comprovante
+                                    </a>
                                 </div>
-                                <div th:if="${isFull && !isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl font-bold">
+
+                                <!-- Caso 2: Corrida paga com pagamento Pix PENDENTE -->
+                                <div th:if="${isPaymentPending && !isUserEnrolled}" class="space-y-4 bg-slate-900/90 border border-brand-500/40 rounded-2xl p-5 glow-card">
+                                    <div class="flex items-center gap-2 text-brand-400 font-bold text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        <span>Pagamento Pix Pendente</span>
+                                    </div>
+
+                                    <!-- Cobrança expirada -->
+                                    <div th:if="${expirado}" class="space-y-3">
+                                        <p class="text-xs text-rose-400">O código Pix gerado anteriormente expirou.</p>
+                                        <form th:action="@{/inscricoes/{id}/pagamento/renovar(id=${inscricaoUsuario.id})}" method="post">
+                                            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs glow-btn transition-all">
+                                                Gerar novo código Pix
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- QR Code e Copia e Cola -->
+                                    <div th:if="${!expirado}" class="space-y-4">
+                                        <div class="flex flex-col items-center gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                            <div class="bg-white p-2 rounded-lg" th:if="${pagamento?.qrCodeBase64Pix != null}">
+                                                <img th:src="'data:image/png;base64,' + ${pagamento.qrCodeBase64Pix}" alt="QR Code Pix" class="w-44 h-44 object-contain" />
+                                            </div>
+                                            <span class="text-xs text-slate-400">Escaneie o QR Code no app do banco</span>
+                                        </div>
+
+                                        <div th:if="${pagamento?.qrCodePix != null}" class="space-y-1.5">
+                                            <label class="text-[11px] font-bold text-slate-400 uppercase">Pix Copia e Cola</label>
+                                            <div class="flex items-center gap-2">
+                                                <input id="detail-pix-code" type="text" readonly th:value="${pagamento.qrCodePix}" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-mono truncate focus:outline-none" />
+                                                <button id="detail-copy-btn" onclick="copiarPixDetalhes()" class="flex-shrink-0 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold py-2 px-3 rounded-xl transition-all">
+                                                    Copiar
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-center">
+                                            <a th:href="@{/inscricoes/{id}/pagamento(id=${inscricaoUsuario.id})}" class="text-xs text-brand-400 hover:underline">
+                                                Abrir tela cheia de pagamento →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Caso 3: Limite de vagas atingido -->
+                                <div th:if="${isFull && !isUserEnrolled && !isPaymentPending}" class="flex items-center justify-center gap-2 p-3 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl font-bold">
                                     Inscrições encerradas: Limite atingido
                                 </div>
+
+                                <!-- Erro ao gerar pagamento -->
+                                <div th:if="${param.erroPagamento != null || erroPagamento != null}" class="p-3 bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-xl text-xs space-y-1">
+                                    <strong class="font-bold block text-rose-400">Falha ao processar pagamento</strong>
+                                    <p th:text="${erroPagamento != null ? erroPagamento : 'Não foi possível gerar a cobrança Pix. Tente novamente.'}">Erro ao gerar Pix.</p>
+                                </div>
+
+                                <!-- Form de inscrição (se não estiver inscrito nem pendente) -->
                                 <form id="enrollment-form"
-                                      th:if="${!isUserEnrolled && !isFull && corrida.status.name() == 'PUBLICADA'}"
+                                      th:if="${!isUserEnrolled && !isPaymentPending && !isFull && corrida.status.name() == 'PUBLICADA'}"
                                       th:action="@{|/corridas/${corrida.id}/inscrever|}" method="post">
                                     <input type="hidden" name="riskAcknowledged" id="risk-acknowledged-input" value="false" />
                                     <button id="enroll-btn" type="submit"
-                                            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm glow-btn hover:from-brand-500 hover:to-orange-400 transition-colors flex items-center justify-center gap-2">
+                                            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-orange-500 text-white font-extrabold text-sm glow-btn hover:from-brand-500 hover:to-orange-400 transition-colors flex items-center justify-center gap-2"
+                                            th:text="${corrida.valorInscricao != null && corrida.valorInscricao > 0} ? 'Pagar e Inscrever (R$ ' + ${#numbers.formatDecimal(corrida.valorInscricao, 1, 'POINT', 2, 'COMMA')} + ')' : 'Inscrever-se Grátis'">
                                         Inscrever-se
                                     </button>
                                 </form>
-                                <div th:if="${corrida.status.name() != 'PUBLICADA' && !isUserEnrolled}" class="flex items-center justify-center gap-2 p-3 bg-slate-800/50 text-slate-400 border border-slate-700/50 rounded-xl font-bold">
+
+                                <div th:if="${corrida.status.name() != 'PUBLICADA' && !isUserEnrolled && !isPaymentPending}" class="flex items-center justify-center gap-2 p-3 bg-slate-800/50 text-slate-400 border border-slate-700/50 rounded-xl font-bold">
                                     Inscrições Indisponíveis
                                 </div>
                             </div>
@@ -425,6 +491,35 @@
                         e.preventDefault(); first.focus();
                     }
                 });
+            // ── 6. Pix Copy & Polling para pagamento pendente ────────────────
+            window.copiarPixDetalhes = function () {
+                const codeInput = document.getElementById('detail-pix-code');
+                const btn = document.getElementById('detail-copy-btn');
+                if (!codeInput) return;
+                navigator.clipboard.writeText(codeInput.value).then(function () {
+                    btn.textContent = '✓ Copiado!';
+                    btn.classList.replace('bg-brand-600', 'bg-green-600');
+                    setTimeout(function () {
+                        btn.textContent = 'Copiar';
+                        btn.classList.replace('bg-green-600', 'bg-brand-600');
+                    }, 2000);
+                });
+            };
+
+            const INSCRICAO_PENDENTE_ID = /*[[${inscricaoUsuario?.id}]]*/ null;
+            const IS_PAYMENT_PENDING = /*[[${isPaymentPending}]]*/ false;
+
+            if (IS_PAYMENT_PENDING && INSCRICAO_PENDENTE_ID) {
+                setInterval(function () {
+                    fetch('/api/inscricoes/' + INSCRICAO_PENDENTE_ID + '/status')
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (data.status === 'CONFIRMADA' || data.status === 'ATIVA') {
+                                location.reload();
+                            }
+                        })
+                        .catch(function () {});
+                }, 4000);
             }
         })();
         /*]]>*/

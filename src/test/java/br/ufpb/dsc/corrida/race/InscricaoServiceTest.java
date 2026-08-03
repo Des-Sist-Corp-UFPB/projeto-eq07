@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,7 +61,7 @@ class InscricaoServiceTest {
     @DisplayName("inscrever() - deve realizar inscricao com sucesso")
     void inscrever_sucesso() {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
-        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
+        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(eq(user), eq(race), any())).thenReturn(false);
         when(inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA)).thenReturn(java.util.Collections.emptyList());
         when(raceRepository.findByOrganization_Organizer_Usuario(user)).thenReturn(java.util.Collections.emptyList());
         
@@ -79,10 +80,12 @@ class InscricaoServiceTest {
     @Test
     @DisplayName("inscrever() - deve lancar excecao de corrida cheia")
     void inscrever_corridaCheia() {
-        race.setMaxInscricoes(50);
+        race.setMaxInscricoes(10);
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
-        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
-        when(inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.ATIVA)).thenReturn(50L);
+        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(any(), any(), any())).thenReturn(false);
+        
+        // CORREÇÃO: Usar countByCorridaAndStatusIn em vez de countByCorridaAndStatus
+        when(inscricaoRepository.countByCorridaAndStatusIn(any(), any())).thenReturn(10L);
 
         assertThrows(CorridaCheiaException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }
@@ -91,7 +94,7 @@ class InscricaoServiceTest {
     @DisplayName("inscrever() - deve lancar excecao de inscricao duplicada")
     void inscrever_duplicada() {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
-        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(true);
+        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(eq(user), eq(race), any())).thenReturn(true);
 
         assertThrows(InscricaoDuplicadaException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }
@@ -100,7 +103,7 @@ class InscricaoServiceTest {
     @DisplayName("inscrever() - deve lancar excecao de conflito de horario como corredor")
     void inscrever_conflitoHorario() {
         when(raceRepository.findById(10L)).thenReturn(Optional.of(race));
-        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(user, race, StatusInscricao.ATIVA)).thenReturn(false);
+        when(inscricaoRepository.existsByUsuarioAndCorridaAndStatus(eq(user), eq(race), any())).thenReturn(false);
 
         Race outraCorrida = new Race();
         outraCorrida.setId(20L);
@@ -114,8 +117,6 @@ class InscricaoServiceTest {
 
         when(inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA))
                 .thenReturn(java.util.List.of(outraInscricao));
-
-        // REMOVIDO: O stubbing do raceRepository.findByOrganization_Organizer_Usuario(user)
 
         assertThrows(ConflitoHorarioException.class, () -> inscricaoService.inscrever(user, 10L, false));
     }

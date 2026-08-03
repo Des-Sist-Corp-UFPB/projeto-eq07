@@ -56,20 +56,45 @@ public class CorridaViewController {
     public String exibirDetalhes(@PathVariable String slug, @AuthenticationPrincipal User usuarioLogado, Model model) {
         Race race = service.buscarPorSlug(slug);
         
+        Inscricao inscricaoUsuario = null;
         boolean isUserEnrolled = false;
+        boolean isPaymentPending = false;
+        Pagamento pagamento = null;
+        boolean expirado = false;
+
         if (usuarioLogado != null) {
-            isUserEnrolled = inscricaoRepository.existsByUsuarioAndCorridaAndStatus(usuarioLogado, race, StatusInscricao.ATIVA);
+            java.util.Optional<Inscricao> inscOpt = inscricaoRepository.findFirstByUsuarioAndCorridaAndStatusInOrderByIdDesc(
+                    usuarioLogado, race, List.of(StatusInscricao.AGUARDANDO_PAGAMENTO, StatusInscricao.CONFIRMADA, StatusInscricao.ATIVA)
+            );
+            if (inscOpt.isPresent()) {
+                inscricaoUsuario = inscOpt.get();
+                if (inscricaoUsuario.getStatus() == StatusInscricao.AGUARDANDO_PAGAMENTO) {
+                    isPaymentPending = true;
+                    pagamento = inscricaoUsuario.getPagamento();
+                    if (pagamento != null && pagamento.getExpirationDate() != null) {
+                        expirado = pagamento.getExpirationDate().isBefore(java.time.OffsetDateTime.now());
+                    }
+                } else {
+                    isUserEnrolled = true;
+                }
+            }
         }
         
         boolean isFull = false;
         if (race.getMaxInscricoes() != null) {
-            long count = inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.ATIVA);
+            long count = inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.ATIVA)
+                    + inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.CONFIRMADA)
+                    + inscricaoRepository.countByCorridaAndStatus(race, StatusInscricao.AGUARDANDO_PAGAMENTO);
             isFull = count >= race.getMaxInscricoes();
         }
         
         model.addAttribute("corrida", race);
         model.addAttribute("activePage", "corridas");
+        model.addAttribute("inscricaoUsuario", inscricaoUsuario);
         model.addAttribute("isUserEnrolled", isUserEnrolled);
+        model.addAttribute("isPaymentPending", isPaymentPending);
+        model.addAttribute("pagamento", pagamento);
+        model.addAttribute("expirado", expirado);
         model.addAttribute("isFull", isFull);
         return "corrida/corrida-detalhes";
     }

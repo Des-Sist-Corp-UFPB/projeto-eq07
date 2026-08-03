@@ -263,6 +263,14 @@ public class CorridaService {
               .log();
         
         Race race = raceRepository.findBySlug(slug)
+                .or(() -> {
+                    try {
+                        Long id = Long.parseLong(slug);
+                        return raceRepository.findById(id);
+                    } catch (NumberFormatException e) {
+                        return java.util.Optional.empty();
+                    }
+                })
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada"));
         
         validarStatusCorrida(race);

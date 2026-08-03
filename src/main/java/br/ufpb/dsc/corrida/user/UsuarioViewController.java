@@ -59,17 +59,18 @@ public class UsuarioViewController {
         return "auth/login";
     }
 
-    @GetMapping("/minhaConta")
+    @GetMapping({"/minhaConta", "/minha-conta"})
     public String minhaConta(@AuthenticationPrincipal User usuario, Model model) {
         log.debug("Acessando minhaConta para usuario: {}", usuario != null ? usuario.getUsername() : null);
         if (usuario != null) {
+            model.addAttribute("usuarioId", usuario.getId());
             try {
                 UserInfoRespostaDTO userInfo = userInfoService.buscarPorUsuarioId(usuario.getId());
                 model.addAttribute("userInfo", userInfo);
-                model.addAttribute("usuarioId", usuario.getId());
+                model.addAttribute("profileExists", true);
             } catch (UserInfoNaoEncontradoException e) {
-                model.addAttribute("usuarioId", usuario.getId());
                 model.addAttribute("profileMissing", true);
+                model.addAttribute("profileExists", false);
             }
         }
         return "minha-conta";

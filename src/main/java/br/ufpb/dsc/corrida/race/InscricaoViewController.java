@@ -18,7 +18,9 @@ public class InscricaoViewController {
 
     @GetMapping("/minhas-inscricoes")
     public String minhasInscricoes(@AuthenticationPrincipal User user, Model model) {
-        List<Inscricao> inscricoes = inscricaoRepository.findByUsuarioAndStatus(user, StatusInscricao.ATIVA);
+        List<Inscricao> inscricoes = inscricaoRepository.findByUsuarioAndStatusInOrderByIdDesc(
+                user, List.of(StatusInscricao.AGUARDANDO_PAGAMENTO, StatusInscricao.CONFIRMADA, StatusInscricao.ATIVA)
+        );
         model.addAttribute("inscricoes", inscricoes);
         return "user/minhas-inscricoes";
     }

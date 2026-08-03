@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comprovante de Inscrição — Corrida DSC</title>
+    <meta name="description" content="Comprovante de inscrição confirmada na corrida." />
+    <link rel="icon" type="image/x-icon" th:href="@{/corrida.ico}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card   { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn    { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+        .glow-green  { box-shadow: 0 0 22px rgba(34,197,94,0.35); }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex items-center justify-center px-4 py-10">
+
+    <div class="w-full max-w-lg space-y-6">
+
+        <!-- Header de sucesso -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-500/40 glow-green mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8 text-green-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-extrabold text-white">Inscrição Confirmada!</h1>
+            <p class="text-slate-400 text-sm">Você está inscrito. Boa corrida! 🏃</p>
+        </div>
+
+        <!-- Card de comprovante -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 glow-card space-y-5">
+
+            <!-- Corrida -->
+            <div class="space-y-3">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Corrida</h2>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-start gap-4">
+                        <span class="text-slate-500 text-sm">Nome</span>
+                        <span class="text-white font-semibold text-sm text-right"
+                              th:text="${inscricao.corrida.nome}">Nome da Corrida</span>
+                    </div>
+                    <div class="flex justify-between items-start gap-4" th:if="${inscricao.corrida.dataInicio != null}">
+                        <span class="text-slate-500 text-sm">Data</span>
+                        <span class="text-white font-semibold text-sm"
+                              th:text="${#temporals.format(inscricao.corrida.dataInicio, 'dd/MM/yyyy HH:mm')}">00/00/0000</span>
+                    </div>
+                    <div class="flex justify-between items-start gap-4">
+                        <span class="text-slate-500 text-sm">Local</span>
+                        <span class="text-white font-semibold text-sm text-right"
+                              th:text="${inscricao.corrida.largadaEndereco}">Local</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800"></div>
+
+            <!-- Atleta -->
+            <div class="space-y-3">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Atleta</h2>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between gap-4">
+                        <span class="text-slate-500 text-sm">Nome</span>
+                        <span class="text-white font-semibold text-sm" th:text="${inscricao.usuario.nome}">Atleta</span>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <span class="text-slate-500 text-sm">E-mail</span>
+                        <span class="text-white font-semibold text-sm" th:text="${inscricao.usuario.login}">email@exemplo.com</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagamento (apenas para corridas pagas) -->
+            <div th:if="${inscricao.pagamento != null}" class="space-y-3">
+                <div class="border-t border-slate-800"></div>
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pagamento</h2>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between gap-4">
+                        <span class="text-slate-500 text-sm">Método</span>
+                        <span class="text-white font-semibold text-sm">Pix</span>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <span class="text-slate-500 text-sm">Valor</span>
+                        <span class="text-brand-400 font-extrabold text-sm"
+                              th:text="'R$ ' + ${#numbers.formatDecimal(inscricao.pagamento.amount, 1, 'POINT', 2, 'COMMA')}">
+                            R$ 0,00
+                        </span>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <span class="text-slate-500 text-sm">ID Transação</span>
+                        <span class="text-white font-mono text-xs" th:text="${inscricao.pagamento.mpPaymentId}">000</span>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <span class="text-slate-500 text-sm">Status</span>
+                        <span class="text-green-400 font-bold text-sm">✓ Aprovado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800"></div>
+
+            <!-- Número da inscrição -->
+            <div class="flex justify-between items-center">
+                <span class="text-slate-500 text-sm">Nº da Inscrição</span>
+                <span class="text-white font-extrabold text-lg"
+                      th:text="'#' + ${inscricao.id}">#0000</span>
+            </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a th:href="@{/inscricoes/{id}/comprovante/pdf(id=${inscricao.id})}"
+               class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 to-orange-500 hover:from-brand-500 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-xl glow-btn transition-all text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                Baixar Comprovante PDF
+            </a>
+            <a th:href="@{/corridas}"
+               class="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 px-6 rounded-xl transition-all text-sm">
+                Ver outras corridas
+            </a>
+        </div>
+
+        <div class="text-center">
+            <p class="text-slate-600 text-xs">
+                Um comprovante também foi enviado para o seu e-mail.
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>

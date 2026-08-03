@@ -44,5 +44,7 @@ public record CriarUserInfoDTO(
 
         String notasMedicas,
 
+        String cpf,
+
         Boolean consentimentoSaude
 ) {}

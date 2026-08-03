@@ -276,3 +276,33 @@ Para atender aos requisitos de telemetria refinada e fornecer visibilidade sobre
 | `EligibilityService` | `check(userId, raceId)` | `eligibility.check-risk` | `user.id`, `race.id` | Medir a latência do pipeline de elegibilidade do atleta (consulta de consentimento, rate-limit, cache e chamada à LLM). |
 | `InscricaoService` | `inscrever(user, raceId, riskAcknowledged)` | `race.inscrever-atleta` | `race.id`, `risk.acknowledged` | Isolar a duração da validação de regras de negócio de inscrição (duplicidade, limite de vagas, conflitos de horário). |
 | `CorridaService` | `criarCorrida(dto, organizationId, userDetails)` | `race.criar-corrida` | `organization.id` | Monitorar o tempo gasto na validação de permissões de organização e na criação da corrida. |
+
+
+## Integração com Mercado Pago
+
+- **Serviço externo**: Mercado Pago (Payments API)
+- **Finalidade**: Processamento de pagamentos via Pix para confirmação de inscrições em corridas. Após a geração da cobrança, o sistema recebe notificações assíncronas (webhooks) do Mercado Pago informando mudanças de status do pagamento (aprovado, rejeitado, cancelado), atualizando automaticamente o status da `Inscricao` correspondente sem necessidade de polling.
+- **Fluxo de segurança do webhook**:
+  1. **Validação de assinatura HMAC-SHA256** — todo webhook recebido é validado contra o cabeçalho `x-signature`, usando o template `id:{data.id};request-id:{x-request-id};ts:{timestamp};` assinado com o secret configurado.
+  2. **Idempotência** — pagamentos já marcados como `APROVADO` no banco não são reprocessados, evitando duplicidade em caso de reenvio da notificação pelo Mercado Pago.
+  3. **Double-check** — antes de atualizar o estado local, o status é reconsultado diretamente na API do Mercado Pago (nunca confia-se apenas no conteúdo do payload do webhook).
+- **Classes/arquivos participantes**:
+  - `MercadoPagoWebhookController.java` (endpoint `POST /api/v1/webhooks/mercadopago`, validação de assinatura e roteamento de status)
+  - `MercadoPagoService.java` (cliente da API do Mercado Pago — criação de cobrança Pix e consulta de status autoritativo)
+  - `Pagamento.java` (entidade JPA com `mpPaymentId`, vínculo `@ManyToOne`/`@OneToOne` com `Inscricao`)
+  - `PagamentoRepository.java` (busca por `mpPaymentId`)
+  - `EmailService.java` (disparo assíncrono de comprovante ao atleta após aprovação)
+  - `application.yml` (definição de `mercadopago.webhook-secret` e demais chaves)
+
+### Variáveis de Ambiente — Mercado Pago
+
+| Variável | Obrigatória | Propósito |
+|---|---|---|
+| `MP_ACCESS_TOKEN` | Sim | Token de acesso à API do Mercado Pago (criação de cobranças Pix e consulta de status) |
+| `MP_WEBHOOK_SECRET` | Sim | Secret usado para validar a assinatura HMAC-SHA256 dos webhooks recebidos (`mercadopago.webhook-secret`) |
+
+> **Importante**: sem `MERCADOPAGO_WEBHOOK_SECRET` configurado, a validação de assinatura é **ignorada** (apenas um warning é logado)
+
+### Testando webhooks localmente
+
+Como o Mercado Pago precisa de uma URL pública para enviar notificações, use um túnel (ex.: `ngrok http 8080`) e cadastre a URL gerada (`https://SEU-DOMINIO.ngrok-free.app/api/v1/webhooks/mercadopago`) no painel de desenvolvedor do Mercado Pago. Use o inspector do ngrok (`http://127.0.0.1:4040`) para depurar requisições recebidas durante os testes.
