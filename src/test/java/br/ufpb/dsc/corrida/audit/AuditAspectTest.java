@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Map;
 
@@ -180,5 +181,47 @@ public class AuditAspectTest {
         assertThat(savedLog.getErrorMessage()).isEqualTo("Validation error");
         assertThat(savedLog.getTargetId()).isEqualTo("100");
         assertThat(savedLog.getUserId()).isEqualTo("user_test");
+    }
+
+    @Test
+    @DisplayName("Should use the method name as action when the annotation omits it")
+    void shouldFallbackToMethodNameWhenActionIsBlank() throws Throwable {
+        when(auditable.action()).thenReturn(" ");
+        when(auditable.resource()).thenReturn(" ");
+        when(joinPoint.getSignature()).thenReturn(methodSignature);
+        when(methodSignature.getName()).thenReturn("criarCorrida");
+        when(methodSignature.getParameterNames()).thenReturn(new String[]{"id"});
+        when(joinPoint.getArgs()).thenReturn(new Object[]{77L});
+        when(joinPoint.proceed()).thenReturn("ok");
+
+        Object result = aspect.audit(joinPoint, auditable);
+
+        assertThat(result).isEqualTo("ok");
+
+        ArgumentCaptor<AuditLog> logCaptor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogService).saveAuditLogAsync(logCaptor.capture());
+        assertThat(logCaptor.getValue().getAction()).isEqualTo("criarCorrida");
+        assertThat(logCaptor.getValue().getResource()).isEqualTo("/api/races");
+    }
+
+    @Test
+    @DisplayName("Should resolve the user from the method result when no context user is available")
+    void shouldResolveUserFromResultWhenContextIsAnonymous() throws Throwable {
+        AuditContext.clear();
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername("result-user")
+                .password("secret")
+                .authorities("ROLE_USER")
+                .build();
+
+        when(joinPoint.getSignature()).thenReturn(methodSignature);
+        when(methodSignature.getParameterNames()).thenReturn(new String[]{"id"});
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L});
+        when(joinPoint.proceed()).thenReturn(userDetails);
+
+        aspect.audit(joinPoint, auditable);
+
+        ArgumentCaptor<AuditLog> logCaptor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogService).saveAuditLogAsync(logCaptor.capture());
+        assertThat(logCaptor.getValue().getUserId()).isEqualTo("result-user");
     }
 }
