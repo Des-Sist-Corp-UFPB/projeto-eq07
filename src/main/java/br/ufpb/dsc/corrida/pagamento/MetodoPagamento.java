@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 /**
  * Método de pagamento suportado.

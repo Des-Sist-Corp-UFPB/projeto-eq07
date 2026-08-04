@@ -1,5 +1,11 @@
 package br.ufpb.dsc.corrida.race;
 
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.StatusInscricao;
+import br.ufpb.dsc.corrida.pagamento.MercadoPagoService;
+import br.ufpb.dsc.corrida.pagamento.Pagamento;
+import br.ufpb.dsc.corrida.pagamento.PagamentoRepository;
 import br.ufpb.dsc.corrida.user.Papel;
 import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.user.UserRepository;
@@ -24,7 +30,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "mercadopago.webhook-secret=test-secret")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
@@ -60,6 +66,15 @@ class MercadoPagoWebhookControllerTest {
     private Pagamento pagamento;
     private Inscricao inscricao;
 
+    private String gerarSignatureValida(Long paymentId, String requestId, String ts) throws Exception {
+        String template = "id:" + paymentId + ";request-id:" + requestId + ";ts:" + ts + ";";
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+        mac.init(new javax.crypto.spec.SecretKeySpec("test-secret".getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256"));
+        byte[] hash = mac.doFinal(template.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String v1 = java.util.HexFormat.of().formatHex(hash);
+        return "ts=" + ts + ",v1=" + v1;
+    }
+
     private Race criarCorridaValida() {
         long timestamp = System.currentTimeMillis();
 
@@ -68,7 +83,6 @@ class MercadoPagoWebhookControllerTest {
         user.setPapel(Papel.ORGANIZADOR);
         user.setSenha("12345678");
 
-        // IMPORTANTE: Deixar username, login e email dinâmicos para não estourar a chave única (UNIQUE)
         user.setLogin("user_" + timestamp + "@gmail.com");
         user.setUsername("atleta_" + System.currentTimeMillis());
 
@@ -123,7 +137,6 @@ class MercadoPagoWebhookControllerTest {
         user.setPapel(Papel.ORGANIZADOR);
         user.setSenha("12345678");
 
-        // IMPORTANTE: Deixar username, login e email dinâmicos para não estourar a chave única (UNIQUE)
         user.setLogin("user_" + timestamp + "@gmail.com");
         user.setUsername("atleta_" + System.currentTimeMillis());
 
@@ -155,7 +168,13 @@ class MercadoPagoWebhookControllerTest {
             }
             """;
 
+        String requestId = "req-123";
+        String ts = String.valueOf(System.currentTimeMillis());
+        String signature = gerarSignatureValida(999888777L, requestId, ts);
+
         mockMvc.perform(post("/api/v1/webhooks/mercadopago")
+                        .header("x-signature", signature)
+                        .header("x-request-id", requestId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonPayload))
                 .andExpect(status().isOk());
@@ -176,7 +195,13 @@ class MercadoPagoWebhookControllerTest {
             }
             """;
 
+        String requestId = "req-456";
+        String ts = String.valueOf(System.currentTimeMillis());
+        String signature = gerarSignatureValida(999888777L, requestId, ts);
+
         mockMvc.perform(post("/api/v1/webhooks/mercadopago")
+                        .header("x-signature", signature)
+                        .header("x-request-id", requestId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonPayload))
                 .andExpect(status().isOk());

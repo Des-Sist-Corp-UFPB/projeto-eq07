@@ -9,6 +9,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.pagamento.ComprovantePdfService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.OffsetDateTime;

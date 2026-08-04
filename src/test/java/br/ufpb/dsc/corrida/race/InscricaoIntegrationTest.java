@@ -1,5 +1,7 @@
 package br.ufpb.dsc.corrida.race;
 
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.InscricaoService;
 import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.organizer.OrganizationRepository;
 import br.ufpb.dsc.corrida.organizer.Organizer;

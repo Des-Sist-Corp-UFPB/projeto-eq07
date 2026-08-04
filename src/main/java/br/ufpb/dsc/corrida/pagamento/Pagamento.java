@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.race.StatusPagamento;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

@@ -1,7 +1,10 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
+
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.race.Race;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

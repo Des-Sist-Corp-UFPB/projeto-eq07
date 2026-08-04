@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,6 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.StatusInscricao;
+import br.ufpb.dsc.corrida.race.EmailService;
+import br.ufpb.dsc.corrida.race.StatusPagamento;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

@@ -1,5 +1,7 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.inscricao;
 
+import br.ufpb.dsc.corrida.pagamento.Pagamento;
+import br.ufpb.dsc.corrida.race.Race;
 import br.ufpb.dsc.corrida.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -40,9 +40,9 @@ litellm:
   cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}
 
 mercadopago:
-  access-token: ${MP_ACCESS_TOKEN:}
-  public-key: ${MP_PUBLIC_KEY:}
-  webhook-secret: 
+  access-token: ${MP_ACCESS_TOKEN:TEST-472553097352365-080309-82de6781b47d67449aebeaaf510d9442-3576093194}
+  public-key: ${MP_PUBLIC_KEY:TEST-b226af41-d003-482c-808c-ccd78752fedf}
+  webhook-secret: b9da5c44cdec3a20438b1e47bad3bdc461e3d5939ca152014ff203b2af588db0
   webhook-base-url: ${MP_WEBHOOK_BASE_URL:http://localhost:8080}
   sandbox: ${MP_SANDBOX:true}
 

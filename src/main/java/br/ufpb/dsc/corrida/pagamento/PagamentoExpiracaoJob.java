@@ -1,10 +1,15 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.StatusInscricao;
+import br.ufpb.dsc.corrida.race.StatusPagamento;
 
 import java.time.OffsetDateTime;
 import java.util.List;

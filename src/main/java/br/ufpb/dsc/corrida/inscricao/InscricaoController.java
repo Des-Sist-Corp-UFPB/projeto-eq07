@@ -1,7 +1,13 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.inscricao;
 
 import br.ufpb.dsc.corrida.exception.CpfObrigatorioException;
 import br.ufpb.dsc.corrida.exception.MercadoPagoException;
+import br.ufpb.dsc.corrida.pagamento.ComprovantePdfService;
+import br.ufpb.dsc.corrida.pagamento.MercadoPagoService;
+import br.ufpb.dsc.corrida.pagamento.Pagamento;
+import br.ufpb.dsc.corrida.pagamento.PagamentoRepository;
+import br.ufpb.dsc.corrida.race.Race;
+import br.ufpb.dsc.corrida.race.RaceRepository;
 import br.ufpb.dsc.corrida.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,10 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 import br.ufpb.dsc.corrida.config.MercadoPagoConfig;
 import br.ufpb.dsc.corrida.exception.MercadoPagoException;
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.race.Race;
+import br.ufpb.dsc.corrida.race.StatusPagamento;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;
 
 import com.mercadopago.client.common.IdentificationRequest;

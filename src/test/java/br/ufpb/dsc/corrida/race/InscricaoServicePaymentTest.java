@@ -2,6 +2,11 @@ package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.CpfObrigatorioException;
 import br.ufpb.dsc.corrida.exception.MercadoPagoException;
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.InscricaoService;
+import br.ufpb.dsc.corrida.inscricao.StatusInscricao;
+import br.ufpb.dsc.corrida.pagamento.MercadoPagoService;
 import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.user.UserInfo;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;

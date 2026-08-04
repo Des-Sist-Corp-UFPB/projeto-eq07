@@ -1,6 +1,10 @@
 package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.race.CorridaCheiaException;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.InscricaoService;
+import br.ufpb.dsc.corrida.pagamento.MercadoPagoService;
+import br.ufpb.dsc.corrida.pagamento.Pagamento;
 import br.ufpb.dsc.corrida.user.Papel;
 import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.user.UserInfo;

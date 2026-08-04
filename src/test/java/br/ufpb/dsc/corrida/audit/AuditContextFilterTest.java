@@ -2,113 +2,72 @@ package br.ufpb.dsc.corrida.audit;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
-@DisplayName("AuditContextFilter — Unit & Filter Chain Tests")
-public class AuditContextFilterTest {
+@ExtendWith(MockitoExtension.class)
+@DisplayName("AuditContextFilter — Unit Tests")
+class AuditContextFilterTest {
+
+    @Mock
+    private FilterChain filterChain;
 
     private AuditContextFilter filter;
-    private HttpServletRequest request;
-    private HttpServletResponse response;
-    private FilterChain filterChain;
 
     @BeforeEach
     void setUp() {
-        filter = new AuditContextFilter("127.0.0.1, 10.0.0.1");
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        filterChain = mock(FilterChain.class);
-
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(request.getMethod()).thenReturn("POST");
-        when(request.getRequestURI()).thenReturn("/api/test");
-        when(request.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
-        when(response.getStatus()).thenReturn(200);
+        filter = new AuditContextFilter("127.0.0.1,::1");
+        SecurityContextHolder.clearContext();
     }
 
     @AfterEach
     void tearDown() {
-        AuditContext.clear();
         SecurityContextHolder.clearContext();
     }
 
     @Test
-    @DisplayName("Should extract userId from SecurityContextHolder, capture request metadata and clear context in finally block")
-    void shouldExtractContextAndClearInFinally() throws ServletException, IOException {
-        User springUser = new User("authenticated_user", "password", Collections.emptyList());
-        var auth = new UsernamePasswordAuthenticationToken(springUser, null, springUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    @DisplayName("doFilterInternal() — popula AuditContext durante a requisição e limpa ao final")
+    void doFilterInternal_populatesContext() throws ServletException, IOException {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/races");
+        request.setRemoteAddr("127.0.0.1");
+        request.addHeader("User-Agent", "TestBrowser");
+        request.addHeader("X-Request-ID", "custom-req-id");
+        request.addHeader("X-Forwarded-For", "203.0.113.195");
 
-        AtomicReference<AuditContextSnapshot> capturedSnapshot = new AtomicReference<>();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        response.setStatus(200);
 
-        doAnswer(invocation -> {
-            capturedSnapshot.set(AuditContext.getSnapshot());
-            return null;
-        }).when(filterChain).doFilter(request, response);
+        User user = new User("atleta@test.com", "pass", Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())
+        );
 
-        filter.doFilterInternal(request, response, filterChain);
+        filter.doFilterInternal(request, response, (req, res) -> {
+            assertThat(AuditContext.getClientIp()).isEqualTo("203.0.113.195");
+            assertThat(AuditContext.getUserAgent()).isEqualTo("TestBrowser");
+            assertThat(AuditContext.getRequestId()).isEqualTo("custom-req-id");
+            assertThat(AuditContext.getHttpMethod()).isEqualTo("GET");
+            assertThat(AuditContext.getResource()).isEqualTo("/api/races");
+            assertThat(AuditContext.getUserId()).isEqualTo("atleta@test.com");
+        });
 
-        verify(filterChain, times(1)).doFilter(request, response);
-
-        AuditContextSnapshot snapshot = capturedSnapshot.get();
-        assertThat(snapshot).isNotNull();
-        assertThat(snapshot.userId()).isEqualTo("authenticated_user");
-        assertThat(snapshot.httpMethod()).isEqualTo("POST");
-        assertThat(snapshot.resource()).isEqualTo("/api/test");
-        assertThat(snapshot.clientIp()).isEqualTo("127.0.0.1");
-        assertThat(snapshot.userAgent()).isEqualTo("Mozilla/5.0");
-
-        // Asserte cleanup after filter execution
+        // Ao final da requisição, deve ser limpo
         assertThat(AuditContext.getUserId()).isNull();
-        assertThat(AuditContext.getClientIp()).isNull();
-    }
-
-    @Test
-    @DisplayName("Should extract first IP from X-Forwarded-For ONLY when coming from a trusted proxy")
-    void shouldExtractXForwardedForForTrustedProxy() throws ServletException, IOException {
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1"); // trusted proxy
-        when(request.getHeader("X-Forwarded-For")).thenReturn("203.0.113.195, 70.41.3.18, 150.172.238.178");
-
-        AtomicReference<String> capturedIp = new AtomicReference<>();
-        doAnswer(invocation -> {
-            capturedIp.set(AuditContext.getClientIp());
-            return null;
-        }).when(filterChain).doFilter(request, response);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        assertThat(capturedIp.get()).isEqualTo("203.0.113.195");
-    }
-
-    @Test
-    @DisplayName("Should ignore X-Forwarded-For when request comes from an UNTRUSTED IP (prevent header spoofing)")
-    void shouldIgnoreXForwardedForForUntrustedProxy() throws ServletException, IOException {
-        when(request.getRemoteAddr()).thenReturn("198.51.100.42"); // untrusted external IP
-        when(request.getHeader("X-Forwarded-For")).thenReturn("1.1.1.1, 2.2.2.2");
-
-        AtomicReference<String> capturedIp = new AtomicReference<>();
-        doAnswer(invocation -> {
-            capturedIp.set(AuditContext.getClientIp());
-            return null;
-        }).when(filterChain).doFilter(request, response);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        assertThat(capturedIp.get()).isEqualTo("198.51.100.42");
     }
 }

@@ -1,8 +1,12 @@
 package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.StatusInscricao;
 import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.organizer.OrganizerService;
+import br.ufpb.dsc.corrida.pagamento.Pagamento;
 import br.ufpb.dsc.corrida.race.dto.CriarCorridaDTO;
 import br.ufpb.dsc.corrida.race.dto.EditarCorridaDTO;
 import br.ufpb.dsc.corrida.user.User;

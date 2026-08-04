@@ -1,7 +1,9 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.pagamento;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import br.ufpb.dsc.corrida.race.StatusPagamento;
 
 import java.time.OffsetDateTime;
 import java.util.List;

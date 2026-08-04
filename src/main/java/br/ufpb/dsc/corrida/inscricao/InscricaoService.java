@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.inscricao;
 
 import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.event.RaceCompletedEvent;
@@ -9,6 +9,12 @@ import br.ufpb.dsc.corrida.exception.race.ConflitoHorarioException;
 import br.ufpb.dsc.corrida.exception.race.CorridaCheiaException;
 import br.ufpb.dsc.corrida.exception.race.InscricaoDuplicadaException;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
+import br.ufpb.dsc.corrida.pagamento.MercadoPagoService;
+import br.ufpb.dsc.corrida.pagamento.Pagamento;
+import br.ufpb.dsc.corrida.pagamento.PagamentoRepository;
+import br.ufpb.dsc.corrida.race.Race;
+import br.ufpb.dsc.corrida.race.RaceRepository;
+import br.ufpb.dsc.corrida.race.StatusCorrida;
 import br.ufpb.dsc.corrida.user.User;
 import br.ufpb.dsc.corrida.user.UserInfo;
 import br.ufpb.dsc.corrida.user.UserInfoRepository;
@@ -53,7 +59,7 @@ public class InscricaoService {
     @WithSpan("race.inscrever-atleta")
     @Transactional
     @Auditable(action = "RACE_ENROLLMENT", resource = "INSCRICAO", idParam = "raceId")
-    public Inscricao inscrever(User user, @SpanAttribute("race.id") Long raceId,
+    public synchronized Inscricao inscrever(User user, @SpanAttribute("race.id") Long raceId,
                                @SpanAttribute("risk.acknowledged") boolean riskAcknowledged) {
         Race race = raceRepository.findById(raceId)
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Corrida não encontrada."));
