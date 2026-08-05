@@ -19,6 +19,13 @@ public interface RaceRepository extends JpaRepository<Race, Long> {
      */
     Page<Race> findAllByStatusInAndDataInicioAfter(List<StatusCorrida> statuses, OffsetDateTime data, Pageable pageable);
 
+    /**
+     * Home page — top-6 próximas corridas publicadas (data futura), ordenadas por
+     * dataInicio crescente. Limite aplicado na query, sem filtragem em memória.
+     */
+    List<Race> findTop6ByStatusInAndDataInicioAfterOrderByDataInicioAsc(
+            List<StatusCorrida> statuses, OffsetDateTime data);
+
     /** Histórico público: apenas ENCERRADA. */
     List<Race> findAllByStatus(StatusCorrida status);
 

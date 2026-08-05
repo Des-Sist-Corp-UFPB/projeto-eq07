@@ -239,6 +239,16 @@ public class CorridaService {
                 .toList();
     }
 
+    /**
+     * Home page — top-6 corridas publicadas com data futura, ordenadas por
+     * {@code dataInicio} ascendente. Limite aplicado na query.
+     */
+    @Transactional(readOnly = true)
+    public List<Race> listarProximasCorridas() {
+        return raceRepository.findTop6ByStatusInAndDataInicioAfterOrderByDataInicioAsc(
+                List.of(StatusCorrida.PUBLICADA), OffsetDateTime.now());
+    }
+
     /** Histórico público: apenas ENCERRADA. */
     @Transactional(readOnly = true)
     public List<Race> listarHistorico() {
