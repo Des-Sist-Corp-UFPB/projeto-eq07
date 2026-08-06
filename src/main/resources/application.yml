@@ -20,6 +20,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -80,6 +84,15 @@ litellm:
   timeout-ms: ${LITELLM_TIMEOUT_MS:10000}
   cache-ttl-seconds: ${ELIGIBILITY_CACHE_TTL_SECONDS:86400}
 
+minio:
+  endpoint-internal: ${MINIO_ENDPOINT_INTERNAL:http://localhost:9000}
+  endpoint-public: ${MINIO_ENDPOINT_PUBLIC:http://localhost:9000}
+  bucket: ${MINIO_BUCKET:eq07}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  region: ${MINIO_REGION:sa-east-1}
+  console: ${MINIO_CONSOLE:http://localhost:9001}
+  presigned-url-expiry-seconds: ${MINIO_PRESIGNED_URL_EXPIRY:3600}
 # ─── Mercado Pago ────────────────────────────────────────────
 mercadopago:
   access-token: ${MP_ACCESS_TOKEN:TEST-0000000000000000-000000-00000000000000000000000000000000-000000000}

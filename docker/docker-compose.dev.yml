@@ -46,6 +46,49 @@ services:
   # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
   # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: corridas-app-dev
+    env_file:
+      - ../.env
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
+      SPRING_DATASOURCE_USERNAME: corridasdb
+      SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      MAVEN_OPTS: "-Xmx1536m"
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-dsc-eq07}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-lgtm:4318}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+      OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
+      MINIO_ENDPOINT_INTERNAL: http://minio:9000
+    deploy:
+      resources:
+        limits:
+          memory: 3072M
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    volumes:
+      # Monta o código-fonte para hot-reload
+      - ../src:/app/src
+      # Persistir dependências Maven (evita re-download a cada restart)
+      - maven-cache:/root/.m2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-lgtm:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    networks:
+      - corridas-net
+
   #
   #app:
   #  build:
@@ -115,6 +158,33 @@ services:
       - corridas-net
 
   # ---------------------------------------------------------------------------
+  # MinIO: armazenamento de objetos compatível com S3
+  # Acesse o painel web em: http://localhost:9001
+  # Credenciais: configuradas no .env (MINIO_ACCESS_KEY / MINIO_SECRET_KEY)
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: corridas-minio-dev
+    env_file:
+      - ../.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio-dev-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
   # Trivy: scanner de vulnerabilidades (roda e sai — profile: scan)
   # Uso: docker compose -f docker/docker-compose.dev.yml --profile scan up trivy
   # ---------------------------------------------------------------------------
@@ -135,6 +205,7 @@ volumes:
   mongo-dev-data:
   maven-cache:
   trivy-cache:
+  minio-dev-data:
 
 networks:
   corridas-net:

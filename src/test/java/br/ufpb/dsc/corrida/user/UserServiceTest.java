@@ -46,6 +46,9 @@ class UsuarioServiceTest {
     @Mock
     private TokenService tokenService;
 
+    @Mock
+    private br.ufpb.dsc.corrida.storage.MinioService minioService;
+
     @InjectMocks
     private UsuarioService service;
 
@@ -314,15 +317,16 @@ class UsuarioServiceTest {
     @DisplayName("buscarPerfilPublico() — retorna foto e km quando userInfo existe")
     void buscarPerfilPublico_deveRetornarFotoEKm_quandoUserInfoExiste() {
         var userInfo = mock(br.ufpb.dsc.corrida.user.UserInfo.class);
-        when(userInfo.getFotoPerfil()).thenReturn("/uploads/foto.png");
+        when(userInfo.getFotoPerfilObjectKey()).thenReturn("fotos-perfil/foto.png");
         when(userInfo.getTotalKmRun()).thenReturn(42.5f);
 
         when(repository.findByUsername("joaosilva")).thenReturn(usuarioMock);
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(userInfo));
+        when(minioService.getPresignedUrl("fotos-perfil/foto.png")).thenReturn("http://presigned-url");
 
         PerfilPublicoDTO resultado = service.buscarPerfilPublico("joaosilva");
 
-        assertThat(resultado.fotoPerfil()).isEqualTo("/uploads/foto.png");
+        assertThat(resultado.fotoPerfil()).isEqualTo("http://presigned-url");
         assertThat(resultado.totalKmRun()).isEqualTo(42.5f);
     }
 

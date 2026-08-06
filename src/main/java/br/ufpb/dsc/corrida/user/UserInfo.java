@@ -51,9 +51,9 @@ public class UserInfo {
     @Column(name = "data_nasc", nullable = false)
     private LocalDate dataNasc;
 
-    /** URL da foto de perfil do corredor. Opcional. */
+    /** Chave da foto de perfil no MinIO. Opcional. */
     @Column(name = "foto_perfil")
-    private String fotoPerfil;
+    private String fotoPerfilObjectKey;
 
     /** Nível de condicionamento físico do corredor. Opcional. */
     @Enumerated(EnumType.STRING)

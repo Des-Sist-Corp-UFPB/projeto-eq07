@@ -177,7 +177,18 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
-
+        <!-- === MINIO STORAGE === -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>minio</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+         </dependency>
         <!-- === PAGAMENTO: Mercado Pago SDK === -->
         <dependency>
             <groupId>com.mercadopago</groupId>
@@ -278,6 +289,21 @@
                                 <exclude>**/*Application.*</exclude>
                             </excludes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Failsafe: para rodar testes de integração (*IT.java) no phase verify -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -7,19 +7,15 @@ import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.dto.AtualizarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.CriarUserInfoDTO;
 import br.ufpb.dsc.corrida.user.dto.UserInfoRespostaDTO;
+import br.ufpb.dsc.corrida.storage.MinioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 import java.util.UUID;
 
 
@@ -39,8 +35,8 @@ public class UserInfoService {
     @Autowired
     private UserRepository usuarioRepository;
 
-    @Value("${app.upload.dir:uploads/perfil/}")
-    private String uploadDir;
+    @Autowired
+    private MinioService minioService;
 
     /**
      * Cria um novo registro de informações para um corredor.
@@ -82,7 +78,7 @@ public class UserInfoService {
         userInfo.setAltura(dto.altura());
         userInfo.setGenero(dto.genero());
         userInfo.setDataNasc(dto.dataNasc());
-        userInfo.setFotoPerfil(dto.fotoPerfil());
+        userInfo.setFotoPerfilObjectKey(dto.fotoPerfil());
         userInfo.setNivelCondicionamento(dto.nivelCondicionamento());
         userInfo.setNotasMedicas(dto.notasMedicas());
         userInfo.setConsentimentoSaude(Boolean.TRUE.equals(dto.consentimentoSaude()));
@@ -94,7 +90,7 @@ public class UserInfoService {
 
         var salvo = userInfoRepository.save(userInfo);
         log.info("UserInfo criado com sucesso para usuarioId={}", dto.usuarioId());
-        return new UserInfoRespostaDTO(salvo);
+        return toDTO(salvo);
     }
 
     /**
@@ -113,7 +109,7 @@ public class UserInfoService {
                 .orElseThrow(() -> new UserInfoNaoEncontradoException(
                         "Informações de corredor não encontradas para o usuário com ID: " + usuarioId));
 
-        return new UserInfoRespostaDTO(userInfo);
+        return toDTO(userInfo);
     }
 
     /**
@@ -152,7 +148,7 @@ public class UserInfoService {
             userInfo.setDataNasc(dto.dataNasc());
         }
         if (dto.fotoPerfil() != null) {
-            userInfo.setFotoPerfil(dto.fotoPerfil());
+            userInfo.setFotoPerfilObjectKey(dto.fotoPerfil());
         }
         if (dto.nivelCondicionamento() != null) {
             userInfo.setNivelCondicionamento(dto.nivelCondicionamento());
@@ -174,7 +170,7 @@ public class UserInfoService {
 
         var atualizado = userInfoRepository.save(userInfo);
         log.info("UserInfo atualizado com sucesso para usuarioId={}", usuarioId);
-        return new UserInfoRespostaDTO(atualizado);
+        return toDTO(atualizado);
     }
 
     /**
@@ -200,41 +196,50 @@ public class UserInfoService {
         }
 
         try {
-            // Criar o diretório se não existir
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
             // Gerar nome de arquivo único
-            String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+            String originalFileName = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "");
             String extension = "";
             int i = originalFileName.lastIndexOf('.');
             if (i > 0) {
                 extension = originalFileName.substring(i);
             }
 
-            String fileName = UUID.randomUUID().toString() + extension;
-            Path filePath = uploadPath.resolve(fileName);
+            String objectName = "fotos-perfil/" + usuarioId + "/" + UUID.randomUUID().toString() + extension;
 
-            // Salvar no disco
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // Salvar no MinIO
+            String objectKey = minioService.upload(file, objectName);
+            
+            // Guardar a chave antiga para apagar depois
+            String oldObjectKey = userInfo.getFotoPerfilObjectKey();
 
-            // Atualizar entidade com o path relativo (estático)
-            String urlPath = "/uploads/perfil/" + fileName;
-            userInfo.setFotoPerfil(urlPath);
+            // Atualizar entidade com a chave do objeto
+            userInfo.setFotoPerfilObjectKey(objectKey);
             var atualizado = userInfoRepository.save(userInfo);
 
-            log.info("Foto de perfil salva com sucesso para usuarioId={}. Arquivo: {}", usuarioId, urlPath);
-            return new UserInfoRespostaDTO(atualizado);
+            // Excluir a antiga (best-effort)
+            if (oldObjectKey != null && !oldObjectKey.isEmpty()) {
+                try {
+                    minioService.delete(oldObjectKey);
+                } catch (Exception e) {
+                    log.warn("Falha ao remover foto antiga do MinIO: {}", e.getMessage());
+                }
+            }
 
-        } catch (IOException e) {
+            log.info("Foto de perfil salva com sucesso para usuarioId={}. ObjectKey: {}", usuarioId, objectKey);
+            return toDTO(atualizado);
+
+        } catch (Exception e) {
             log.error("Erro ao salvar o arquivo de foto de perfil", e);
             throw new RuntimeException("Não foi possível salvar a imagem. Tente novamente mais tarde.", e);
         }
     }
 
-    // ─── Helpers de validação ───────────────────────────────────────────────
+    // ─── Helpers ───────────────────────────────────────────────
+
+    private UserInfoRespostaDTO toDTO(UserInfo userInfo) {
+        String presignedUrl = minioService.getPresignedUrl(userInfo.getFotoPerfilObjectKey());
+        return new UserInfoRespostaDTO(userInfo, presignedUrl);
+    }
 
     private void validarPeso(Float peso) {
         if (peso == null || peso <= 0) {

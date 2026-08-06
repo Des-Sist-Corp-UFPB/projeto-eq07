@@ -28,6 +28,9 @@ public class UserConnectionService {
     @Autowired
     private UserInfoRepository userInfoRepository;
 
+    @Autowired
+    private br.ufpb.dsc.corrida.storage.MinioService minioService;
+
     @Transactional
     @Auditable(action = "SEND_CONNECTION", resource = "CONECTION")
     public UserConnection sendConnectionRequest(Long requesterId, Long receiverId) {
@@ -110,7 +113,8 @@ public class UserConnectionService {
         return pending.stream().map(conn -> {
             User req = conn.getRequester();
             String foto = userInfoRepository.findByUsuarioId(req.getId())
-                    .map(UserInfo::getFotoPerfil)
+                    .map(UserInfo::getFotoPerfilObjectKey)
+                    .map(minioService::getPresignedUrl)
                     .orElse(null);
             return new SolicitacaoConexaoDTO(
                     conn.getId(),

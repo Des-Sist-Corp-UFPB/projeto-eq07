@@ -31,7 +31,7 @@ public record UserInfoRespostaDTO(
      *
      * @param userInfo entidade a ser mapeada
      */
-    public UserInfoRespostaDTO(UserInfo userInfo) {
+    public UserInfoRespostaDTO(UserInfo userInfo, String fotoPerfilUrl) {
         this(
                 userInfo.getId(),
                 userInfo.getUsuario().getId(),
@@ -40,7 +40,7 @@ public record UserInfoRespostaDTO(
                 userInfo.getGenero(),
                 userInfo.getTotalKmRun(),
                 userInfo.getDataNasc(),
-                userInfo.getFotoPerfil(),
+                fotoPerfilUrl,
                 userInfo.getNivelCondicionamento(),
                 userInfo.getNotasMedicas(),
                 userInfo.getConsentimentoSaude(),

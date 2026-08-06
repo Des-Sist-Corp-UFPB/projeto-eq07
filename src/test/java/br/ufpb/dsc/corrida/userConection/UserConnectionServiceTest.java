@@ -38,6 +38,9 @@ class UserConnectionServiceTest {
     @Mock
     private UserInfoRepository userInfoRepository;
 
+    @Mock
+    private br.ufpb.dsc.corrida.storage.MinioService minioService;
+
     @InjectMocks
     private UserConnectionService userConnectionService;
 
@@ -294,22 +297,24 @@ class UserConnectionServiceTest {
 
         // Mock info repository
         UserInfo info1 = new UserInfo();
-        info1.setFotoPerfil("photo1.jpg");
+        info1.setFotoPerfilObjectKey("photo1.jpg");
         UserInfo info2 = new UserInfo();
-        info2.setFotoPerfil("photo2.jpg");
+        info2.setFotoPerfilObjectKey("photo2.jpg");
 
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info1));
         when(userInfoRepository.findByUsuarioId(3L)).thenReturn(Optional.of(info2));
+        when(minioService.getPresignedUrl("photo1.jpg")).thenReturn("http://presigned/photo1.jpg");
+        when(minioService.getPresignedUrl("photo2.jpg")).thenReturn("http://presigned/photo2.jpg");
 
         List<SolicitacaoConexaoDTO> list = userConnectionService.getPendingRequestsList(2L);
 
         assertThat(list).hasSize(2);
         assertThat(list.get(0).id()).isEqualTo(101L);
         assertThat(list.get(0).requesterId()).isEqualTo(3L);
-        assertThat(list.get(0).foto()).isEqualTo("photo2.jpg");
+        assertThat(list.get(0).foto()).isEqualTo("http://presigned/photo2.jpg");
 
         assertThat(list.get(1).id()).isEqualTo(100L);
         assertThat(list.get(1).requesterId()).isEqualTo(1L);
-        assertThat(list.get(1).foto()).isEqualTo("photo1.jpg");
+        assertThat(list.get(1).foto()).isEqualTo("http://presigned/photo1.jpg");
     }
 }
