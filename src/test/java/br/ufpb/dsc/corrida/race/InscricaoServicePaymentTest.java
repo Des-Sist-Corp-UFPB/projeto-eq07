@@ -2,6 +2,7 @@ package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.CpfObrigatorioException;
 import br.ufpb.dsc.corrida.exception.MercadoPagoException;
+import br.ufpb.dsc.corrida.featuretoggle.FeatureToggleService;
 import br.ufpb.dsc.corrida.inscricao.Inscricao;
 import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
 import br.ufpb.dsc.corrida.inscricao.InscricaoService;
@@ -44,6 +45,9 @@ class InscricaoServicePaymentTest {
     @InjectMocks
     private InscricaoService inscricaoService;
 
+    @Mock
+    private FeatureToggleService featureToggleService;
+
     private User usuario;
     private UserInfo userInfo;
     private Race corridaPaga;
@@ -73,6 +77,7 @@ class InscricaoServicePaymentTest {
         corridaGratuita.setValorInscricao(BigDecimal.ZERO);
         corridaGratuita.setDataInicio(OffsetDateTime.now().plusDays(10));
         corridaGratuita.setStatus(StatusCorrida.PUBLICADA);
+        lenient().when(featureToggleService.isFeatureEnabled(anyString())).thenReturn(true);
     }
 
     @Test

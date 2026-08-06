@@ -6,6 +6,7 @@ import br.ufpb.dsc.corrida.exception.CpfObrigatorioException;
 import br.ufpb.dsc.corrida.exception.MercadoPagoException;
 import br.ufpb.dsc.corrida.exception.race.ConflitoHorarioException;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
+import br.ufpb.dsc.corrida.featuretoggle.FeatureToggleService;
 import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.organizer.Organizer;
 import br.ufpb.dsc.corrida.pagamento.MercadoPagoService;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +60,9 @@ class InscricaoServiceCoverageTest {
     @Mock
     private PagamentoRepository pagamentoRepository;
 
+    @Mock
+    private FeatureToggleService featureToggleService;
+
     @InjectMocks
     private InscricaoService inscricaoService;
 
@@ -81,6 +86,7 @@ class InscricaoServiceCoverageTest {
         raceGratuita.setStatus(StatusCorrida.PUBLICADA);
         raceGratuita.setDataInicio(OffsetDateTime.now().plusDays(5));
         raceGratuita.setValorInscricao(BigDecimal.ZERO);
+        lenient().when(featureToggleService.isFeatureEnabled(anyString())).thenReturn(true);
     }
 
     @Test
