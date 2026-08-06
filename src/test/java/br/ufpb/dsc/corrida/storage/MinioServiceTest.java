@@ -35,8 +35,10 @@ class MinioServiceTest {
     @BeforeEach
     void setUp() {
         lenient().when(minioProperties.getBucket()).thenReturn("test-bucket");
+        lenient().when(minioProperties.getEndpointInternal()).thenReturn("http://localhost:9000");
         lenient().when(minioProperties.getEndpointPublic()).thenReturn("http://localhost:9000");
         lenient().when(minioProperties.getPresignedUrlExpirySeconds()).thenReturn(3600);
+        minioService.init();
     }
 
     @Test
