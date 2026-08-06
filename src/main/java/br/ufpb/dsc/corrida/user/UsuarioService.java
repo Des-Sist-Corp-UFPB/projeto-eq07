@@ -10,9 +10,13 @@ import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioNaoEncontradoException;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -106,6 +110,33 @@ public class UsuarioService {
                 fotoPerfil,
                 totalKmRun
         );
+    }
+
+    /**
+     * Home page — top-6 usuários registrados mais recentemente (por id desc).
+     * Limite aplicado na query do repositório.
+     */
+    public List<PerfilPublicoDTO> listarUsuariosRecentes() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long idUser = null;
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            var user = (User) auth.getPrincipal();
+            idUser = user.getId();
+        }
+        
+        List<PerfilPublicoDTO> usuarios = repository.findTop6ByPapelOpcionalId(Papel.ADMINISTRADOR, idUser).stream().map(user -> {
+            var userInfoOpt = userInfoRepository.findByUsuarioId(user.getId());
+            String fotoPerfil = null;
+            Float totalKmRun = 0.0f;
+
+            if (userInfoOpt.isPresent()) {
+                fotoPerfil = userInfoOpt.get().getFotoPerfil();
+                totalKmRun = userInfoOpt.get().getTotalKmRun();
+            }
+            return new PerfilPublicoDTO(user.getNome(), user.getUserUsername(), fotoPerfil, totalKmRun);
+        }).toList();
+        return usuarios;
     }
 
 }

@@ -1,5 +1,6 @@
 package br.ufpb.dsc.corrida.inscricao;
 
+import br.ufpb.dsc.corrida.featuretoggle.FeatureToggleService;
 import br.ufpb.dsc.corrida.audit.Auditable;
 import br.ufpb.dsc.corrida.event.RaceCompletedEvent;
 import br.ufpb.dsc.corrida.exception.CorridaNaoEncontradaException;
@@ -40,6 +41,7 @@ public class InscricaoService {
     private final MercadoPagoService mercadoPagoService;
     private final UserInfoRepository userInfoRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final FeatureToggleService featureToggleService;
 
     public InscricaoService(
             InscricaoRepository inscricaoRepository,
@@ -47,13 +49,15 @@ public class InscricaoService {
             ApplicationEventPublisher eventPublisher,
             MercadoPagoService mercadoPagoService,
             UserInfoRepository userInfoRepository,
-            PagamentoRepository pagamentoRepository) {
+            PagamentoRepository pagamentoRepository,
+            FeatureToggleService featureToggleService) {
         this.inscricaoRepository = inscricaoRepository;
         this.raceRepository = raceRepository;
         this.eventPublisher = eventPublisher;
         this.mercadoPagoService = mercadoPagoService;
         this.userInfoRepository = userInfoRepository;
         this.pagamentoRepository = pagamentoRepository;
+        this.featureToggleService = featureToggleService;
     }
 
     @WithSpan("race.inscrever-atleta")
@@ -138,6 +142,14 @@ public class InscricaoService {
 
         if (!corridaPaga) {
             // Corrida gratuita — confirma diretamente
+            inscricao.setStatus(StatusInscricao.CONFIRMADA);
+            return inscricaoRepository.save(inscricao);
+        }
+
+        // Corrida paga com PAYMENT_V2 desabilitado — confirma diretamente sem cobrança
+        boolean paymentV2Enabled = featureToggleService.isFeatureEnabled("PAYMENT_V2");
+        if (!paymentV2Enabled) {
+            log.info("[InscricaoService] PAYMENT_V2 desabilitado — confirmando inscrição diretamente (bypass pagamento) para corridaId={}", raceId);
             inscricao.setStatus(StatusInscricao.CONFIRMADA);
             return inscricaoRepository.save(inscricao);
         }

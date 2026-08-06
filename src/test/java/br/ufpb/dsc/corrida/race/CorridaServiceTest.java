@@ -1,6 +1,7 @@
 package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
+import br.ufpb.dsc.corrida.featuretoggle.FeatureToggleService;
 import br.ufpb.dsc.corrida.exception.CorridaNaoEncontradaException;
 import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.organizer.OrganizationRepository;
@@ -53,6 +54,9 @@ public class CorridaServiceTest {
     @InjectMocks
     private CorridaService service;
 
+    @Mock
+    private FeatureToggleService featureToggleService;
+
     private User ownerUser;
     private User nonOwnerUser;
     private Organizer ownerOrganizer;
@@ -78,6 +82,7 @@ public class CorridaServiceTest {
         organization = new Organization();
         organization.setId(100L);
         organization.setOrganizer(ownerOrganizer);
+        lenient().when(featureToggleService.isFeatureEnabled(anyString())).thenReturn(true);
     }
 
     // =========================================================================

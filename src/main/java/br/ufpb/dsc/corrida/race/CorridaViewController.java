@@ -92,6 +92,20 @@ public class CorridaViewController {
             isFull = count >= race.getMaxInscricoes();
         }
         
+        // Determina se o usuário logado é o organizador desta corrida
+        boolean isOrganizador = false;
+        if (usuarioLogado != null) {
+            try {
+                Long organizadorUserId = race.getOrganization()
+                        .getOrganizer()
+                        .getUsuario()
+                        .getId();
+                isOrganizador = usuarioLogado.getId().equals(organizadorUserId);
+            } catch (Exception ignored) {
+                // Segurança defensiva: se a cadeia estiver incompleta, trata como não-organizador
+            }
+        }
+
         model.addAttribute("corrida", race);
         model.addAttribute("activePage", "corridas");
         model.addAttribute("inscricaoUsuario", inscricaoUsuario);
@@ -100,6 +114,7 @@ public class CorridaViewController {
         model.addAttribute("pagamento", pagamento);
         model.addAttribute("expirado", expirado);
         model.addAttribute("isFull", isFull);
+        model.addAttribute("isOrganizador", isOrganizador);
         return "corrida/corrida-detalhes";
     }
 

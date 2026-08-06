@@ -92,7 +92,7 @@ public class EmailService {
 
             } catch (MessagingException e) {
                 log.error("[Email] Tentativa {}/{} falhou para inscricaoId={}: {}",
-                        tentativa, MAX_TENTATIVAS, inscricaoId, e.getMessage());
+                        tentativa, MAX_TENTATIVAS, inscricaoId, e.getMessage(), e);
                 if (tentativa < MAX_TENTATIVAS) {
                     try { Thread.sleep(BACKOFF_MS * tentativa); }
                     catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
