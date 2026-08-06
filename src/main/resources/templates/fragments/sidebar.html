@@ -121,12 +121,12 @@
     <div class="px-4 py-4 border-t border-slate-800" sec:authorize="isAuthenticated()">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 glow-orange flex-shrink-0"
-                 th:text="${#strings.toUpperCase(#strings.substring(#authentication.name, 0, 2))}">AT</div>
+                 th:text="${#strings.toUpperCase(#strings.substring(#authentication.principal.nome, 0, 1))}">AT</div>
             <div class="min-w-0">
-                <p class="text-sm font-semibold text-slate-200 truncate" th:text="${#authentication.name}">Atleta</p>
+                <p class="text-sm font-semibold text-slate-200 truncate" th:text="${#authentication.principal.nome}">Atleta</p>
                 <p class="text-xs text-slate-500 truncate">
                     <span th:each="auth,i : ${#authentication.authorities}"
-                          th:text="${auth.authority + (i.last ? '' : ', ')}"></span>
+                          th:text="${#strings.replace(auth.authority, 'ROLE_', '') + (i.last ? '' : ', ')}"></span>
                 </p>
             </div>
             <a th:href="@{/logout}" class="ml-auto text-slate-600 hover:text-red-400 transition-colors" title="Sair">
