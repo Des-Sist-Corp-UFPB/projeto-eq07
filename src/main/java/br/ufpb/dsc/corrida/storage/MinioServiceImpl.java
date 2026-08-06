@@ -82,7 +82,7 @@ public class MinioServiceImpl implements MinioService {
             return null;
         }
         try {
-            return minioClient.getPresignedObjectUrl(
+            String url = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioProperties.getBucket())
@@ -90,6 +90,16 @@ public class MinioServiceImpl implements MinioService {
                             .expiry(minioProperties.getPresignedUrlExpirySeconds(), TimeUnit.SECONDS)
                             .build()
             );
+
+            String internal = minioProperties.getEndpointInternal();
+            String publicEp = minioProperties.getEndpointPublic();
+            if (internal != null && publicEp != null && !internal.equals(publicEp)) {
+                // Normaliza removendo barras finais para substituição correta
+                String internalBase = internal.endsWith("/") ? internal.substring(0, internal.length() - 1) : internal;
+                String publicBase = publicEp.endsWith("/") ? publicEp.substring(0, publicEp.length() - 1) : publicEp;
+                url = url.replace(internalBase, publicBase);
+            }
+            return url;
         } catch (Exception e) {
             log.error("Erro ao gerar presigned URL para {}: {}", objectName, e.getMessage());
             return null;
