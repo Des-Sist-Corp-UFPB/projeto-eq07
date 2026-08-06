@@ -188,7 +188,7 @@
             <artifactId>minio</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
-
+         </dependency>
         <!-- === PAGAMENTO: Mercado Pago SDK === -->
         <dependency>
             <groupId>com.mercadopago</groupId>
