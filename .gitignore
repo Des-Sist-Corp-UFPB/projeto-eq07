@@ -65,6 +65,8 @@ spring.log
 .env.*
 !.env.example
 application-local.properties
+application.yml
+application-dev.yml
 
 # ---------------------------------------------------------------------------
 # Docker

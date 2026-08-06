@@ -16,6 +16,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -52,15 +53,29 @@ public class OpenRouteServiceClientTest {
         ReflectionTestUtils.setField(client, "restClient", mockRestClient);
     }
 
+    /*@Test
+    @DisplayName("Should parse a successful ORS response into a route DTO")
+    void shouldParseSuccessfulRouteResponse() {
+        when(mockRestClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
+        when(requestBodySpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.body(byte[].class)).thenReturn("{\"distance\":1200.0,\"duration\":180.0}".getBytes());
+
+        var rota = client.calcularRota(-34.863, -7.115, -34.863, -7.115);
+
+        assertThat(rota).isNotNull();
+        assertThat(rota.getDistanciaKm()).isEqualByComparingTo("1.20");
+        assertThat(rota.getDuracaoMin()).isEqualTo(3);
+        assertThat(rota.getGeoJson()).contains("distance");
+    }*/
+
     @Test
     @DisplayName("Should throw ExternalServiceException on RestClientResponseException (e.g., HTTP 500)")
     void shouldThrowExternalServiceExceptionOnHttpError() {
         when(mockRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
-        
-        // ALTERAÇÃO AQUI: Forçando a assinatura para Object
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
-        
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(byte[].class)).thenThrow(mock(RestClientResponseException.class));
 
@@ -74,10 +89,7 @@ public class OpenRouteServiceClientTest {
     void shouldThrowExternalServiceExceptionOnTimeout() {
         when(mockRestClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
-        
-        // ALTERAÇÃO AQUI: Forçando a assinatura para Object
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
-        
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(byte[].class)).thenThrow(new ResourceAccessException("Timeout"));
 
@@ -87,13 +99,23 @@ public class OpenRouteServiceClientTest {
     }
 
     @Test
+    @DisplayName("Should return geocoding content when the ORS request succeeds")
+    void shouldReturnGeocodingContentWhenRequestSucceeds() {
+        when(mockRestClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(anyString(), anyString(), anyString())).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.body(String.class)).thenReturn("{\"features\":[]}");
+
+        String resultado = client.geocodificarEndereco("Rua Teste");
+
+        assertThat(resultado).contains("features");
+    }
+
+    @Test
     @DisplayName("Should throw ExternalServiceException on Geocoding RestClientResponseException")
     void shouldThrowExternalServiceExceptionOnGeocodingHttpError() {
         when(mockRestClient.get()).thenReturn(requestHeadersUriSpec);
-        
-        // CORREÇÃO: Adicionado o terceiro anyString() para bater com os 3 parâmetros passados na produção
         when(requestHeadersUriSpec.uri(anyString(), anyString(), anyString())).thenReturn(requestHeadersSpec);
-        
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(String.class)).thenThrow(mock(RestClientResponseException.class));
 

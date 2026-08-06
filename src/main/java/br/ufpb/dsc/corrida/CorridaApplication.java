@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "br.ufpb.dsc.corrida.userConections",
     "br.ufpb.dsc.corrida.audit",
     "br.ufpb.dsc.corrida.featuretoggle",
+    "br.ufpb.dsc.corrida.inscricao",
+    "br.ufpb.dsc.corrida.pagamento",
 })
 public class CorridaApplication {
 

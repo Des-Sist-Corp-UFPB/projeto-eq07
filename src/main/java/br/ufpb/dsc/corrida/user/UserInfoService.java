@@ -86,6 +86,10 @@ public class UserInfoService {
         userInfo.setNivelCondicionamento(dto.nivelCondicionamento());
         userInfo.setNotasMedicas(dto.notasMedicas());
         userInfo.setConsentimentoSaude(Boolean.TRUE.equals(dto.consentimentoSaude()));
+        if (dto.cpf() != null && !dto.cpf().isBlank()) {
+            validarCpf(dto.cpf());
+            userInfo.setCpf(dto.cpf().replaceAll("\\D", ""));
+        }
         userInfo.setTotalKmRun(0.0f);
 
         var salvo = userInfoRepository.save(userInfo);
@@ -158,6 +162,14 @@ public class UserInfoService {
         }
         if (dto.consentimentoSaude() != null) {
             userInfo.setConsentimentoSaude(dto.consentimentoSaude());
+        }
+        if (dto.cpf() != null) {
+            if (dto.cpf().isBlank()) {
+                userInfo.setCpf(null);
+            } else {
+                validarCpf(dto.cpf());
+                userInfo.setCpf(dto.cpf().replaceAll("\\D", ""));
+            }
         }
 
         var atualizado = userInfoRepository.save(userInfo);
@@ -242,6 +254,52 @@ public class UserInfoService {
     private void validarAltura(Float altura) {
         if (altura == null || altura <= 0) {
             throw new IllegalArgumentException("A altura deve ser maior que 0");
+        }
+    }
+
+    /**
+     * Valida os dígitos verificadores do CPF utilizando o algoritmo mod 11.
+     *
+     * @param cpf string de CPF (com ou sem máscara)
+     * @throws IllegalArgumentException se o CPF for inválido
+     */
+    public static void validarCpf(String cpf) {
+        if (cpf == null) {
+            throw new IllegalArgumentException("CPF não pode ser nulo");
+        }
+        String cleanCpf = cpf.replaceAll("\\D", "");
+        if (cleanCpf.length() != 11) {
+            throw new IllegalArgumentException("CPF deve conter exatamente 11 dígitos");
+        }
+        // CPFs com todos os dígitos iguais são inválidos
+        if (cleanCpf.matches("(\\d)\\1{10}")) {
+            throw new IllegalArgumentException("CPF inválido");
+        }
+
+        try {
+            int soma = 0;
+            for (int i = 0; i < 9; i++) {
+                soma += (cleanCpf.charAt(i) - '0') * (10 - i);
+            }
+            int resto = 11 - (soma % 11);
+            int digito1 = (resto == 10 || resto == 11) ? 0 : resto;
+
+            if (digito1 != (cleanCpf.charAt(9) - '0')) {
+                throw new IllegalArgumentException("CPF inválido (dígito verificador incorreto)");
+            }
+
+            soma = 0;
+            for (int i = 0; i < 10; i++) {
+                soma += (cleanCpf.charAt(i) - '0') * (11 - i);
+            }
+            resto = 11 - (soma % 11);
+            int digito2 = (resto == 10 || resto == 11) ? 0 : resto;
+
+            if (digito2 != (cleanCpf.charAt(10) - '0')) {
+                throw new IllegalArgumentException("CPF inválido (dígito verificador incorreto)");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("CPF inválido: " + e.getMessage());
         }
     }
 }

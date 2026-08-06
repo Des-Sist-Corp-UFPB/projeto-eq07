@@ -1,6 +1,9 @@
 package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.ExternalServiceException;
+import br.ufpb.dsc.corrida.inscricao.Inscricao;
+import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
+import br.ufpb.dsc.corrida.inscricao.InscricaoService;
 import br.ufpb.dsc.corrida.race.dto.CriarCorridaDTO;
 import br.ufpb.dsc.corrida.race.dto.EditarCorridaDTO;
 import br.ufpb.dsc.corrida.user.User;

@@ -68,6 +68,14 @@ public class UserInfo {
     @Column(name = "consentimento_saude", nullable = false)
     private Boolean consentimentoSaude = false;
 
+    /**
+     * CPF do atleta — armazenado somente com dígitos (11 chars, sem máscara).
+     * Nullable no banco; obrigatoriedade aplicada na camada de aplicação
+     * apenas para inscrições em corridas pagas (valorInscricao > 0).
+     */
+    @Column(name = "cpf", length = 11, unique = true)
+    private String cpf;
+
     /** Timestamp de criação do registro (gerado automaticamente). */
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
@@ -77,4 +85,16 @@ public class UserInfo {
     @UpdateTimestamp
     @Column(name = "atualizado_em", nullable = false)
     private OffsetDateTime atualizadoEm;
+
+    /**
+     * Retorna o CPF formatado para exibição na UI (000.000.000-00).
+     * Retorna null se o CPF não estiver cadastrado.
+     */
+    public String getCpfFormatado() {
+        if (cpf == null || cpf.length() != 11) return null;
+        return cpf.substring(0, 3) + "." +
+               cpf.substring(3, 6) + "." +
+               cpf.substring(6, 9) + "-" +
+               cpf.substring(9, 11);
+    }
 }

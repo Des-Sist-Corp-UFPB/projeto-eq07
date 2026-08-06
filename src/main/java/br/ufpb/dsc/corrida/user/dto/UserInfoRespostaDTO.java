@@ -22,6 +22,7 @@ public record UserInfoRespostaDTO(
         NivelCondicionamento nivelCondicionamento,
         String notasMedicas,
         Boolean consentimentoSaude,
+        String cpf,
         OffsetDateTime criadoEm,
         OffsetDateTime atualizadoEm
 ) {
@@ -43,8 +44,21 @@ public record UserInfoRespostaDTO(
                 userInfo.getNivelCondicionamento(),
                 userInfo.getNotasMedicas(),
                 userInfo.getConsentimentoSaude(),
+                userInfo.getCpf(),
                 userInfo.getCriadoEm(),
                 userInfo.getAtualizadoEm()
         );
+    }
+
+    /**
+     * Retorna o CPF formatado para exibição na UI (000.000.000-00).
+     * Retorna null se o CPF não estiver cadastrado.
+     */
+    public String getCpfFormatado() {
+        if (cpf == null || cpf.length() != 11) return null;
+        return cpf.substring(0, 3) + "." +
+               cpf.substring(3, 6) + "." +
+               cpf.substring(6, 9) + "-" +
+               cpf.substring(9, 11);
     }
 }
