@@ -21,6 +21,23 @@ public class MinioServiceImpl implements MinioService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
+    private MinioClient publicMinioClient;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        String internal = minioProperties.getEndpointInternal();
+        String publicEp = minioProperties.getEndpointPublic();
+        if (internal != null && publicEp != null && !internal.equals(publicEp)) {
+            log.info("Inicializando publicMinioClient para assinaturas com endpoint: {}", publicEp);
+            this.publicMinioClient = MinioClient.builder()
+                    .endpoint(publicEp)
+                    .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
+                    .region(minioProperties.getRegion())
+                    .build();
+        } else {
+            this.publicMinioClient = this.minioClient;
+        }
+    }
 
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList("image/jpeg", "image/png", "image/webp");
 
@@ -82,7 +99,7 @@ public class MinioServiceImpl implements MinioService {
             return null;
         }
         try {
-            String url = minioClient.getPresignedObjectUrl(
+            return publicMinioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioProperties.getBucket())
@@ -90,16 +107,6 @@ public class MinioServiceImpl implements MinioService {
                             .expiry(minioProperties.getPresignedUrlExpirySeconds(), TimeUnit.SECONDS)
                             .build()
             );
-
-            String internal = minioProperties.getEndpointInternal();
-            String publicEp = minioProperties.getEndpointPublic();
-            if (internal != null && publicEp != null && !internal.equals(publicEp)) {
-                // Normaliza removendo barras finais para substituição correta
-                String internalBase = internal.endsWith("/") ? internal.substring(0, internal.length() - 1) : internal;
-                String publicBase = publicEp.endsWith("/") ? publicEp.substring(0, publicEp.length() - 1) : publicEp;
-                url = url.replace(internalBase, publicBase);
-            }
-            return url;
         } catch (Exception e) {
             log.error("Erro ao gerar presigned URL para {}: {}", objectName, e.getMessage());
             return null;
