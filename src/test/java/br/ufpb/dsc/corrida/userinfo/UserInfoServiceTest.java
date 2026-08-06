@@ -55,7 +55,7 @@ class UserInfoServiceTest {
         usuario = mock(User.class);
         lenient().when(usuario.getId()).thenReturn(1L);
 
-        ReflectionTestUtils.setField(service, "uploadDir", "target/test-uploads/");
+
 
         dtoValido = new CriarUserInfoDTO(
                 1L,

@@ -114,13 +114,13 @@ class MinioServiceTest {
     }
 
     @Test
-    void upload_StringContent_Valido_DeveRetornarPublicUrl() throws Exception {
+    void upload_StringContent_Valido_DeveRetornarObjectName() throws Exception {
         String content = "{\"type\":\"Point\"}";
         String objectName = "rotas/route.json";
 
         String result = minioService.upload(content, objectName, "application/json");
 
-        assertEquals("http://localhost:9000/test-bucket/rotas/route.json", result);
+        assertEquals("rotas/route.json", result);
         verify(minioClient).putObject(any(PutObjectArgs.class));
     }
 
