@@ -16,6 +16,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -110,7 +111,15 @@ public class UsuarioService {
      * Limite aplicado na query do repositório.
      */
     public List<PerfilPublicoDTO> listarUsuariosRecentes() {
-        List<PerfilPublicoDTO> usuarios = repository.findTop6ByPapelNotOrderByIdDesc(Papel.ADMINISTRADOR).stream().map(user -> {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long idUser = null;
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            var user = (User) auth.getPrincipal();
+            idUser = user.getId();
+        }
+        
+        List<PerfilPublicoDTO> usuarios = repository.findTop6ByPapelOpcionalId(Papel.ADMINISTRADOR, idUser).stream().map(user -> {
             var userInfoOpt = userInfoRepository.findByUsuarioId(user.getId());
             String fotoPerfil = null;
             Float totalKmRun = 0.0f;

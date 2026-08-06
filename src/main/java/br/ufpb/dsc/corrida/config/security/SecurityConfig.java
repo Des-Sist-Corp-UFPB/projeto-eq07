@@ -93,6 +93,7 @@ public class SecurityConfig {
                         .requestMatchers("/ping", "/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/corridas", "/corridas/**", "/api/geo/search").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/webhooks/mercadopago").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/features").permitAll()
                         .requestMatchers("/organizacao/*/corridas/**").hasRole("ORGANIZADOR")
                         .requestMatchers(HttpMethod.POST, "/api/races/*/eligibility-check").authenticated()
                         .requestMatchers("/login", "/registrar", "/registrar/organizador", "/organizacao/*", "/css/**", "/js/**", "/images/**",

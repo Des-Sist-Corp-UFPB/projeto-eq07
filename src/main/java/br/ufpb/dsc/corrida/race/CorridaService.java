@@ -15,6 +15,9 @@ import br.ufpb.dsc.corrida.user.User;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import br.ufpb.dsc.corrida.featuretoggle.FeatureToggle;
+import br.ufpb.dsc.corrida.featuretoggle.FeatureToggleService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +63,9 @@ public class CorridaService {
     @Autowired
     private OpenRouteServiceClient orsClient;
 
+    @Autowired
+    private FeatureToggleService featureToggleService;
+
     // =========================================================================
     // Criação
     // =========================================================================
@@ -80,6 +86,15 @@ public class CorridaService {
                 .orElseThrow(() -> new CorridaNaoEncontradaException("Organização não encontrada"));
 
         verificarPropriedade(org, usuarioLogado);
+
+        // Regra: PAYMENT_V2 desabilitado — não permite corridas pagas
+        boolean paymentV2Enabled = featureToggleService.isFeatureEnabled("PAYMENT_V2");
+        if (!paymentV2Enabled
+                && dto.valorInscricao() != null
+                && dto.valorInscricao().compareTo(java.math.BigDecimal.ZERO) > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Pagamentos desabilitados: não é possível criar corridas pagas enquanto PAYMENT_V2 estiver desativado.");
+        }
 
         Race race = new Race();
         race.setOrganization(org);

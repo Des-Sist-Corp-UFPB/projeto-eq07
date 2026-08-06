@@ -55,7 +55,7 @@ class HomeUserRepositoryTest {
         User u2 = buildUser("segundo");
         User u3 = buildUser("terceiro");
 
-        List<User> resultado = userRepository.findTop6ByPapelNotOrderByIdDesc(Papel.ADMINISTRADOR);
+        List<User> resultado = userRepository.findTop6ByPapelOpcionalId(Papel.ADMINISTRADOR, 1L);
 
         // Os IDs devem estar em ordem decrescente
         List<Long> ids = resultado.stream().map(User::getId).toList();
@@ -77,7 +77,7 @@ class HomeUserRepositoryTest {
             buildUser("limite_" + i);
         }
 
-        List<User> resultado = userRepository.findTop6ByPapelNotOrderByIdDesc(Papel.ADMINISTRADOR);
+        List<User> resultado = userRepository.findTop6ByPapelOpcionalId(Papel.ADMINISTRADOR, 1L);
 
         assertThat(resultado).hasSizeLessThanOrEqualTo(6);
     }
@@ -86,7 +86,7 @@ class HomeUserRepositoryTest {
     @DisplayName("Retorna lista (vazia ou menor que 6) quando não há usuários suficientes")
     void deveRetornarListaVaziaOuMenorQueSeis() {
         // Não persiste nenhum usuário extra; verifica que o método não lança exceção
-        List<User> resultado = userRepository.findTop6ByPapelNotOrderByIdDesc(Papel.ADMINISTRADOR);
+        List<User> resultado = userRepository.findTop6ByPapelOpcionalId(Papel.ADMINISTRADOR, 1L);
 
         // O resultado deve ter no máximo 6 itens
         assertThat(resultado).hasSizeLessThanOrEqualTo(6);
@@ -100,7 +100,7 @@ class HomeUserRepositoryTest {
         buildUser("anterior_" + System.nanoTime());
         User maisRecente = buildUser("recente_" + System.nanoTime());
 
-        List<User> resultado = userRepository.findTop6ByPapelNotOrderByIdDesc(Papel.ADMINISTRADOR);
+        List<User> resultado = userRepository.findTop6ByPapelOpcionalId(Papel.ADMINISTRADOR, 1L);
 
         // O primeiro elemento deve ter ID >= que o usuário mais recente criado
         assertThat(resultado.get(0).getId()).isGreaterThanOrEqualTo(maisRecente.getId());

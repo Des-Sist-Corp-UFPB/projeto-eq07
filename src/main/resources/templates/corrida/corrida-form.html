@@ -128,6 +128,11 @@
                     <div>
                         <label class="form-label" for="valorInscricao">Valor da Inscrição (R$)</label>
                         <input type="number" step="0.01" min="0" id="valorInscricao" th:field="*{valorInscricao}" class="form-input" placeholder="Ex.: 80.00 (deixe em branco ou zero se grátis)" />
+                        <!-- Shown via JS when PAYMENT_V2 is disabled -->
+                        <p id="payment-disabled-msg" class="hidden text-xs text-amber-400 mt-1 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                            Pagamentos desabilitados por um tempo. Corridas pagas não podem ser criadas agora.
+                        </p>
                     </div>
 
                     <div>
@@ -369,6 +374,25 @@
 
             setupAutocomplete('largadaInput', 'largadaAutocomplete', 'largadaEndereco', 'largadaLat', 'largadaLng');
             setupAutocomplete('chegadaInput', 'chegadaAutocomplete', 'chegadaEndereco', 'chegadaLat', 'chegadaLng');
+
+            // PAYMENT_V2 feature flag: disable price field when payments are off
+            fetch('/api/v1/features')
+                .then(res => res.json())
+                .then(flags => {
+                    if (flags['PAYMENT_V2'] === false) {
+                        const priceInput = document.getElementById('valorInscricao');
+                        const msg = document.getElementById('payment-disabled-msg');
+                        if (priceInput) {
+                            priceInput.disabled = true;
+                            priceInput.value = '';
+                            priceInput.placeholder = 'Pagamentos desabilitados — apenas corridas gratuitas';
+                            priceInput.classList.add('opacity-40', 'cursor-not-allowed');
+                        }
+                        if (msg) msg.classList.remove('hidden');
+                    }
+                })
+                .catch(() => { /* falha silenciosa: o backend vai validar de qualquer forma */ });
+
         });
         /*]]>*/
     </script>
