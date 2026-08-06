@@ -44,6 +44,9 @@ class UserInfoServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private br.ufpb.dsc.corrida.storage.MinioService minioService;
+
     @InjectMocks
     private UserInfoService service;
 
@@ -283,6 +286,9 @@ class UserInfoServiceTest {
 
         when(userInfoRepository.findByUsuarioId(1L)).thenReturn(Optional.of(info));
         when(userInfoRepository.save(any(UserInfo.class))).thenAnswer(i -> i.getArgument(0));
+        when(minioService.upload(any(), anyString())).thenReturn("fotos-perfil/1/uuid-foto.png");
+        when(minioService.getPresignedUrl("fotos-perfil/1/uuid-foto.png"))
+                .thenReturn("https://s3.dsc.rodrigor.com/eq07/fotos-perfil/1/uuid-foto.png?token=123");
 
         MockMultipartFile file = new MockMultipartFile(
                 "file", "foto.png", "image/png", "dadosdaimagem".getBytes());
@@ -290,9 +296,7 @@ class UserInfoServiceTest {
         UserInfoRespostaDTO resultado = service.uploadFotoPerfil(1L, file);
 
         assertThat(resultado).isNotNull();
-        assertThat(resultado.fotoPerfil()).isNotNull();
-        assertThat(resultado.fotoPerfil()).contains("/uploads/perfil/");
-        assertThat(resultado.fotoPerfil()).endsWith(".png");
+        assertThat(resultado.fotoPerfil()).isEqualTo("https://s3.dsc.rodrigor.com/eq07/fotos-perfil/1/uuid-foto.png?token=123");
 
         verify(userInfoRepository).save(info);
     }

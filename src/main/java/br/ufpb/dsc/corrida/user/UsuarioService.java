@@ -131,7 +131,10 @@ public class UsuarioService {
             Float totalKmRun = 0.0f;
 
             if (userInfoOpt.isPresent()) {
-                fotoPerfil = userInfoOpt.get().getFotoPerfil();
+                String objectKey = userInfoOpt.get().getFotoPerfilObjectKey();
+                if (objectKey != null) {
+                    fotoPerfil = minioService.getPresignedUrl(objectKey);
+                }
                 totalKmRun = userInfoOpt.get().getTotalKmRun();
             }
             return new PerfilPublicoDTO(user.getNome(), user.getUserUsername(), fotoPerfil, totalKmRun);
