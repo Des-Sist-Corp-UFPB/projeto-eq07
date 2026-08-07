@@ -142,4 +142,26 @@ public class UsuarioService {
         return usuarios;
     }
 
+    public List<PerfilPublicoDTO> pesquisarUsuarios(String query) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long idUser = null;
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            var user = (User) auth.getPrincipal();
+            idUser = user.getId();
+        }
+        
+        return repository.searchUsersByName(Papel.ADMINISTRADOR, idUser, query).stream().map(user -> {
+            var userInfoOpt = userInfoRepository.findByUsuarioId(user.getId());
+            String fotoPerfil = null;
+            Float totalKmRun = 0.0f;
+            if (userInfoOpt.isPresent()) {
+                String objectKey = userInfoOpt.get().getFotoPerfilObjectKey();
+                if (objectKey != null) {
+                    fotoPerfil = minioService.getPresignedUrl(objectKey);
+                }
+                totalKmRun = userInfoOpt.get().getTotalKmRun();
+            }
+            return new PerfilPublicoDTO(user.getNome(), user.getUserUsername(), fotoPerfil, totalKmRun);
+        }).toList();
+    }
 }

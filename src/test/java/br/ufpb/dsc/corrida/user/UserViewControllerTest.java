@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,23 +41,23 @@ class UsuarioViewControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserInfoService userInfoService;
 
-    @MockBean
+    @MockitoBean
     private UsuarioService usuarioService;
 
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
 
-    @MockBean
+    @MockitoBean
     private UserConnectionRepository userConnectionRepository;
 
-    @MockBean
+    @MockitoBean
     private UserConnectionService userConnectionService;
 
     // Mockar o filtro impede que ele quebre o carregamento do contexto da aplicação
-    @MockBean
+    @MockitoBean
     private AutenticacaoFilter autenticacaoFilter;
 
     private User mockUser;
@@ -235,5 +235,37 @@ class UsuarioViewControllerTest {
                 .andExpect(view().name("user/solicitacoes"))
                 .andExpect(model().attribute("_csrf", csrfMock))
                 .andExpect(model().attributeExists("solicitacoes"));
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // GET /atletas
+    // ────────────────────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("GET /atletas — sem query string deve pesquisar string vazia e renderizar view")
+    void searchAtletas_semQuery_devePesquisarVazioERetornarView() throws Exception {
+        when(usuarioService.pesquisarUsuarios("")).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/atletas")
+                        .with(user(mockUser)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("atletas"))
+                .andExpect(model().attributeExists("atletas"))
+                .andExpect(model().attribute("loggedInUserId", mockUser.getId()));
+    }
+
+    @Test
+    @DisplayName("GET /atletas — com query string deve pesquisar o termo e renderizar view")
+    void searchAtletas_comQuery_devePesquisarTermoERetornarView() throws Exception {
+        when(usuarioService.pesquisarUsuarios("maria")).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/atletas")
+                        .param("query", "maria")
+                        .with(user(mockUser)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("atletas"))
+                .andExpect(model().attributeExists("atletas"))
+                .andExpect(model().attribute("query", "maria"))
+                .andExpect(model().attribute("loggedInUserId", mockUser.getId()));
     }
 }

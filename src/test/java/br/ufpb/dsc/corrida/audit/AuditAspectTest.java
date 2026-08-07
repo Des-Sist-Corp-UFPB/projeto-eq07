@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuditAspect — Unit Tests")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AuditAspectTest {
 
     @Mock

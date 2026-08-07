@@ -12,6 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
 
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.organizer.Organization;
@@ -72,6 +74,10 @@ public class UsuarioViewController {
                 model.addAttribute("profileMissing", true);
                 model.addAttribute("profileExists", false);
             }
+            
+            // Adiciona lista de conexões aceitas
+            model.addAttribute("conexoesList", userConnectionService.getAcceptedConnectionsList(usuario.getId()));
+            model.addAttribute("countConections", userConnectionRepository.countConnectionsByUserId(usuario.getId()));
         }
         return "minha-conta";
     }
@@ -90,9 +96,10 @@ public class UsuarioViewController {
         mv.addObject("perfil", perfil);
         mv.addObject("perfilId", profileUser.getId());
 
-        // Adiciona o número de conexões incondicionalmente
+        // Adiciona o número de conexões incondicionalmente e a lista de conexões
         long countConections = userConnectionRepository.countConnectionsByUserId(profileUser.getId());
         mv.addObject("countConections", countConections);
+        mv.addObject("conexoesList", userConnectionService.getAcceptedConnectionsList(profileUser.getId()));
 
         // Adiciona informações do organizador se for o caso
         mv.addObject("isOrganizador", profileUser.getPapel() == Papel.ORGANIZADOR);
@@ -135,5 +142,23 @@ public class UsuarioViewController {
         }
         model.addAttribute("solicitacoes", userConnectionService.getPendingRequestsList(loggedInUser.getId()));
         return "user/solicitacoes";
+    }
+
+    @GetMapping("/atletas")
+    public String searchAtletas(@RequestParam(value = "query", required = false) String query, Model model, @AuthenticationPrincipal User loggedInUser) {
+        if (loggedInUser != null) {
+            model.addAttribute("loggedInUserId", loggedInUser.getId());
+        }
+        
+        List<PerfilPublicoDTO> atletas;
+        if (query != null && !query.trim().isEmpty()) {
+            atletas = service.pesquisarUsuarios(query.trim());
+        } else {
+            atletas = service.pesquisarUsuarios("");
+        }
+        
+        model.addAttribute("atletas", atletas);
+        model.addAttribute("query", query);
+        return "atletas";
     }
 }
