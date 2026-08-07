@@ -236,4 +236,36 @@ class UsuarioViewControllerTest {
                 .andExpect(model().attribute("_csrf", csrfMock))
                 .andExpect(model().attributeExists("solicitacoes"));
     }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // GET /atletas
+    // ────────────────────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("GET /atletas — sem query string deve pesquisar string vazia e renderizar view")
+    void searchAtletas_semQuery_devePesquisarVazioERetornarView() throws Exception {
+        when(usuarioService.pesquisarUsuarios("")).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/atletas")
+                        .with(user(mockUser)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("atletas"))
+                .andExpect(model().attributeExists("atletas"))
+                .andExpect(model().attribute("loggedInUserId", mockUser.getId()));
+    }
+
+    @Test
+    @DisplayName("GET /atletas — com query string deve pesquisar o termo e renderizar view")
+    void searchAtletas_comQuery_devePesquisarTermoERetornarView() throws Exception {
+        when(usuarioService.pesquisarUsuarios("maria")).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/atletas")
+                        .param("query", "maria")
+                        .with(user(mockUser)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("atletas"))
+                .andExpect(model().attributeExists("atletas"))
+                .andExpect(model().attribute("query", "maria"))
+                .andExpect(model().attribute("loggedInUserId", mockUser.getId()));
+    }
 }
