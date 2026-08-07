@@ -139,9 +139,9 @@
                                     <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">km percorridos</p>
                                 </div>
                                 <div class="w-px h-8 bg-slate-800"></div>
-                                <div>
-                                    <p class="text-2xl font-black text-white" th:text="${countConections}">0</p>
-                                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">conexões</p>
+                                <div class="cursor-pointer hover:bg-slate-800/50 p-2 -m-2 rounded-xl transition-colors group" onclick="document.getElementById('connectionsModal').classList.remove('hidden')">
+                                    <p class="text-2xl font-black text-white group-hover:text-brand-400 transition-colors" th:text="${countConections}">0</p>
+                                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider group-hover:text-brand-400/80 transition-colors">conexões</p>
                                 </div>
                             </div>
                         </div>
@@ -156,9 +156,9 @@
                                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">km percorridos</p>
                             </div>
                             <div class="w-px h-8 bg-slate-800"></div>
-                            <div>
-                                <p class="text-xl font-black text-white" th:text="${countConections}">0</p>
-                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">conexões</p>
+                            <div class="cursor-pointer hover:bg-slate-800/50 p-2 -m-2 rounded-xl transition-colors group" onclick="document.getElementById('connectionsModal').classList.remove('hidden')">
+                                <p class="text-xl font-black text-white group-hover:text-brand-400 transition-colors" th:text="${countConections}">0</p>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider group-hover:text-brand-400/80 transition-colors">conexões</p>
                             </div>
                         </div>
 
@@ -259,39 +259,7 @@
     <!-- ════════════════════════════════════════════════
      BOTTOM NAV (mobile only)
 ════════════════════════════════════════════════ -->
-    <nav
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-slate-800 flex justify-around items-center h-16 px-2 z-50">
-        <a href="/" class="bnav-link flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
-            Início
-        </a>
-        <a href="/corridas" class="bnav-link flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
-            Buscar
-        </a>
-        <a href="/corridas" class="bnav-link flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-            </svg>
-            Corridas
-        </a>
-        <a href="/minhaConta" class="bnav-link flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-            </svg>
-            Conta
-        </a>
-        <a href="/solicitacoes" class="bnav-link flex flex-col items-center" sec:authorize="isAuthenticated()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-            </svg>
-            Conexões
-        </a>
-    </nav>
+    <div th:replace="~{fragments/sidebar :: bottomNav('perfil')}"></div>
 
     <script>
         async function lidarConexao(acao, targetId) {
@@ -328,5 +296,62 @@
             }
         }
     </script>
+    <!-- ── CONNECTIONS MODAL ── -->
+    <div id="connectionsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden relative glow-card">
+            
+            <!-- Header -->
+            <div class="px-6 py-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/95 sticky top-0 z-10">
+                <div>
+                    <h3 class="text-xl font-extrabold text-white">Conexões</h3>
+                    <p class="text-xs text-slate-400 mt-0.5" th:text="${countConections} + ' conexões'"></p>
+                </div>
+                <button onclick="document.getElementById('connectionsModal').classList.add('hidden')" 
+                        class="p-2 bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-white rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto scroll-row flex-1">
+                <div th:if="${#lists.isEmpty(conexoesList)}" class="text-center py-10">
+                    <p class="text-slate-500 font-medium text-sm">Este usuário não tem conexões ainda.</p>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(conexoesList)}" class="space-y-3">
+                    <div th:each="conexao : ${conexoesList}" class="flex items-center justify-between p-3 rounded-2xl bg-slate-800/30 border border-slate-800/50 hover:bg-slate-800/60 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <img th:if="${conexao.fotoPerfil != null}" 
+                                 th:src="${conexao.fotoPerfil}" 
+                                 alt="Foto de perfil"
+                                 class="w-12 h-12 rounded-full object-cover border-2 border-slate-700 group-hover:border-brand-500/50 transition-colors">
+                            <div th:unless="${conexao.fotoPerfil != null}"
+                                 class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center text-white text-lg font-bold border-2 border-slate-700 group-hover:border-brand-500/50 transition-colors"
+                                 th:text="${#strings.isEmpty(conexao.nome) ? '?' : #strings.toUpperCase(#strings.substring(conexao.nome, 0, 1))}">
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white group-hover:text-brand-400 transition-colors" th:text="${conexao.nome}"></p>
+                                <p class="text-xs text-slate-500" th:text="'@' + ${conexao.username}"></p>
+                            </div>
+                        </div>
+                        <a th:href="@{'/user/' + ${conexao.username} + '/profile'}" 
+                           class="px-4 py-2 bg-slate-700 hover:bg-brand-600 text-white text-xs font-bold rounded-lg transition-colors glow-btn opacity-0 group-hover:opacity-100 hidden sm:block">
+                            Ver Perfil
+                        </a>
+                        <a th:href="@{'/user/' + ${conexao.username} + '/profile'}" 
+                           class="p-2 bg-slate-700 hover:bg-brand-600 text-white rounded-lg transition-colors sm:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
 </body>
 </html>
