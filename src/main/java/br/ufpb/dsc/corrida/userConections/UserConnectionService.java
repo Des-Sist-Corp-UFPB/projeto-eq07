@@ -126,4 +126,22 @@ public class UserConnectionService {
             );
         }).toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO> getAcceptedConnectionsList(Long userId) {
+        return userConnectionRepository.findAcceptedConnectionsByUserId(userId).stream().map(conn -> {
+            User otherUser = conn.getRequester().getId().equals(userId) ? conn.getReceiver() : conn.getRequester();
+            var userInfoOpt = userInfoRepository.findByUsuarioId(otherUser.getId());
+            String fotoPerfil = null;
+            Float totalKmRun = 0.0f;
+            if (userInfoOpt.isPresent()) {
+                String objectKey = userInfoOpt.get().getFotoPerfilObjectKey();
+                if (objectKey != null) {
+                    fotoPerfil = minioService.getPresignedUrl(objectKey);
+                }
+                totalKmRun = userInfoOpt.get().getTotalKmRun();
+            }
+            return new br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO(otherUser.getNome(), otherUser.getUserUsername(), fotoPerfil, totalKmRun);
+        }).toList();
+    }
 }

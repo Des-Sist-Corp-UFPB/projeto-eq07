@@ -30,4 +30,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
         @Param("papel") Papel papel, 
         @Param("userId") Long userId
     );
+
+    @Query("""
+        SELECT u FROM User u 
+        WHERE u.papel != :papel 
+          AND (:userId IS NULL OR u.id != :userId)
+          AND (:nome IS NULL OR LOWER(u.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
+        ORDER BY u.id DESC
+    """)
+    List<User> searchUsersByName(
+        @Param("papel") Papel papel,
+        @Param("userId") Long userId,
+        @Param("nome") String nome
+    );
 }

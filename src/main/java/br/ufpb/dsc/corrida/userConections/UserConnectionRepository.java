@@ -20,4 +20,7 @@ public interface UserConnectionRepository extends JpaRepository<UserConnection, 
 
     @Query("SELECT COUNT(c) FROM UserConnection c WHERE (c.requester.id = :userId OR c.receiver.id = :userId) AND c.status = true")
     Long countConnectionsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT c FROM UserConnection c WHERE (c.requester.id = :userId OR c.receiver.id = :userId) AND c.status = true")
+    List<UserConnection> findAcceptedConnectionsByUserId(@Param("userId") Long userId);
 }

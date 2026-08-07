@@ -113,6 +113,24 @@ public class UserInfoService {
     }
 
     /**
+     * Retorna a URL da foto de perfil para uso seguro no Thymeleaf.
+     * Ignora exceções e retorna nulo se não houver.
+     */
+    @Transactional(readOnly = true)
+    public String getFotoPerfilUrlSeguro(Long usuarioId) {
+        if (usuarioId == null) return null;
+        try {
+            var userInfo = userInfoRepository.findByUsuarioId(usuarioId).orElse(null);
+            if (userInfo != null && userInfo.getFotoPerfilObjectKey() != null && !userInfo.getFotoPerfilObjectKey().isEmpty()) {
+                return minioService.getPresignedUrl(userInfo.getFotoPerfilObjectKey());
+            }
+        } catch (Exception e) {
+            log.warn("Erro ao obter URL segura para foto: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Atualiza parcialmente as informações de um corredor.
      *
      * <p>Apenas os campos não-nulos do DTO serão aplicados.
