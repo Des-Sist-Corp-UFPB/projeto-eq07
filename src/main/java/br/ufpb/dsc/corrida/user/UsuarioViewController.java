@@ -12,6 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
 
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.organizer.Organization;
@@ -143,12 +145,12 @@ public class UsuarioViewController {
     }
 
     @GetMapping("/atletas")
-    public String searchAtletas(@org.springframework.web.bind.annotation.RequestParam(value = "query", required = false) String query, Model model, @AuthenticationPrincipal User loggedInUser) {
+    public String searchAtletas(@RequestParam(value = "query", required = false) String query, Model model, @AuthenticationPrincipal User loggedInUser) {
         if (loggedInUser != null) {
             model.addAttribute("loggedInUserId", loggedInUser.getId());
         }
         
-        java.util.List<br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO> atletas;
+        List<PerfilPublicoDTO> atletas;
         if (query != null && !query.trim().isEmpty()) {
             atletas = service.pesquisarUsuarios(query.trim());
         } else {

@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.home;
+﻿package br.ufpb.dsc.corrida.home;
 
 import br.ufpb.dsc.corrida.race.CorridaService;
 import br.ufpb.dsc.corrida.race.Race;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,16 +33,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@DisplayName("HomeController — Endpoint GET /")
+@DisplayName("HomeController â€” Endpoint GET /")
 class HomeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CorridaService corridaService;
 
-    @MockBean
+    @MockitoBean
     private UsuarioService usuarioService;
 
     // -------------------------------------------------------------------------
@@ -53,10 +53,10 @@ class HomeControllerTest {
         Race race = new Race();
         race.setSlug(slug);
         race.setNome(nome);
-        race.setDescricao("Descrição de " + nome);
+        race.setDescricao("DescriÃ§Ã£o de " + nome);
         race.setDataInicio(dataInicio);
         race.setStatus(StatusCorrida.PUBLICADA);
-        race.setLargadaEndereco("Av. Epitácio Pessoa, João Pessoa - PB");
+        race.setLargadaEndereco("Av. EpitÃ¡cio Pessoa, JoÃ£o Pessoa - PB");
         return race;
     }
 
@@ -65,7 +65,7 @@ class HomeControllerTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("GET / — retorna status 200 e view 'index'")
+    @DisplayName("GET / â€” retorna status 200 e view 'index'")
     void homePageDeveRetornarStatus200EViewCorreta() throws Exception {
         when(corridaService.listarProximasCorridas()).thenReturn(Collections.emptyList());
         when(usuarioService.listarUsuariosRecentes()).thenReturn(Collections.emptyList());
@@ -76,7 +76,7 @@ class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / — model contém atributo 'proximasCorridas'")
+    @DisplayName("GET / â€” model contÃ©m atributo 'proximasCorridas'")
     void homePageDeveConterAtributoProximasCorridas() throws Exception {
         Race race = buildRace("corrida-home-test", "Corrida Home Test", OffsetDateTime.now().plusDays(10));
         when(corridaService.listarProximasCorridas()).thenReturn(List.of(race));
@@ -89,7 +89,7 @@ class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / — model contém atributo 'usuariosRecentes'")
+    @DisplayName("GET / â€” model contÃ©m atributo 'usuariosRecentes'")
     void homePageDeveConterAtributoUsuariosRecentes() throws Exception {
         PerfilPublicoDTO user = new PerfilPublicoDTO("Maria Silva", "maria_silva", "", 0.0f);
         when(corridaService.listarProximasCorridas()).thenReturn(Collections.emptyList());
@@ -102,7 +102,7 @@ class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / — com banco vazio: ambos os atributos são listas vazias (não deve errar)")
+    @DisplayName("GET / â€” com banco vazio: ambos os atributos sÃ£o listas vazias (nÃ£o deve errar)")
     void homePageComBancoVazioDeveRetornarListasVazias() throws Exception {
         when(corridaService.listarProximasCorridas()).thenReturn(Collections.emptyList());
         when(usuarioService.listarUsuariosRecentes()).thenReturn(Collections.emptyList());
@@ -114,9 +114,9 @@ class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / — retorna exatamente os dados mockados de corridas (não mais que o limite)")
+    @DisplayName("GET / â€” retorna exatamente os dados mockados de corridas (nÃ£o mais que o limite)")
     void homePageDeveRespeitar6CorridasLimit() throws Exception {
-        // Simula que o service já retornou apenas 6 (limite feito na query)
+        // Simula que o service jÃ¡ retornou apenas 6 (limite feito na query)
         List<Race> seisRaces = List.of(
                 buildRace("s1", "Race 1", OffsetDateTime.now().plusDays(1)),
                 buildRace("s2", "Race 2", OffsetDateTime.now().plusDays(2)),
@@ -135,7 +135,7 @@ class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / — retorna exatamente os dados mockados de usuários (não mais que o limite)")
+    @DisplayName("GET / â€” retorna exatamente os dados mockados de usuÃ¡rios (nÃ£o mais que o limite)")
     void homePageDeveRespeitar6UsuariosLimit() throws Exception {
         List<PerfilPublicoDTO> seisUsuarios = List.of(
                 new PerfilPublicoDTO("User 6", "user6", "", 0.0f),
@@ -155,20 +155,20 @@ class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / — dados das corridas são repassados corretamente ao model")
+    @DisplayName("GET / â€” dados das corridas sÃ£o repassados corretamente ao model")
     void homePageDeveConterDadosDasCorridas() throws Exception {
-        Race race = buildRace("corrida-dados", "Corrida de João Pessoa", OffsetDateTime.now().plusDays(7));
+        Race race = buildRace("corrida-dados", "Corrida de JoÃ£o Pessoa", OffsetDateTime.now().plusDays(7));
         when(corridaService.listarProximasCorridas()).thenReturn(List.of(race));
         when(usuarioService.listarUsuariosRecentes()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("proximasCorridas",
-                        hasItem(hasProperty("nome", is("Corrida de João Pessoa")))));
+                        hasItem(hasProperty("nome", is("Corrida de JoÃ£o Pessoa")))));
     }
 
     @Test
-    @DisplayName("GET / — dados dos usuários são repassados corretamente ao model")
+    @DisplayName("GET / â€” dados dos usuÃ¡rios sÃ£o repassados corretamente ao model")
     void homePageDeveConterDadosDosUsuarios() throws Exception {
         PerfilPublicoDTO user = new PerfilPublicoDTO("Fernanda Corrida", "fernanda_c", "", 0.0f);
         when(corridaService.listarProximasCorridas()).thenReturn(Collections.emptyList());
@@ -180,3 +180,4 @@ class HomeControllerTest {
                         hasItem(hasProperty("nome", is("Fernanda Corrida")))));
     }
 }
+

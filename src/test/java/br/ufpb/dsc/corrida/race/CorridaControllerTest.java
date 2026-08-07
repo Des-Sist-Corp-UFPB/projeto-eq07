@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.race;
+﻿package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.ExternalServiceException;
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -31,17 +31,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("CorridaController — Web/API Tests")
+@DisplayName("CorridaController â€” Web/API Tests")
 public class CorridaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CorridaService service;
 
     @Test
-    @DisplayName("POST /organizacao/{id}/corridas — should return 200 and form view with errorMessage when service throws ExternalServiceException")
+    @DisplayName("POST /organizacao/{id}/corridas â€” should return 200 and form view with errorMessage when service throws ExternalServiceException")
     void postCorridaExternalServiceExceptionReturnsForm() throws Exception {
 
         User usuarioMock = new User();
@@ -51,14 +51,14 @@ public class CorridaControllerTest {
         usuarioMock.setNome("Peterson William");
 
         when(service.criarCorrida(any(CriarCorridaDTO.class), eq(100L), any()))
-                .thenThrow(new ExternalServiceException("Não foi possível calcular a rota neste momento"));
+                .thenThrow(new ExternalServiceException("NÃ£o foi possÃ­vel calcular a rota neste momento"));
 
         mockMvc.perform(post("/organizacao/100/corridas")
                         .with(csrf())
                         .with(user(usuarioMock))
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("nome", "Corrida Teste")
-                        .param("descricao", "Descrição")
+                        .param("descricao", "DescriÃ§Ã£o")
                         .param("dataInicio", OffsetDateTime.now().plusDays(2).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")))
                         .param("categoria", "C5K")
                         .param("largadaLat", "-7.115")
@@ -74,7 +74,7 @@ public class CorridaControllerTest {
 
     @Test
     @WithMockUser(roles = "ORGANIZADOR")
-    @DisplayName("POST /organizacao/{id}/corridas — should return 403 when user is not the owner of organization")
+    @DisplayName("POST /organizacao/{id}/corridas â€” should return 403 when user is not the owner of organization")
     void postCorridaNonOwnerReturns403() throws Exception {
 
         User usuarioMock = new User();
@@ -92,7 +92,7 @@ public class CorridaControllerTest {
                         .accept(MediaType.TEXT_HTML)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("nome", "Corrida Teste")
-                        .param("descricao", "Descrição")
+                        .param("descricao", "DescriÃ§Ã£o")
                         .param("dataInicio", OffsetDateTime.now().plusDays(2).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")))
                         .param("categoria", "C5K")
                         .param("largadaLat", "-7.115")
@@ -106,7 +106,7 @@ public class CorridaControllerTest {
 
     @Test
     @WithMockUser(roles = "ORGANIZADOR")
-    @DisplayName("GET /organizacao/{id}/corridas/{raceId}/editar — should return 403 when user is not the owner of organization")
+    @DisplayName("GET /organizacao/{id}/corridas/{raceId}/editar â€” should return 403 when user is not the owner of organization")
     void getEditFormNonOwnerReturns403() throws Exception {
         when(service.buscarPorId(500L)).thenReturn(new Race());
         // In the controller, we call service.editarCorrida or service.buscarPorId and do checking.
@@ -118,3 +118,4 @@ public class CorridaControllerTest {
                 .andExpect(status().isForbidden());
     }
 }
+

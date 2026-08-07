@@ -1,4 +1,4 @@
-package br.ufpb.dsc.corrida.userConection;
+﻿package br.ufpb.dsc.corrida.userConection;
 
 import br.ufpb.dsc.corrida.user.Papel;
 import br.ufpb.dsc.corrida.user.User;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,16 +27,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("UserConnection REST Endpoints — Integration Tests")
+@DisplayName("UserConnection REST Endpoints â€” Integration Tests")
 class UserConnectionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserConnectionService userConnectionService;
 
-    @MockBean
+    @MockitoBean
     private UsuarioService usuarioService;
 
     private User loggedInUser;
@@ -51,7 +51,7 @@ class UserConnectionControllerTest {
     }
 
     @Test
-    @DisplayName("POST /user/conexao/enviar/{receiverId} — should invoke sendConnectionRequest and return 200 OK")
+    @DisplayName("POST /user/conexao/enviar/{receiverId} â€” should invoke sendConnectionRequest and return 200 OK")
     void enviarConexao_shouldReturn200() throws Exception {
         mockMvc.perform(post("/user/conexao/enviar/2")
                         .with(user(loggedInUser))
@@ -62,7 +62,7 @@ class UserConnectionControllerTest {
     }
 
     @Test
-    @DisplayName("POST /user/conexao/aceitar/{requestId} — should invoke acceptConnectionRequest and return 200 OK")
+    @DisplayName("POST /user/conexao/aceitar/{requestId} â€” should invoke acceptConnectionRequest and return 200 OK")
     void aceitarConexao_shouldReturn200() throws Exception {
         mockMvc.perform(post("/user/conexao/aceitar/10")
                         .with(user(loggedInUser))
@@ -73,7 +73,7 @@ class UserConnectionControllerTest {
     }
 
     @Test
-    @DisplayName("POST /user/conexao/recusar/{requestId} — should invoke declineConnectionRequest and return 200 OK")
+    @DisplayName("POST /user/conexao/recusar/{requestId} â€” should invoke declineConnectionRequest and return 200 OK")
     void recusarConexao_shouldReturn200() throws Exception {
         mockMvc.perform(post("/user/conexao/recusar/10")
                         .with(user(loggedInUser))
@@ -84,7 +84,7 @@ class UserConnectionControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /user/conexao/remover/{receiverId} — should invoke removeConnection and return 200 OK")
+    @DisplayName("DELETE /user/conexao/remover/{receiverId} â€” should invoke removeConnection and return 200 OK")
     void removerConexao_shouldReturn200() throws Exception {
         mockMvc.perform(delete("/user/conexao/remover/2")
                         .with(user(loggedInUser))
@@ -95,7 +95,7 @@ class UserConnectionControllerTest {
     }
 
     @Test
-    @DisplayName("POST /user/conexao/enviar/{receiverId} — should return 401 Unauthorized when not authenticated")
+    @DisplayName("POST /user/conexao/enviar/{receiverId} â€” should return 401 Unauthorized when not authenticated")
     void enviarConexao_unauthorized() throws Exception {
         mockMvc.perform(post("/user/conexao/enviar/2")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,3 +103,4 @@ class UserConnectionControllerTest {
                 .andExpect(status().is3xxRedirection());
     }
 }
+
