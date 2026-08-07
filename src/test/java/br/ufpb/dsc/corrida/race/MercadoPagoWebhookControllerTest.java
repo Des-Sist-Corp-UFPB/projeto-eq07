@@ -104,7 +104,7 @@ class MercadoPagoWebhookControllerTest {
         br.ufpb.dsc.corrida.organizer.Organization org = new br.ufpb.dsc.corrida.organizer.Organization();
         org.setName("Org Webhook");
         org.setFoundedAt(java.time.LocalDate.now());
-        org.setCity("JoÃ£o Pessoa");
+        org.setCity("João Pessoa");
         org.setState("PB");
         org.setOrganizer(organizer);
         org = organizationRepository.save(org);
@@ -112,7 +112,7 @@ class MercadoPagoWebhookControllerTest {
         Race corrida = new Race();
         corrida.setNome("Corrida Webhook Test");
         corrida.setSlug("corrida-1-vaga-" + System.currentTimeMillis());
-        corrida.setDescricao("DescriÃ§Ã£o vÃ¡lida de teste webhook");
+        corrida.setDescricao("Descrição válida de teste webhook");
         corrida.setDataInicio(java.time.OffsetDateTime.now().plusDays(10));
         corrida.setValorInscricao(new BigDecimal("30.00"));
         corrida.setStatus(StatusCorrida.PUBLICADA);
@@ -122,7 +122,7 @@ class MercadoPagoWebhookControllerTest {
         corrida.setLargadaEndereco("Av. Cabo Branco");
         corrida.setChegadaLat(-7.1195);
         corrida.setChegadaLng(-34.8450);
-        corrida.setChegadaEndereco("Busto de TamandarÃ©");
+        corrida.setChegadaEndereco("Busto de Tamandaré");
         corrida.setOrganization(org);
         return raceRepository.save(corrida);
     }
@@ -157,7 +157,7 @@ class MercadoPagoWebhookControllerTest {
     }
 
     @Test
-    @DisplayName("Webhook: NotificaÃ§Ã£o de pagamento aprovado deve confirmar inscriÃ§Ã£o e disparar e-mail")
+    @DisplayName("Webhook: Notificação de pagamento aprovado deve confirmar inscrição e disparar e-mail")
     void webhook_pagamentoAprovado_deveConfirmarInscricao() throws Exception {
         when(mercadoPagoService.consultarStatusPagamento(999888777L)).thenReturn("approved");
 
@@ -183,7 +183,7 @@ class MercadoPagoWebhookControllerTest {
     }
 
     @Test
-    @DisplayName("Webhook IdempotÃªncia: NotificaÃ§Ã£o para pagamento jÃ¡ APROVADO deve retornar 200 sem reprocessar")
+    @DisplayName("Webhook Idempotência: Notificação para pagamento já APROVADO deve retornar 200 sem reprocessar")
     void webhook_idempotencia_naoDeveReprocessar() throws Exception {
         pagamento.setStatus(StatusPagamento.APROVADO);
         pagamentoRepository.save(pagamento);
@@ -210,4 +210,3 @@ class MercadoPagoWebhookControllerTest {
         verify(emailService, never()).enviarComprovante(anyLong());
     }
 }
-

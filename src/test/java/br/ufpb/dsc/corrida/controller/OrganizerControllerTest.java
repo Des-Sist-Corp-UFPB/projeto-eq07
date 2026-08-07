@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("Organizer Controller â€” Integration & Web Tests")
+@DisplayName("Organizer Controller — Integration & Web Tests")
 class OrganizerControllerTest {
 
     @Autowired
@@ -40,7 +40,7 @@ class OrganizerControllerTest {
     private UsuarioService usuarioService;
 
     @Test
-    @DisplayName("GET /registrar/organizador â€” should return registrar-organizador view")
+    @DisplayName("GET /registrar/organizador — should return registrar-organizador view")
     void getRegistrarOrganizador_shouldReturnView() throws Exception {
         mockMvc.perform(get("/registrar/organizador"))
                 .andExpect(status().isOk())
@@ -50,7 +50,7 @@ class OrganizerControllerTest {
     }
 
     @Test
-    @DisplayName("POST /registrar/organizador â€” should submit and redirect on success")
+    @DisplayName("POST /registrar/organizador — should submit and redirect on success")
     void postRegistrarOrganizador_shouldSubmitAndRedirect_whenValid() throws Exception {
         User mockUser = new User();
 
@@ -59,7 +59,7 @@ class OrganizerControllerTest {
         mockMvc.perform(post("/registrar/organizador")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("step1.nome", "JoÃ£o da Silva")
+                        .param("step1.nome", "João da Silva")
                         .param("step1.username", "joao_org")
                         .param("step1.login", "joao@org.com")
                         .param("step1.senha", "senha1234")
@@ -70,7 +70,7 @@ class OrganizerControllerTest {
                         .param("step1.ufConselho", "SP")
                         .param("step2.name", "Super Corridas LTDA")
                         .param("step2.foundedAt", "2020-01-01")
-                        .param("step2.description", "OrganizaÃ§Ã£o"))
+                        .param("step2.description", "Organização"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?success=true"));
 
@@ -78,7 +78,7 @@ class OrganizerControllerTest {
     }
 
     @Test
-    @DisplayName("GET /organizacao/{id} â€” should display organization details screen")
+    @DisplayName("GET /organizacao/{id} — should display organization details screen")
     void getOrganizacaoDetails_shouldReturnView() throws Exception {
         // 1. Criar a estrutura aninhada para evitar o NullPointerException no Thymeleaf
         User mockUsuario = new User();
@@ -95,11 +95,10 @@ class OrganizerControllerTest {
         // 2. Configurar o Mockito para retornar a estrutura completa
         when(organizerService.buscarOrganizacaoPorId(100L)).thenReturn(mockOrg);
 
-        // 3. Executar a requisiÃ§Ã£o
+        // 3. Executar a requisição
         mockMvc.perform(get("/organizacao/100"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("user/organizacao-detalhes"))
                 .andExpect(model().attribute("organizacao", mockOrg));
     }
 }
-

@@ -69,7 +69,7 @@ class CapacidadeConectividadeTest {
         user.setPapel(Papel.ORGANIZADOR);
         user.setSenha("12345678");
 
-        // IMPORTANTE: Deixar username, login e email dinÃ¢micos para nÃ£o estourar a chave Ãºnica (UNIQUE)
+        // IMPORTANTE: Deixar username, login e email dinâmicos para não estourar a chave única (UNIQUE)
         user.setLogin("user_" + timestamp + "@gmail.com");
         user.setUsername("atleta_" + System.currentTimeMillis());
 
@@ -91,7 +91,7 @@ class CapacidadeConectividadeTest {
         br.ufpb.dsc.corrida.organizer.Organization org = new br.ufpb.dsc.corrida.organizer.Organization();
         org.setName("Org Concorrencia");
         org.setFoundedAt(java.time.LocalDate.now());
-        org.setCity("JoÃ£o Pessoa");
+        org.setCity("João Pessoa");
         org.setState("PB");
         org.setOrganizer(organizer);
         org = organizationRepository.save(org);
@@ -99,7 +99,7 @@ class CapacidadeConectividadeTest {
         Race race = new Race();
         race.setNome(nome);
         race.setSlug("corrida-1-vaga-" + System.currentTimeMillis());
-        race.setDescricao("DescriÃ§Ã£o teste para concorrÃªncia");
+        race.setDescricao("Descrição teste para concorrência");
         race.setValorInscricao(valor);
         race.setMaxInscricoes(maxInscricoes);
         race.setDataInicio(OffsetDateTime.now().plusDays(15));
@@ -110,7 +110,7 @@ class CapacidadeConectividadeTest {
         race.setLargadaEndereco("Av. Cabo Branco");
         race.setChegadaLat(-7.1195);
         race.setChegadaLng(-34.8450);
-        race.setChegadaEndereco("Busto de TamandarÃ©");
+        race.setChegadaEndereco("Busto de Tamandaré");
         race.setOrganization(org);
         return raceRepository.save(race);
     }
@@ -128,7 +128,7 @@ class CapacidadeConectividadeTest {
 
         long timestamp = System.currentTimeMillis();
 
-        // 1Âº USUÃRIO
+        // 1º USUÁRIO
         User user = new User();
         user.setNome("Peterson Treinador teste 1");
         user.setPapel(Papel.ORGANIZADOR);
@@ -137,7 +137,7 @@ class CapacidadeConectividadeTest {
         user.setUsername("atleta_1_" + timestamp);
         this.user1 = userRepository.save(user);
 
-        // CPF DinÃ¢mico 1 para evitar a UNIQUE constraint user_info_cpf_uk
+        // CPF Dinâmico 1 para evitar a UNIQUE constraint user_info_cpf_uk
         String cpfDinamico1 = String.format("%011d", (timestamp % 100000000000L));
 
         UserInfo u1Info = new UserInfo();
@@ -151,7 +151,7 @@ class CapacidadeConectividadeTest {
 
         long timestamp2 = System.currentTimeMillis() + 15;
 
-        // 2Âº USUÃRIO
+        // 2º USUÁRIO
         User user2 = new User();
         user2.setNome("Peterson Treinador teste 2");
         user2.setPapel(Papel.ORGANIZADOR);
@@ -160,7 +160,7 @@ class CapacidadeConectividadeTest {
         user2.setUsername("atleta_2_" + timestamp2);
         this.user2 = userRepository.save(user2);
 
-        // CPF DinÃ¢mico 2
+        // CPF Dinâmico 2
         String cpfDinamico2 = String.format("%011d", (timestamp2 % 100000000000L));
 
         UserInfo u2Info = new UserInfo();
@@ -179,7 +179,7 @@ class CapacidadeConectividadeTest {
     }
 
     @Test
-    @DisplayName("ConcorrÃªncia: Duas requisiÃ§Ãµes simultÃ¢neas tentando a Ãºltima vaga â€” exatamente uma deve ter sucesso")
+    @DisplayName("Concorrência: Duas requisições simultâneas tentando a última vaga — exatamente uma deve ter sucesso")
     void concorrencia_duasRequisicoes_apenasUmaDeveSucesso() throws InterruptedException {
         int threads = 2;
         ExecutorService service = Executors.newFixedThreadPool(threads);
@@ -223,8 +223,7 @@ class CapacidadeConectividadeTest {
         finishLatch.await(); // Wait for both to finish
         service.shutdown();
 
-        assertEquals(1, sucessos.get(), "Exatamente 1 inscriÃ§Ã£o deve ter sucesso");
+        assertEquals(1, sucessos.get(), "Exatamente 1 inscrição deve ter sucesso");
         assertEquals(1, falhasCheias.get(), "Exatamente 1 deve falhar por CorridaCheiaException");
     }
 }
-

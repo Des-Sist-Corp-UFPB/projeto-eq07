@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("CorridaViewController â€” Web View Tests")
+@DisplayName("CorridaViewController — Web View Tests")
 public class CorridaViewControllerTest {
 
     @Autowired
@@ -78,11 +78,11 @@ public class CorridaViewControllerTest {
     }
 
     // =========================================================================
-    // Feed PÃºblico
+    // Feed Público
     // =========================================================================
 
     @Test
-    @DisplayName("GET /corridas â€” should return public future races page successfully")
+    @DisplayName("GET /corridas — should return public future races page successfully")
     void getCorridasPublicasSuccess() throws Exception {
         Race race = new Race();
         race.setNome("Maratona Teste");
@@ -91,14 +91,14 @@ public class CorridaViewControllerTest {
         mockMvc.perform(get("/corridas"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("corrida/corridas-lista"))
-                .andExpect(model().attribute("titulo", "PrÃ³ximas Corridas"))
+                .andExpect(model().attribute("titulo", "Próximas Corridas"))
                 .andExpect(model().attribute("isHistorico", false))
                 .andExpect(model().attribute("activePage", "corridas"))
                 .andExpect(model().attributeExists("corridas"));
     }
 
     @Test
-    @DisplayName("GET /corridas/encerradas â€” should return public history races page successfully")
+    @DisplayName("GET /corridas/encerradas — should return public history races page successfully")
     void getCorridasHistoricoSuccess() throws Exception {
         Race race = new Race();
         race.setNome("Meia Maratona Antiga");
@@ -107,14 +107,14 @@ public class CorridaViewControllerTest {
         mockMvc.perform(get("/corridas/encerradas"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("corrida/corridas-lista"))
-                .andExpect(model().attribute("titulo", "HistÃ³rico de Corridas"))
+                .andExpect(model().attribute("titulo", "Histórico de Corridas"))
                 .andExpect(model().attribute("isHistorico", true))
                 .andExpect(model().attribute("activePage", "corridas"))
                 .andExpect(model().attributeExists("corridas"));
     }
 
     @Test
-    @DisplayName("GET /corridas/{slug} â€” should return race details page successfully")
+    @DisplayName("GET /corridas/{slug} — should return race details page successfully")
     void getCorridaDetalhesSuccess() throws Exception {
         Race race = new Race();
         race.setNome("Corrida de Exemplo");
@@ -133,20 +133,20 @@ public class CorridaViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /corridas/{slug} â€” should return 404 when race is not found")
+    @DisplayName("GET /corridas/{slug} — should return 404 when race is not found")
     void getCorridaDetalhesNotFound() throws Exception {
-        when(service.buscarPorSlug("invalido")).thenThrow(new CorridaNaoEncontradaException("Corrida nÃ£o encontrada"));
+        when(service.buscarPorSlug("invalido")).thenThrow(new CorridaNaoEncontradaException("Corrida não encontrada"));
 
         mockMvc.perform(get("/corridas/invalido"))
                 .andExpect(status().isNotFound());
     }
 
     // =========================================================================
-    // GestÃ£o do Organizador
+    // Gestão do Organizador
     // =========================================================================
 
     @Test
-    @DisplayName("GET /organizacao/{orgId}/corridas â€” should return management list when owner")
+    @DisplayName("GET /organizacao/{orgId}/corridas — should return management list when owner")
     void getGerenciarCorridasOwner() throws Exception {
         when(organizerService.buscarOrganizacaoPorId(100L)).thenReturn(organization);
         when(organizerService.buscarOrganizadorPorUsuarioId(1L)).thenReturn(Optional.of(ownerOrganizer));
@@ -162,7 +162,7 @@ public class CorridaViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /organizacao/{orgId}/corridas â€” should return 403 when non-owner")
+    @DisplayName("GET /organizacao/{orgId}/corridas — should return 403 when non-owner")
     void getGerenciarCorridasNonOwner() throws Exception {
         when(organizerService.buscarOrganizacaoPorId(100L)).thenReturn(organization);
         when(organizerService.buscarOrganizadorPorUsuarioId(2L)).thenReturn(Optional.of(nonOwnerOrganizer));
@@ -174,7 +174,7 @@ public class CorridaViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /organizacao/{orgId}/corridas/nova â€” should return creation form when owner")
+    @DisplayName("GET /organizacao/{orgId}/corridas/nova — should return creation form when owner")
     void getNovaCorridaFormOwner() throws Exception {
         when(organizerService.buscarOrganizacaoPorId(100L)).thenReturn(organization);
         when(organizerService.buscarOrganizadorPorUsuarioId(1L)).thenReturn(Optional.of(ownerOrganizer));
@@ -192,7 +192,7 @@ public class CorridaViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /organizacao/{orgId}/corridas/{id}/editar â€” should return edit form when owner")
+    @DisplayName("GET /organizacao/{orgId}/corridas/{id}/editar — should return edit form when owner")
     void getEditarCorridaFormOwner() throws Exception {
         Race race = new Race();
         race.setId(500L);
@@ -216,7 +216,7 @@ public class CorridaViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /organizacao/{orgId}/corridas/{id}/editar â€” should return 403 when race does not belong to organization")
+    @DisplayName("GET /organizacao/{orgId}/corridas/{id}/editar — should return 403 when race does not belong to organization")
     void getEditarCorridaFormWrongOrg() throws Exception {
         Organization otherOrg = new Organization();
         otherOrg.setId(200L); // different org ID
@@ -235,4 +235,3 @@ public class CorridaViewControllerTest {
                 .andExpect(status().isForbidden());
     }
 }
-

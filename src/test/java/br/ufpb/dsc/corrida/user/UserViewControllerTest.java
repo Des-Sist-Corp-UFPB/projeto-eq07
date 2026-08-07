@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("UsuarioViewController â€” Testes das Views (Thymeleaf)")
+@DisplayName("UsuarioViewController — Testes das Views (Thymeleaf)")
 class UsuarioViewControllerTest {
 
     @Autowired
@@ -56,7 +56,7 @@ class UsuarioViewControllerTest {
     @MockitoBean
     private UserConnectionService userConnectionService;
 
-    // Mockar o filtro impede que ele quebre o carregamento do contexto da aplicaÃ§Ã£o
+    // Mockar o filtro impede que ele quebre o carregamento do contexto da aplicação
     @MockitoBean
     private AutenticacaoFilter autenticacaoFilter;
 
@@ -64,7 +64,7 @@ class UsuarioViewControllerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Configura o mock do filtro para apenas continuar a cadeia de execuÃ§Ã£o (Filter Chain)
+        // Configura o mock do filtro para apenas continuar a cadeia de execução (Filter Chain)
         doAnswer(invocation -> {
             jakarta.servlet.ServletRequest request = invocation.getArgument(0);
             jakarta.servlet.ServletResponse response = invocation.getArgument(1);
@@ -73,7 +73,7 @@ class UsuarioViewControllerTest {
             return null;
         }).when(autenticacaoFilter).doFilter(any(), any(), any()); // Alterado de doFilterInternal para doFilter
 
-        // Instancia o usuÃ¡rio mockado
+        // Instancia o usuário mockado
         mockUser = new User();
         ReflectionTestUtils.setField(mockUser, "id", 1L);
         ReflectionTestUtils.setField(mockUser, "nome", "User Teste");
@@ -82,12 +82,12 @@ class UsuarioViewControllerTest {
         ReflectionTestUtils.setField(mockUser, "papel", Papel.USUARIO);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
     // GET /registrar & GET /login
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("GET /registrar â€” deve retornar a view de registro com o DTO populado")
+    @DisplayName("GET /registrar — deve retornar a view de registro com o DTO populado")
     void exibirFormularioRegistro_deveRetornarViewCorreta() throws Exception {
         mockMvc.perform(get("/registrar"))
                 .andExpect(status().isOk())
@@ -96,19 +96,19 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /login â€” deve retornar a view de login padrÃ£o")
+    @DisplayName("GET /login — deve retornar a view de login padrão")
     void login_deveRetornarViewCorreta() throws Exception {
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("auth/login"));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
     // GET /minhaConta
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("GET /minhaConta â€” deve carregar dados da conta com sucesso se autenticado")
+    @DisplayName("GET /minhaConta — deve carregar dados da conta com sucesso se autenticado")
     void minhaConta_comUsuarioAutenticado_deveRetornarDados() throws Exception {
         UserInfoRespostaDTO userInfoMock = Mockito.mock(UserInfoRespostaDTO.class);
         when(userInfoService.buscarPorUsuarioId(1L)).thenReturn(userInfoMock);
@@ -122,9 +122,9 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /minhaConta â€” deve setar profileMissing se o userInfoService estourar Exception")
+    @DisplayName("GET /minhaConta — deve setar profileMissing se o userInfoService estourar Exception")
     void minhaConta_quandoNaoEncontraPerfil_deveSinalizarProfileMissing() throws Exception {
-        when(userInfoService.buscarPorUsuarioId(1L)).thenThrow(new UserInfoNaoEncontradoException("NÃ£o encontrado"));
+        when(userInfoService.buscarPorUsuarioId(1L)).thenThrow(new UserInfoNaoEncontradoException("Não encontrado"));
 
         mockMvc.perform(get("/minhaConta")
                         .with(user(mockUser)))
@@ -135,14 +135,14 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /minhaConta â€” deve retornar a pÃ¡gina mesmo que o usuÃ¡rio nÃ£o tenha perfil (UserInfo) criado")
+    @DisplayName("GET /minhaConta — deve retornar a página mesmo que o usuário não tenha perfil (UserInfo) criado")
     void minhaConta_comPrincipalNuloOuInvalido_deveRetornarApenasAView() throws Exception {
-        // ForÃ§amos o serviÃ§o a retornar que o perfil nÃ£o existe
+        // Forçamos o serviço a retornar que o perfil não existe
         when(userInfoService.buscarPorUsuarioId(mockUser.getId()))
-                .thenThrow(new UserInfoNaoEncontradoException("Perfil nÃ£o preenchido"));
+                .thenThrow(new UserInfoNaoEncontradoException("Perfil não preenchido"));
 
         // Passamos o mockUser para que o fragmento 'sidebar' do Thymeleaf 
-        // consiga ler as propriedades de autenticaÃ§Ã£o (#authentication.principal) sem estourar
+        // consiga ler as propriedades de autenticação (#authentication.principal) sem estourar
         mockMvc.perform(get("/minhaConta")
                         .with(user(mockUser)))
                 .andExpect(status().isOk())
@@ -150,12 +150,12 @@ class UsuarioViewControllerTest {
                 .andExpect(model().attribute("profileMissing", true));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
     // GET /user/{username}/profile
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("GET /user/{username}/profile â€” deve lanÃ§ar 404 se o usuÃ¡rio alvo nÃ£o existir")
+    @DisplayName("GET /user/{username}/profile — deve lançar 404 se o usuário alvo não existir")
     void getProfilePage_usuarioInexistente_deveLancarException() throws Exception {
         when(userRepository.findByUsername("hacker")).thenReturn(null);
 
@@ -164,7 +164,7 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /user/{username}/profile â€” deve renderizar perfil com conexÃµes e token Bearer")
+    @DisplayName("GET /user/{username}/profile — deve renderizar perfil com conexões e token Bearer")
     void getProfilePage_comUsuarioAutenticadoEToken_deveMontarModelAndViewCompleto() throws Exception {
         User alvoUser = new User();
         ReflectionTestUtils.setField(alvoUser, "id", 2L);
@@ -193,7 +193,7 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /user/{username}/profile â€” deve funcionar sem usuÃ¡rio logado (pÃºblico)")
+    @DisplayName("GET /user/{username}/profile — deve funcionar sem usuário logado (público)")
     void getProfilePage_anonimo_deveRenderizarApenasDadosBasicos() throws Exception {
         User alvoUser = new User();
         ReflectionTestUtils.setField(alvoUser, "id", 2L);
@@ -210,12 +210,12 @@ class UsuarioViewControllerTest {
                 .andExpect(model().attributeExists("countConections"));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
     // GET /solicitacoes
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("GET /solicitacoes â€” redireciona para login se nÃ£o autenticado")
+    @DisplayName("GET /solicitacoes — redireciona para login se não autenticado")
     void exibirSolicitacoes_naoAutenticado_deveRedirecionar() throws Exception {
         mockMvc.perform(get("/solicitacoes"))
                 .andExpect(status().is3xxRedirection())
@@ -223,7 +223,7 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /solicitacoes â€” renderiza lista de pendÃªncias se autenticado")
+    @DisplayName("GET /solicitacoes — renderiza lista de pendências se autenticado")
     void exibirSolicitacoes_autenticado_deveRetornarListaEView() throws Exception {
         CsrfToken csrfMock = Mockito.mock(CsrfToken.class);
         when(userConnectionService.getPendingRequestsList(1L)).thenReturn(new ArrayList<>());
@@ -237,12 +237,12 @@ class UsuarioViewControllerTest {
                 .andExpect(model().attributeExists("solicitacoes"));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
     // GET /atletas
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("GET /atletas â€” sem query string deve pesquisar string vazia e renderizar view")
+    @DisplayName("GET /atletas — sem query string deve pesquisar string vazia e renderizar view")
     void searchAtletas_semQuery_devePesquisarVazioERetornarView() throws Exception {
         when(usuarioService.pesquisarUsuarios("")).thenReturn(new ArrayList<>());
 
@@ -255,7 +255,7 @@ class UsuarioViewControllerTest {
     }
 
     @Test
-    @DisplayName("GET /atletas â€” com query string deve pesquisar o termo e renderizar view")
+    @DisplayName("GET /atletas — com query string deve pesquisar o termo e renderizar view")
     void searchAtletas_comQuery_devePesquisarTermoERetornarView() throws Exception {
         when(usuarioService.pesquisarUsuarios("maria")).thenReturn(new ArrayList<>());
 

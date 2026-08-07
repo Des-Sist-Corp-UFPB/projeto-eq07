@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("UserInfoController â€” Unit Tests")
+@DisplayName("UserInfoController — Unit Tests")
 class UserInfoControllerTest {
 
     @Autowired
@@ -67,13 +67,13 @@ class UserInfoControllerTest {
         );
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
     // GET /user-info/{usuarioId}
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
 
     @Test
     @WithMockUser
-    @DisplayName("GET /user-info/{usuarioId} â€” delega para service.buscarPorUsuarioId() e retorna 200")
+    @DisplayName("GET /user-info/{usuarioId} — delega para service.buscarPorUsuarioId() e retorna 200")
     void getByUserId_deveRetornar200_comSucesso() throws Exception {
         when(userInfoService.buscarPorUsuarioId(1L)).thenReturn(respostaDTO);
 
@@ -85,22 +85,22 @@ class UserInfoControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("GET /user-info/{usuarioId} â€” propaga 404 quando service lanÃ§a UserInfoNaoEncontradoException")
+    @DisplayName("GET /user-info/{usuarioId} — propaga 404 quando service lança UserInfoNaoEncontradoException")
     void getByUserId_deveRetornar404_quandoNaoEncontrado() throws Exception {
         when(userInfoService.buscarPorUsuarioId(99L))
-                .thenThrow(new UserInfoNaoEncontradoException("NÃ£o encontrado"));
+                .thenThrow(new UserInfoNaoEncontradoException("Não encontrado"));
 
         mockMvc.perform(get("/user/userInfo/99"))
                 .andExpect(status().isNotFound());
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
     // POST /user-info
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
 
     @Test
     @WithMockUser
-    @DisplayName("POST /user-info â€” delega para service.criar() e retorna 201")
+    @DisplayName("POST /user-info — delega para service.criar() e retorna 201")
     void post_deveRetornar201_comSucesso() throws Exception {
         CriarUserInfoDTO dto = new CriarUserInfoDTO(
                 1L, 70.5f, 175.0f, Genero.MALE,
@@ -119,7 +119,7 @@ class UserInfoControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("POST /user-info â€” propaga 409 quando service lanÃ§a UserInfoJaExistenteException")
+    @DisplayName("POST /user-info — propaga 409 quando service lança UserInfoJaExistenteException")
     void post_deveRetornar409_quandoJaExiste() throws Exception {
         CriarUserInfoDTO dto = new CriarUserInfoDTO(
                 1L, 70.5f, 175.0f, Genero.MALE,
@@ -127,7 +127,7 @@ class UserInfoControllerTest {
         );
 
         when(userInfoService.criar(any(CriarUserInfoDTO.class)))
-                .thenThrow(new UserInfoJaExistenteException("JÃ¡ existe"));
+                .thenThrow(new UserInfoJaExistenteException("Já existe"));
 
         mockMvc.perform(post("/user/userInfo")
                         .with(csrf())
@@ -138,7 +138,7 @@ class UserInfoControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("POST /user-info â€” propaga 404 quando service lanÃ§a UsuarioNaoEncontradoException")
+    @DisplayName("POST /user-info — propaga 404 quando service lança UsuarioNaoEncontradoException")
     void post_deveRetornar404_quandoUsuarioNaoExiste() throws Exception {
         CriarUserInfoDTO dto = new CriarUserInfoDTO(
                 999L, 70.5f, 175.0f, Genero.MALE,
@@ -146,7 +146,7 @@ class UserInfoControllerTest {
         );
 
         when(userInfoService.criar(any(CriarUserInfoDTO.class)))
-                .thenThrow(new UsuarioNaoEncontradoException("UsuÃ¡rio nÃ£o encontrado"));
+                .thenThrow(new UsuarioNaoEncontradoException("Usuário não encontrado"));
 
         mockMvc.perform(post("/user/userInfo")
                         .with(csrf())
@@ -155,13 +155,13 @@ class UserInfoControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
     // PUT /user-info/{usuarioId}
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
 
     @Test
     @WithMockUser
-    @DisplayName("PUT /user-info/{usuarioId} â€” delega para service.atualizar() e retorna 200")
+    @DisplayName("PUT /user-info/{usuarioId} — delega para service.atualizar() e retorna 200")
     void put_deveRetornar200_comSucesso() throws Exception {
         AtualizarUserInfoDTO dto = new AtualizarUserInfoDTO(
                 85.0f, null, null, null, null, null, null, true, null
@@ -185,14 +185,14 @@ class UserInfoControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("PUT /user-info/{usuarioId} â€” propaga 404 quando service lanÃ§a UserInfoNaoEncontradoException")
+    @DisplayName("PUT /user-info/{usuarioId} — propaga 404 quando service lança UserInfoNaoEncontradoException")
     void put_deveRetornar404_quandoNaoEncontrado() throws Exception {
         AtualizarUserInfoDTO dto = new AtualizarUserInfoDTO(
                 85.0f, null, null, null, null, null, null, true, null
         );
 
         when(userInfoService.atualizar(eq(99L), any(AtualizarUserInfoDTO.class)))
-                .thenThrow(new UserInfoNaoEncontradoException("NÃ£o encontrado"));
+                .thenThrow(new UserInfoNaoEncontradoException("Não encontrado"));
 
         mockMvc.perform(put("/user/userInfo/99")
                         .with(csrf())
@@ -201,13 +201,13 @@ class UserInfoControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
     // UPLOAD FOTO DE PERFIL
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────
 
     @Test
     @WithMockUser
-    @DisplayName("POST /user-info/{usuarioId}/foto-perfil â€” delega para service e retorna 200")
+    @DisplayName("POST /user-info/{usuarioId}/foto-perfil — delega para service e retorna 200")
     void uploadFoto_deveRetornar200_comSucesso() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "teste.png", MediaType.IMAGE_PNG_VALUE, "imagem".getBytes()
@@ -228,4 +228,3 @@ class UserInfoControllerTest {
                 .andExpect(jsonPath("$.fotoPerfil").value("/uploads/perfil/teste.png"));
     }
 }
-
