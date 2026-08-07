@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuditAspect — Unit Tests")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AuditAspectTest {
 
     @Mock
@@ -62,7 +63,7 @@ public class AuditAspectTest {
         auditable = mock(Auditable.class);
         lenient().when(auditable.action()).thenReturn("RACE_CREATED");
         lenient().when(auditable.resource()).thenReturn("Corrida");
-        lenient().when(auditable.entityClass()).thenReturn((Class<?>) Void.class);
+        lenient().when(auditable.entityClass()).thenReturn((Class) Void.class);
         lenient().when(auditable.idParam()).thenReturn("");
 
         AuditContext.setUserId("user_test");
@@ -138,7 +139,7 @@ public class AuditAspectTest {
         Auditable loginAuditable = mock(Auditable.class);
         when(loginAuditable.action()).thenReturn("LOGIN");
         when(loginAuditable.resource()).thenReturn("USER");
-        when(loginAuditable.entityClass()).thenReturn((Class<?>) Void.class);
+        when(loginAuditable.entityClass()).thenReturn((Class) Void.class);
         when(loginAuditable.idParam()).thenReturn("");
 
         LoginDto credenciais = new LoginDto("john_login", "pass123");
