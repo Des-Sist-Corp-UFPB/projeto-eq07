@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.home;
+package br.ufpb.dsc.corrida.home;
 
 import br.ufpb.dsc.corrida.race.CorridaService;
 import br.ufpb.dsc.corrida.race.Race;

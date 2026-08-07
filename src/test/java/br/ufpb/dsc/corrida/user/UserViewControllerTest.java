@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.user;
+package br.ufpb.dsc.corrida.user;
 
 import br.ufpb.dsc.corrida.exception.userinfo.UserInfoNaoEncontradoException;
 import br.ufpb.dsc.corrida.user.dto.PerfilPublicoDTO;

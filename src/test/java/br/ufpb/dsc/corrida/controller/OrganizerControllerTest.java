@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.controller;
+package br.ufpb.dsc.corrida.controller;
 
 import br.ufpb.dsc.corrida.organizer.Organization;
 import br.ufpb.dsc.corrida.organizer.Organizer;

@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.userConection;
+package br.ufpb.dsc.corrida.userConection;
 
 import br.ufpb.dsc.corrida.user.Papel;
 import br.ufpb.dsc.corrida.user.User;

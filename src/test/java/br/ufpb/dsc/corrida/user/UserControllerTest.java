@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.user;
+package br.ufpb.dsc.corrida.user;
 
 import br.ufpb.dsc.corrida.exception.user.AcessoNaoPermitidoException;
 import br.ufpb.dsc.corrida.exception.user.UsuarioJaExistenteException;

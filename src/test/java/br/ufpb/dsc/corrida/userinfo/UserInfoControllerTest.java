@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.userinfo;
+package br.ufpb.dsc.corrida.userinfo;
 
 import br.ufpb.dsc.corrida.user.Genero;
 import br.ufpb.dsc.corrida.user.NivelCondicionamento;

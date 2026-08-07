@@ -1,4 +1,4 @@
-﻿package br.ufpb.dsc.corrida.race;
+package br.ufpb.dsc.corrida.race;
 
 import br.ufpb.dsc.corrida.exception.race.CorridaCheiaException;
 import br.ufpb.dsc.corrida.inscricao.InscricaoRepository;
