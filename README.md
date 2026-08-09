@@ -166,9 +166,9 @@ base_projeto/
 ---
 ## 🎥 Vídeo de Demonstração do Sistema
 
-Para uma visão detalhada do funcionamento do **RunManager** (Sistema de Gerenciamento de Corridas), gravamos um vídeo apresentando todos os módulos do projeto em execução. 
+Para uma visão detalhada do funcionamento do Sistema de Gerenciamento de Corridas, gravamos um vídeo apresentando todos os módulos do projeto em execução. 
 
-No vídeo, demonstramos os papéis de Atleta, Organizador e Administrador, além das integrações com serviços corporativos (MinIO, OpenRouteService, Mercado Pago, IA de análise de risco e monitoramento via Grafana).
+No vídeo, demonstramos os papéis de Atleta, Organizador e Administrador, além das integrações com serviços corporativos (MinIO, OpenRouteService, Mercado Pago, IA de análise de risco e monitoramento via Grafana e Umami).
 
 **[Apresentação Sistema de Gerenciamento de Corridas](https://youtu.be/9FeBUtBQt6w?si=l49irj3uyfrL2In3)**
 
