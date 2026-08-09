@@ -164,8 +164,13 @@ base_projeto/
 ```
 
 ---
+## 🎥 Vídeo de Demonstração do Sistema
 
-## Log de auditoria
+Para uma visão detalhada do funcionamento do **RunManager** (Sistema de Gerenciamento de Corridas), gravamos um vídeo apresentando todos os módulos do projeto em execução. 
+
+No vídeo, demonstramos os papéis de Atleta, Organizador e Administrador, além das integrações com serviços corporativos (MinIO, OpenRouteService, Mercado Pago, IA de análise de risco e monitoramento via Grafana).
+
+**[Apresentação Sistema de Gerenciamento de Corridas](https://youtu.be/9FeBUtBQt6w?si=l49irj3uyfrL2In3)**
 
 - **O que é auditado**: Operações críticas de negócio mapeadas nas classes de serviço do sistema. Os recursos e as ações atualmente auditadas são:
   - **Recurso `Corrida`**: Criação (`RACE_CREATED`), Edição (`RACE_UPDATED`) e Cancelamento (`RACE_CANCELLED`).
