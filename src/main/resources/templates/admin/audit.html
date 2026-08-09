@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Auditoria — Corrida DSC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" th:href="@{/corrida.ico}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+
+<div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
+
+<main class="md:ml-[260px] min-h-screen px-5 md:px-8 py-8">
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white">Logs de Auditoria</h1>
+                <p class="text-sm text-slate-400 mt-1">Rastreabilidade completa de ações no sistema (PostgreSQL)</p>
+            </div>
+            <a th:href="@{/admin}" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">← Voltar</a>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden glow-card">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/50 border-b border-slate-700">
+                            <th class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider">ID / Data</th>
+                            <th class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider">Ação / HTTP</th>
+                            <th class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider">Usuário / IP</th>
+                            <th class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider">Recurso / Target ID</th>
+                            <th class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50">
+                        <tr th:each="log : ${logsPage.content}" class="hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3 px-5">
+                                <span class="text-xs text-slate-500 font-mono block mb-1 truncate max-w-[120px]" th:title="${log.id}" th:text="${log.id}">ID</span>
+                                <span class="text-sm font-medium text-slate-300" th:text="${#temporals.format(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}">Data</span>
+                            </td>
+                            <td class="py-3 px-5">
+                                <span class="text-sm font-bold text-white block mb-1" th:text="${log.action}">Ação</span>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-400" th:text="${log.httpMethod}">HTTP</span>
+                            </td>
+                            <td class="py-3 px-5">
+                                <span class="text-sm font-bold text-brand-400 block mb-1" th:text="${log.userId != null ? log.userId : 'anonymous'}">Usuário</span>
+                                <span class="text-xs text-slate-500 font-mono" th:text="${log.clientIp}">IP</span>
+                            </td>
+                            <td class="py-3 px-5">
+                                <span class="text-sm text-slate-300 block mb-1" th:text="${log.resource}">Recurso</span>
+                                <span class="text-xs text-slate-500" th:text="${log.targetId != null ? 'ID: ' + log.targetId : ''}">Target ID</span>
+                            </td>
+                            <td class="py-3 px-5 text-center">
+                                <span th:if="${log.errorMessage == null}" class="px-3 py-1 inline-flex text-xs font-bold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" th:text="${log.statusCode != null ? log.statusCode : '200'}">200</span>
+                                <span th:if="${log.errorMessage != null}" class="px-3 py-1 inline-flex text-xs font-bold rounded-full bg-red-500/15 text-red-400 border border-red-500/30" th:title="${log.errorMessage}" th:text="${log.statusCode != null ? log.statusCode : '500'}">500</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(logsPage.content)}">
+                            <td colspan="5" class="py-12 text-center">
+                                <div class="text-slate-500 mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 mx-auto opacity-50"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                </div>
+                                <p class="text-slate-400 font-medium">Nenhum log encontrado.</p>
+                                <p class="text-sm text-slate-500 mt-1">Lembre-se de ativar a funcionalidade <strong>AUDIT_NEW_PIPELINE</strong>.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <!-- Umami Analytics -->
+    <script defer src="https://umami.dsc.rodrigor.com/script.js" data-website-id="40e1c211-f336-42a8-b97c-01068e72a148"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciar Corridas — Corrida DSC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" th:href="@{/corrida.ico}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            400: '#fb923c', 500: '#f97316',
+                            600: '#ea580c', 700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn      { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <div th:replace="~{fragments/sidebar :: sidebar('minhas-corridas')}"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="md:ml-[260px] min-h-screen pb-24 md:pb-0">
+
+        <!-- Mobile top bar -->
+        <div class="md:hidden flex items-center justify-between px-5 pt-5 pb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center glow-orange">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-5 h-5 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                    </svg>
+                </div>
+                <span class="text-sm font-extrabold tracking-tight text-white">CORRIDA <span class="text-brand-500">DSC</span></span>
+            </div>
+        </div>
+
+        <div class="px-5 md:px-8 py-6 md:py-10 max-w-5xl mx-auto space-y-8">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">Gerenciamento de Corridas</h1>
+                    <p class="text-sm text-slate-400 mt-1">Crie, edite e acompanhe o status de suas provas organizadas.</p>
+                </div>
+                <!-- Create button -->
+                <a th:href="@{|/organizacao/${orgId}/corridas/nova|}" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 to-orange-500 hover:from-brand-500 hover:to-orange-400 text-white font-extrabold text-sm px-6 py-3 rounded-xl transition-all glow-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7-7H5" />
+                    </svg>
+                    Nova Corrida
+                </a>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${corridas.isEmpty()}" class="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-8 glow-card">
+                <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Nenhuma corrida cadastrada</h3>
+                    <p class="text-sm text-slate-400 mt-1">Sua organização ainda não possui corridas. Clique em "Nova Corrida" para começar.</p>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div th:if="${!corridas.isEmpty()}" class="bg-slate-900/50 border border-slate-900 rounded-2xl overflow-hidden glow-card">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-850 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                <th class="px-6 py-4">Nome</th>
+                                <th class="px-6 py-4">Data / Largada</th>
+                                <th class="px-6 py-4">Categoria</th>
+                                <th class="px-6 py-4">Distância</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-850 text-sm">
+                            <tr th:each="corrida : ${corridas}" class="hover:bg-slate-800/30 transition-colors">
+                                <!-- Name -->
+                                <td class="px-6 py-4 font-bold text-white max-w-xs truncate" th:text="${corrida.nome}">Maratona do Sol</td>
+                                
+                                <!-- Date -->
+                                <td class="px-6 py-4 text-slate-300">
+                                    <span class="block font-semibold" th:text="${#temporals.format(corrida.dataInicio, 'dd/MM/yyyy')}">25/12/2026</span>
+                                    <span class="text-xs text-slate-500" th:text="${#temporals.format(corrida.dataInicio, 'HH:mm')}">06:00</span>
+                                </td>
+                                
+                                <!-- Category -->
+                                <td class="px-6 py-4 font-semibold text-slate-400">
+                                    <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs uppercase" th:text="${corrida.categoria}">C5K</span>
+                                </td>
+
+                                <!-- Distance -->
+                                <td class="px-6 py-4 font-semibold text-slate-300" th:text="${corrida.distanciaKm != null} ? ${corrida.distanciaKm} + ' km' : '--'">--</td>
+
+                                <!-- Status Badge -->
+                                <td class="px-6 py-4">
+                                    <span th:if="${corrida.status.name() == 'RASCUNHO'}" class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md">Rascunho</span>
+                                    <span th:if="${corrida.status.name() == 'PUBLICADA'}" class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md">Publicada</span>
+                                    <span th:if="${corrida.status.name() == 'CANCELADA'}" class="bg-rose-500/10 text-rose-500 border border-rose-500/20 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md">Cancelada</span>
+                                    <span th:if="${corrida.status.name() == 'ENCERRADA'}" class="bg-slate-500/10 text-slate-400 border border-slate-500/20 font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md">Encerrada</span>
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <!-- Details -->
+                                        <a th:href="@{/corridas/{slug}(slug=${corrida.slug})}" class="text-xs font-semibold px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors" title="Visualizar Página Pública">
+                                            Ver Página
+                                        </a>
+
+                                        <!-- Participantes -->
+                                        <a th:href="@{|/organizacao/${orgId}/corridas/${corrida.id}/participantes|}" class="text-xs font-semibold px-3 py-1.5 bg-blue-600/15 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-colors border border-blue-600/20" title="Ver Participantes">
+                                            Inscritos
+                                        </a>
+
+                                        <!-- Edit -->
+                                        <a th:href="@{|/organizacao/${orgId}/corridas/${corrida.id}/editar|}" class="text-xs font-semibold px-3 py-1.5 bg-brand-600/15 hover:bg-brand-600 text-brand-400 hover:text-white rounded-lg transition-colors border border-brand-600/20" title="Editar Corrida">
+                                            Editar
+                                        </a>
+
+                                        <!-- Publish Form -->
+                                        <form th:action="@{|/organizacao/${orgId}/corridas/${corrida.id}/publicar|}" method="POST" onsubmit="return confirm('Deseja publicar esta corrida? Ela ficará visível para todos os usuários e inscrições serão abertas.')" th:if="${corrida.status.name() == 'RASCUNHO'}">
+                                            <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/25 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white transition-colors" title="Publicar Corrida no Feed">
+                                                Publicar
+                                            </button>
+                                        </form>
+
+                                        <!-- Cancel Form -->
+                                        <form th:action="@{|/organizacao/${orgId}/corridas/${corrida.id}/cancelar|}" method="POST" onsubmit="return confirm('Deseja realmente cancelar esta corrida? Esta ação não pode ser desfeita e a corrida será retirada do feed público.')">
+                                            <button type="submit" th:disabled="${corrida.status.name() == 'CANCELADA'}" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-500/25 transition-colors"
+                                                    th:classappend="${corrida.status.name() == 'CANCELADA'} ? 'bg-slate-900 text-slate-600 border-slate-850 cursor-not-allowed' : 'bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white'"
+                                                    title="Cancelar Corrida">
+                                                Cancelar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

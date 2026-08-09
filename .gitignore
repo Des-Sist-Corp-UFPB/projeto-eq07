@@ -64,6 +64,9 @@ spring.log
 .env
 .env.*
 !.env.example
+application-local.properties
+application.yml
+application-dev.yml
 
 # ---------------------------------------------------------------------------
 # Docker
@@ -92,3 +95,4 @@ trivy-results.sarif
 *.seed
 *.pid.lock
 HELP.md
+rascunho-funcionadade.md

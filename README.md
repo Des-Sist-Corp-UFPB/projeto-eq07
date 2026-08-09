@@ -1,18 +1,10 @@
-# Sistema Mercado — Projeto Base DSC/UFPB
-
-Projeto base (boilerplate) para a disciplina **Desenvolvimento de Sistemas Corporativos**.
-
-**Professor**: Rodrigo Rebouças | **UFPB — Campus IV**
-
----
-
 ## Tecnologias
 
 | Camada | Tecnologia |
 |--------|-----------|
 | Backend | Java 21 + Spring Boot 3.4.5 |
 | Templates | Thymeleaf + HTMX 2.0 |
-| Frontend | Bootstrap 5.3 |
+| Frontend | Tailwind 5.3 |
 | Banco | PostgreSQL 16 |
 | Migrações | Flyway 11 |
 | Segurança | Spring Security 6 |
@@ -21,176 +13,17 @@ Projeto base (boilerplate) para a disciplina **Desenvolvimento de Sistemas Corpo
 
 ---
 
-## Guia de Instalação para Alunos
+## Environment Setup
 
-### Passo 1 — Instale o Java 21
-
-O projeto requer Java 21. Recomendamos o **Eclipse Temurin** (distribuição gratuita da Adoptium).
-
-**Windows / macOS / Linux:**
-1. Acesse https://adoptium.net/temurin/releases/?version=21
-2. Baixe o instalador para seu sistema operacional
-3. Execute o instalador e siga as instruções
-
-**Verificar se está correto:**
-```bash
-java -version
-# Esperado: openjdk version "21.x.x" ...
-```
-
-> **Dica para Windows:** durante a instalação, marque a opção *"Add to PATH"* e *"Set JAVA_HOME"*.
-
----
-
-### Passo 2 — Instale o Maven
-
-O Maven é a ferramenta de build do projeto.
-
-**macOS (com Homebrew):**
-```bash
-brew install maven
-```
-
-**Windows:**
-1. Acesse https://maven.apache.org/download.cgi
-2. Baixe o arquivo `apache-maven-3.x.x-bin.zip`
-3. Extraia para uma pasta (ex.: `C:\maven`)
-4. Adicione `C:\maven\bin` à variável de ambiente `PATH`
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt install maven
-```
-
-**Verificar:**
-```bash
-mvn -version
-# Esperado: Apache Maven 3.x.x
-```
-
----
-
-### Passo 3 — Instale o Docker Desktop
-
-O Docker sobe o banco de dados PostgreSQL sem precisar instalar nada manualmente.
-
-1. Acesse https://www.docker.com/products/docker-desktop/
-2. Baixe e instale o Docker Desktop para seu sistema
-3. Abra o Docker Desktop e aguarde ele inicializar (ícone na barra de tarefas)
-
-**Verificar:**
-```bash
-docker -v
-# Esperado: Docker version 27.x.x ...
-```
-
-> **Importante:** o Docker Desktop deve estar **em execução** sempre que você for rodar o projeto.
-
----
-
-### Passo 4 — Clone o repositório
-
-```bash
-git clone <URL-DO-REPOSITÓRIO>
-cd base_projeto
-```
-
-> Substitua `<URL-DO-REPOSITÓRIO>` pela URL fornecida pelo professor.
-
----
-
-### Passo 5 — Execute o projeto
-
-Você tem duas opções. **Recomendamos a Opção A para a primeira execução.**
-
-#### Opção A: Tudo com Docker (mais simples)
-
-Um único comando sobe o banco, a aplicação e o Adminer (interface web do banco):
-
-```bash
-docker compose -f docker/docker-compose.dev.yml up --build
-```
-
-Aguarde as mensagens de inicialização. Quando aparecer algo como:
-```
-Started MercadoApplication in X.XXX seconds
-```
-...a aplicação está pronta.
-
-#### Opção B: Banco no Docker + aplicação local (recomendado para desenvolvimento)
-
-Esta opção permite editar o código e ver as mudanças mais rápido:
-
-```bash
-# Terminal 1 — sobe o banco de dados
-docker compose -f docker/docker-compose.dev.yml up postgres adminer
-
-# Terminal 2 — roda a aplicação (em outro terminal, na mesma pasta)
-mvn spring-boot:run
-```
-
----
-
-### Passo 6 — Acesse no browser
-
-| O que | Endereço |
-|-------|----------|
-| Aplicação | http://localhost:8080 |
-| Login | usuário: `admin` / senha: `admin123` |
-| Adminer (banco) | http://localhost:8888 |
-| Health check | http://localhost:8080/actuator/health |
-
----
-
-### Parando o projeto
-
-```bash
-# Parar a aplicação: Ctrl+C no terminal onde está rodando
-
-# Parar os containers Docker:
-docker compose -f docker/docker-compose.dev.yml down
-```
-
----
-
-## Solução de Problemas Comuns
-
-### "Port 8080 already in use"
-Outra aplicação está usando a porta 8080. Para liberar:
-```bash
-# macOS / Linux
-lsof -ti:8080 | xargs kill
-
-# Windows (PowerShell)
-netstat -ano | findstr :8080
-# Anote o PID da última coluna e execute:
-taskkill /PID <número-do-pid> /F
-```
-
-### "Cannot connect to the Docker daemon"
-O Docker Desktop não está em execução. Abra o aplicativo Docker Desktop e aguarde inicializar.
-
-### "Connection refused" ao banco de dados
-O container do PostgreSQL ainda não subiu. Aguarde alguns segundos e tente novamente. Você pode verificar com:
-```bash
-docker compose -f docker/docker-compose.dev.yml ps
-# O container "mercado-postgres-dev" deve estar com status "healthy"
-```
-
-### Erro de compilação Java
-Verifique se o Java 21 está sendo usado pelo Maven:
-```bash
-mvn -version
-# A linha "Java version:" deve mostrar 21.x.x
-```
-Se mostrar outra versão, configure a variável `JAVA_HOME` apontando para o Java 21.
-
-### Flyway: "Found non-empty schema(s) with no schema history table"
-O banco existe mas foi criado sem as migrations. Apague os dados e recomece:
-```bash
-docker compose -f docker/docker-compose.dev.yml down -v
-docker compose -f docker/docker-compose.dev.yml up postgres
-```
+| Variable | Required | Purpose |
+|---|---|---|---|
+| `ORS_API_KEY` | Yes | Route calculation and address geocoding via OpenRouteService 
+| `ORS_BASE_URL` | No | ORS base URL (defaults to production) |
+| `API_SECURITY_TOKEN_SECRET` | Yes | JWT to authetication | 
+| `SPRING_DATA_MONGODB_URI` | Yes | URI to connect to the audit log database |
+| `DATABASE_URL` | Yes | URL to connect application database |
+| `DB_USERNAME` | Yes | Username to connect Postgres database |
+| `DB_PASSWORD` | Yes | Password to connect Postgres database |
 
 ---
 
@@ -331,13 +164,150 @@ base_projeto/
 ```
 
 ---
+## 🎥 Vídeo de Demonstração do Sistema
 
-## Para Alunos: Adaptando o Boilerplate
+Para uma visão detalhada do funcionamento do Sistema de Gerenciamento de Corridas, gravamos um vídeo apresentando todos os módulos do projeto em execução. 
 
-1. **Renomear** a entidade `Produto` para sua entidade principal
-2. **Criar migration** Flyway com a nova estrutura da tabela (`src/main/resources/db/migration/V2__...sql`)
-3. **Atualizar** Repository, Service, Controller e templates seguindo os mesmos padrões
-4. **Manter** a estrutura de pacotes e convenções (ver `docs/CONVENTIONS.md`)
-5. **Nunca editar** migrations já aplicadas — sempre criar uma nova (`V3__`, `V4__`, ...)
+No vídeo, demonstramos os papéis de Atleta, Organizador e Administrador, além das integrações com serviços corporativos (MinIO, OpenRouteService, Mercado Pago, IA de análise de risco e monitoramento via Grafana e Umami).
 
-> Dúvidas? Consulte a documentação em `docs/` ou o professor.
+**[Apresentação Sistema de Gerenciamento de Corridas](https://youtu.be/9FeBUtBQt6w?si=l49irj3uyfrL2In3)**
+
+- **O que é auditado**: Operações críticas de negócio mapeadas nas classes de serviço do sistema. Os recursos e as ações atualmente auditadas são:
+  - **Recurso `Corrida`**: Criação (`RACE_CREATED`), Edição (`RACE_UPDATED`) e Cancelamento (`RACE_CANCELLED`).
+  - **Recurso `USER`**: Login (`LOGIN`), Edição de conta (`EDIT_USER`) e Exclusão (`DELETE_USER`).
+  - **Recurso `USER_INFO`**: Registro inicial (`CREATE_USER_INFO`), Consulta de perfil (`GET_USER_INFO`), Atualização de perfil (`UPDATE_USER_INFO`) e Alteração de foto (`UPDATE_PROFILE_PHOTO`).
+  - **Recurso `ORGANIZER`**: Registro de Organizador e Organização (`REGISTER_ORGANIZER`).
+  - **Recurso `CONECTION`**: Envio de convite (`SEND_CONNECTION`), Aceitar convite (`ACCEPT_CONNECTION`), Recusar convite (`DECLINE_CONNECTION`) e Desfazer conexão (`REMOVE_CONNECTION`).
+- **Onde fica armazenado**: MongoDB Atlas ou banco local, em uma coleção cuja propriedade dinâmica de nome é definida no `application.yml` (padrão `audit_logs`). Cada documento registrado armazena os seguintes campos (definidos em [AuditLog.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLog.java)):
+  - `id`: Identificador único do documento.
+  - `action`: Código da ação de negócio executada (ex: `RACE_UPDATED`, `RACE_CANCELLED_FAILED`).
+  - `operator`: Identificação do operador (e-mail do usuário autenticado).
+  - `ip`: Endereço IP do cliente (respeitando o cabeçalho `X-Forwarded-For`).
+  - `userAgent`: String do User-Agent do navegador ou cliente HTTP.
+  - `httpMethod`: Método HTTP correspondente à requisição (ex: POST, PUT, PATCH).
+  - `resource`: Nome do recurso de domínio afetado (ex: `Corrida`).
+  - `targetId`: ID único do recurso modificado.
+  - `stateBefore`: Dados serializados e higienizados do recurso *antes* da execução.
+  - `stateAfter`: Dados serializados e higienizados do recurso *depois* da execução.
+  - `errorMessage`: Detalhe da mensagem de erro capturada caso a ação falhe.
+  - `timestamp`: Instante do registro do log (com TTL configurado para 90 dias).
+- **Como foi implementado**: Utilizando programação orientada a aspectos (AOP) com Spring AOP para interceptar métodos marcados com a anotação customizada `@Auditable`. O aspecto captura os dados de contexto HTTP (IP com tratamento para `X-Forwarded-For`, User-Agent e método HTTP) e segurança (operador autenticado), além de mapear recursivamente os estados anterior e posterior do recurso (com exclusão automática de campos sensíveis como senhas, tokens e propriedades anotadas com `@ToString.Exclude`). A persistência é realizada por eventos do Spring (`AuditLogEvent`) desacoplados, onde operações de sucesso são gravadas após o commit da transação (`@TransactionalEventListener`) e falhas são salvas assincronamente (`@Async`).
+- **Quais classes/arquivos participam**:
+  - [Auditable.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/Auditable.java) (anotação customizada)
+  - [AuditLog.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLog.java) (entidade documento MongoDB com TTL index de 90 dias)
+  - [AuditLogRepository.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLogRepository.java) (repositório MongoDB)
+  - [AuditContextUtils.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditContextUtils.java) (utilitário para HttpServletRequest e IP do cliente)
+  - [AuditAspect.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditAspect.java) (interceptador aspect e higienizador por reflexão)
+  - [AuditLogEvent.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLogEvent.java) (evento de auditoria)
+  - [AuditLogListener.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditLogListener.java) (listener transacional e assíncrono)
+  - [AuditConfig.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/audit/AuditConfig.java) (habilitação do `@EnableAsync`)
+
+---
+
+## Integração com Serviço Externo
+
+- **Serviço externo**: OpenRouteService (Directions e Geocoding APIs)
+- **Finalidade**: Usado para geocodificação de endereços no formulário de criação/edição de corrida (autocomplete de texto para coordenadas geográficas) e para calcular rotas reais de pedestre entre o ponto de largada e o ponto de chegada. O serviço fornece a distância exata da prova, o tempo estimado de duração e o traçado completo em formato GeoJSON para renderização interativa na tela com Leaflet.js.
+- **Classes/arquivos participantes**:
+  - [OpenRouteServiceClient.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/OpenRouteServiceClient.java) (cliente HTTP com Spring RestClient e resiliência a falhas)
+  - [CorridaService.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/CorridaService.java) (uso das rotas e regras de caching de requisições baseadas em coordenadas inalteradas)
+  - [GeocodingApiController.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/GeocodingApiController.java) (REST API Proxy para chamadas do front-end)
+  - [RotaDTO.java](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/java/br/ufpb/dsc/corrida/race/dto/RotaDTO.java) (DTO de transferência da rota calculada)
+  - [application.yml](file:///c:/Users/willi/Desktop/Faculdade/DSC/projeto-eq07/src/main/resources/application.yml) (definição de chaves e URLs do serviço)
+
+---
+
+## Observabilidade / Variáveis de Ambiente (OpenTelemetry & LGTM)
+
+A aplicação conta com observabilidade unificada baseada no padrão **OpenTelemetry (OTel)**, exportando os 3 sinais de telemetria (**Traces**, **Métricas** e **Logs**) via protocolo **OTLP** para o backend central Grafana (LGTM / Prometheus + Tempo + Loki).
+
+### Variáveis de Ambiente OpenTelemetry
+
+| Variável de Ambiente | Obrigatória | Propósito | Motivo / Utilidade | Onde obter o valor | Exemplo / Formato |
+|---|---|---|---|---|---|
+| `OTEL_SERVICE_NAME` | **Sim** | Identificador único da aplicação / equipe | Usado para filtrar e correlacionar Traces, Métricas e Logs no Grafana centralizado da turma | Padrão definido pela disciplina (`dsc-eqNN` ou `aps-eqNN`) | `OTEL_SERVICE_NAME=dsc-eq07` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | **Sim** | Endpoint de ingestão do coletor OTLP | Define para onde o Java Agent envia os dados via HTTP/protobuf | Servidor central da turma ou container local LGTM | `OTEL_EXPORTER_OTLP_ENDPOINT=https://` (prod) ou `http://localhost:4318` (local) |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | **Sim** | Protocolo de transporte OTLP | Define a serialização no canal de envio (ex: HTTP protobuf) | Padrão OpenTelemetry OTLP | `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Não / Prod | Cabeçalho HTTP com Token Bearer | Autenticação no coletor OTLP centralizado da disciplina (**NUNCA comitar!**) | Canal oficial da disciplina no Discord | `OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer SEU_TOKEN_AQUI` |
+| `OTEL_TRACES_EXPORTER` | **Sim** | Exportador de Tracing | Ativa o envio de rastros de requisições e queries SQL para o Tempo | Padrão OpenTelemetry | `OTEL_TRACES_EXPORTER=otlp` |
+| `OTEL_METRICS_EXPORTER` | **Sim** | Exportador de Métricas | Ativa o envio de métricas de JVM (heap, GC, threads), HTTP e métricas customizadas para o Prometheus | Padrão OpenTelemetry | `OTEL_METRICS_EXPORTER=otlp` |
+| `OTEL_LOGS_EXPORTER` | **Sim** | Exportador de Logs | Intercepta logs do Logback e os envia ao Loki correlacionados com `trace_id` e `span_id` | Padrão OpenTelemetry | `OTEL_LOGS_EXPORTER=otlp` |
+
+### Como Executar com Observabilidade
+
+#### Execução Local (com Java Agent anexado)
+```bash
+# Definir variáveis de ambiente
+export OTEL_SERVICE_NAME=dsc-eq07
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=otlp
+
+# Rodar a aplicação com o agente OpenTelemetry
+java -javaagent:opentelemetry-javaagent.jar -jar target/mercado-0.0.1-SNAPSHOT.jar
+```
+
+#### Execução via Docker Compose
+```bash
+docker compose -f docker/docker-compose.dev.yml up --build
+```
+
+### Como Validar a Telemetria no Grafana
+
+1. **Métricas (Prometheus)**:
+   - Acesse o Grafana → menu **Dashboards**.
+   - Filtre por `service.name = dsc-eq07`.
+   - Visualize os gráficos de uso de memória JVM, atividade de threads, throughput de requisições HTTP e latência.
+
+2. **Logs Correlacionados (Loki)**:
+   - Acesse o Grafana → menu **Explore** → selecione a fonte de dados **Loki**.
+   - Execute a consulta LogQL: `{service_name="dsc-eq07"}`.
+   - Verifique se os registros de log exibem os atributos do MDC (`requestId`, `userId`, `clientIp`) e o `trace_id`.
+   - Ao clicar em uma linha de log com `trace_id`, clique no botão para navegar diretamente para o rastro correspondente no Tempo.
+
+3. **Traces Distribuidos (Tempo)**:
+   - Acesse o Grafana → menu **Explore** → selecione a fonte de dados **Tempo**.
+   - Filtre por `Service Name = dsc-eq07`.
+   - Clique em um trace para inspecionar a cascata completa de execução (requisição HTTP → controller → queries SQL / serviços externos).
+
+### Instrumentação Manual (@WithSpan)
+
+Para atender aos requisitos de telemetria refinada e fornecer visibilidade sobre passos críticos de negócio, métodos do domínio foram anotados com `@WithSpan` e `@SpanAttribute` da biblioteca OpenTelemetry Instrumentation.
+
+| Classe | Método | Nome do Span (`@WithSpan`) | Atributos Customizados (`@SpanAttribute`) | Motivo da Escolha |
+|---|---|---|---|---|
+| `EligibilityService` | `check(userId, raceId)` | `eligibility.check-risk` | `user.id`, `race.id` | Medir a latência do pipeline de elegibilidade do atleta (consulta de consentimento, rate-limit, cache e chamada à LLM). |
+| `InscricaoService` | `inscrever(user, raceId, riskAcknowledged)` | `race.inscrever-atleta` | `race.id`, `risk.acknowledged` | Isolar a duração da validação de regras de negócio de inscrição (duplicidade, limite de vagas, conflitos de horário). |
+| `CorridaService` | `criarCorrida(dto, organizationId, userDetails)` | `race.criar-corrida` | `organization.id` | Monitorar o tempo gasto na validação de permissões de organização e na criação da corrida. |
+
+
+## Integração com Mercado Pago
+
+- **Serviço externo**: Mercado Pago (Payments API)
+- **Finalidade**: Processamento de pagamentos via Pix para confirmação de inscrições em corridas. Após a geração da cobrança, o sistema recebe notificações assíncronas (webhooks) do Mercado Pago informando mudanças de status do pagamento (aprovado, rejeitado, cancelado), atualizando automaticamente o status da `Inscricao` correspondente sem necessidade de polling.
+- **Fluxo de segurança do webhook**:
+  1. **Validação de assinatura HMAC-SHA256** — todo webhook recebido é validado contra o cabeçalho `x-signature`, usando o template `id:{data.id};request-id:{x-request-id};ts:{timestamp};` assinado com o secret configurado.
+  2. **Idempotência** — pagamentos já marcados como `APROVADO` no banco não são reprocessados, evitando duplicidade em caso de reenvio da notificação pelo Mercado Pago.
+  3. **Double-check** — antes de atualizar o estado local, o status é reconsultado diretamente na API do Mercado Pago (nunca confia-se apenas no conteúdo do payload do webhook).
+- **Classes/arquivos participantes**:
+  - `MercadoPagoWebhookController.java` (endpoint `POST /api/v1/webhooks/mercadopago`, validação de assinatura e roteamento de status)
+  - `MercadoPagoService.java` (cliente da API do Mercado Pago — criação de cobrança Pix e consulta de status autoritativo)
+  - `Pagamento.java` (entidade JPA com `mpPaymentId`, vínculo `@ManyToOne`/`@OneToOne` com `Inscricao`)
+  - `PagamentoRepository.java` (busca por `mpPaymentId`)
+  - `EmailService.java` (disparo assíncrono de comprovante ao atleta após aprovação)
+  - `application.yml` (definição de `mercadopago.webhook-secret` e demais chaves)
+
+### Variáveis de Ambiente — Mercado Pago
+
+| Variável | Obrigatória | Propósito |
+|---|---|---|
+| `MP_ACCESS_TOKEN` | Sim | Token de acesso à API do Mercado Pago (criação de cobranças Pix e consulta de status) |
+| `MP_WEBHOOK_SECRET` | Sim | Secret usado para validar a assinatura HMAC-SHA256 dos webhooks recebidos (`mercadopago.webhook-secret`) |
+
+> **Importante**: sem `MERCADOPAGO_WEBHOOK_SECRET` configurado, a validação de assinatura é **ignorada** (apenas um warning é logado)
+
+### Testando webhooks localmente
+
+Como o Mercado Pago precisa de uma URL pública para enviar notificações, use um túnel (ex.: `ngrok http 8080`) e cadastre a URL gerada (`https://SEU-DOMINIO.ngrok-free.app/api/v1/webhooks/mercadopago`) no painel de desenvolvedor do Mercado Pago. Use o inspector do ngrok (`http://127.0.0.1:4040`) para depurar requisições recebidas durante os testes.

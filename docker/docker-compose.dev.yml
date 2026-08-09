@@ -22,22 +22,26 @@ services:
   # ---------------------------------------------------------------------------
   postgres:
     image: postgres:16-alpine
-    container_name: mercado-postgres-dev
+    container_name: corridas-postgres-dev
     environment:
-      POSTGRES_DB: mercado_dev
-      POSTGRES_USER: mercado
-      POSTGRES_PASSWORD: mercado123
+      POSTGRES_DB: corridas_dev
+      POSTGRES_USER: corridasdb
+      POSTGRES_PASSWORD: C@rR!d@db
     ports:
       - "5432:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mercado -d mercado_dev"]
+      test: ["CMD-SHELL", "pg_isready -U corridasdb -d corridas_dev"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - mercado-net
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
+  # Banco de dados MongoDB (Auditoria)
+  # ---------------------------------------------------------------------------
 
   # ---------------------------------------------------------------------------
   # Aplicação Spring Boot (hot-reload)
@@ -46,14 +50,30 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.dev
-    container_name: mercado-app-dev
+    container_name: corridas-app-dev
+    env_file:
+      - ../.env
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mercado_dev
-      SPRING_DATASOURCE_USERNAME: mercado
-      SPRING_DATASOURCE_PASSWORD: mercado123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
+      SPRING_DATASOURCE_USERNAME: corridasdb
+      SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+      MAVEN_OPTS: "-Xmx1536m"
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-dsc-eq07}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-lgtm:4318}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+      OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
+      MINIO_ENDPOINT_INTERNAL: http://minio:9000
+    deploy:
+      resources:
+        limits:
+          memory: 3072M
     ports:
       - "8080:8080"
+      - "5005:5005"
     volumes:
       # Monta o código-fonte para hot-reload
       - ../src:/app/src
@@ -62,8 +82,65 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      otel-lgtm:
+        condition: service_started
+      minio:
+        condition: service_healthy
     networks:
-      - mercado-net
+      - corridas-net
+
+  #
+  #app:
+  #  build:
+  #    context: ..
+  #    dockerfile: docker/Dockerfile.dev
+  #  container_name: corridas-app-dev
+  #  environment:
+  #    SPRING_PROFILES_ACTIVE: dev
+  #    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corridas_dev
+  #    SPRING_DATASOURCE_USERNAME: corridasdb
+  #    SPRING_DATASOURCE_PASSWORD: C@rR!d@db
+  #    MAVEN_OPTS: "-Xmx1536m"
+  #    OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:dsc-eq07}
+  #    OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-lgtm:4318}
+  #    OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+  #    OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+  #    OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+  #    OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+  #    OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        memory: 3072M
+  #  ports:
+  #    - "8080:8080"
+  #    - "5005:5005"
+  #  volumes:
+  #    # Monta o código-fonte para hot-reload
+  #    - ../src:/app/src
+  #    # Persistir dependências Maven (evita re-download a cada restart)
+  #    - maven-cache:/root/.m2
+  #  depends_on:
+  #    postgres:
+  #      condition: service_healthy
+  #    otel-lgtm:
+  #      condition: service_started
+  #  networks:
+  #    - corridas-net
+#
+  # ---------------------------------------------------------------------------
+  # OpenTelemetry LGTM Stack (Loki, Grafana, Tempo, Mimir)
+  # Acesse o Grafana em: http://localhost:3000
+  # ---------------------------------------------------------------------------
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - corridas-net
 
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
@@ -72,13 +149,40 @@ services:
   # ---------------------------------------------------------------------------
   adminer:
     image: adminer:latest
-    container_name: mercado-adminer
+    container_name: corridas-adminer
     ports:
       - "8888:8080"
     depends_on:
       - postgres
     networks:
-      - mercado-net
+      - corridas-net
+
+  # ---------------------------------------------------------------------------
+  # MinIO: armazenamento de objetos compatível com S3
+  # Acesse o painel web em: http://localhost:9001
+  # Credenciais: configuradas no .env (MINIO_ACCESS_KEY / MINIO_SECRET_KEY)
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: corridas-minio-dev
+    env_file:
+      - ../.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio-dev-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - corridas-net
 
   # ---------------------------------------------------------------------------
   # Trivy: scanner de vulnerabilidades (roda e sai — profile: scan)
@@ -86,7 +190,7 @@ services:
   # ---------------------------------------------------------------------------
   trivy:
     image: aquasec/trivy:latest
-    container_name: mercado-trivy
+    container_name: corridas-trivy
     profiles:
       - scan
     volumes:
@@ -94,13 +198,15 @@ services:
       - trivy-cache:/root/.cache/trivy
     command: fs /project --severity HIGH,CRITICAL --exit-code 1
     networks:
-      - mercado-net
+      - corridas-net
 
 volumes:
   postgres-dev-data:
+  mongo-dev-data:
   maven-cache:
   trivy-cache:
+  minio-dev-data:
 
 networks:
-  mercado-net:
+  corridas-net:
     driver: bridge

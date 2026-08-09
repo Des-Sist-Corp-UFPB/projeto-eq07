@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <!-- Umami Analytics -->
+    <script defer src="https://umami.dsc.rodrigor.com/script.js" data-website-id="40e1c211-f336-42a8-b97c-01068e72a148"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minha Conta — Corrida DSC</title>
+    <meta name="description" content="Gerencie seu perfil físico e médico como corredor no Corrida DSC." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" th:href="@{/corrida.ico}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#212529">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registrado com sucesso!', reg.scope))
+                .catch(err => console.log('Falha ao registrar o Service Worker:', err));
+            });
+        }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            400: '#fb923c', 500: '#f97316',
+                            600: '#ea580c', 700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glow-orange   { box-shadow: 0 0 22px rgba(249,115,22,0.45); }
+        .glow-card     { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 40px rgba(249,115,22,0.04); }
+        .glow-btn      { box-shadow: 0 0 14px rgba(249,115,22,0.35); }
+
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition-all text-sm font-medium; }
+        .nav-link.active { @apply bg-brand-600/20 text-brand-400 border border-brand-600/30; }
+
+        .bnav-link { @apply flex items-center gap-0.5 text-slate-500 hover:text-brand-400 transition-colors text-[10px] font-semibold; }
+        .bnav-link.active { @apply text-brand-400; }
+
+        .form-label { @apply block text-xs font-semibold text-slate-400 mb-1.5 tracking-wide uppercase; }
+        .form-input { @apply w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-black font-semibold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all; }
+        .form-select { @apply w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-black font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all appearance-none; }
+
+        /* Toast */
+        #toast { transition: opacity 0.4s ease, transform 0.4s ease; }
+        #toast.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
+        #toast.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+
+    <!-- ════════════════════════════════════════════════
+     LEFT SIDEBAR (desktop md+)
+════════════════════════════════════════════════ -->
+<div th:replace="~{fragments/sidebar :: sidebar('')}"></div>
+
+    <!-- ════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════ -->
+    <main class="md:ml-[260px] min-h-screen pb-24 md:pb-0">
+
+        <!-- Mobile top bar -->
+        <div class="md:hidden flex items-center justify-between px-5 pt-5 pb-3">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center glow-orange">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2"
+                        stroke="currentColor" class="w-5 h-5 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                    </svg>
+                </div>
+                <span class="text-sm font-extrabold tracking-tight text-white">CORRIDA <span
+                        class="text-brand-500">DSC</span></span>
+            </div>
+            <a href="/minha-conta">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center text-white text-xs font-bold glow-orange"
+                    th:text="${#strings.toUpperCase(#strings.substring(#authentication.name, 0, 2))}">AT</div>
+            </a>
+        </div>
+
+        <div class="px-5 md:px-8 py-4 md:py-8 max-w-2xl mx-auto space-y-6">
+
+            <!-- Page Header -->
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center glow-orange flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="w-6 h-6 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white leading-tight">Minha Conta</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Gerencie seu perfil físico e médico como corredor</p>
+                </div>
+            </div>
+
+            <!-- ── ALERT BANNER (profile not yet filled) ── -->
+            <div th:if="${profileMissing}" id="alert-missing"
+                class="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-amber-400">Perfil incompleto</p>
+                    <p class="text-xs text-amber-300/80 mt-0.5">Você ainda não preencheu seu perfil. Por favor, complete
+                        suas informações.</p>
+                </div>
+            </div>
+
+            <!-- ── ALERT BANNER (CPF obrigatório para corrida paga) ── -->
+            <div th:if="${param.cpfObrigatorio != null || (cpfObrigatorio ?: false)}"
+                class="flex items-start gap-3 bg-red-500/10 border border-red-500/40 rounded-2xl p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                <div>
+                    <p class="text-sm font-bold text-red-400">CPF Obrigatório</p>
+                    <p class="text-xs text-red-300/90 mt-0.5">Para se inscrever em corridas pagas, você precisa cadastrar seu CPF para emissão da cobrança Pix.</p>
+                </div>
+            </div>
+
+            <!-- ── TOAST NOTIFICATION ── -->
+            <div id="toast"
+                class="hidden fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl text-sm font-semibold max-w-sm"
+                role="alert" aria-live="polite">
+                <svg id="toast-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="2.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"></svg>
+                <span id="toast-msg"></span>
+            </div>
+
+            <!-- ── PROFILE PICTURE SECTION ── -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 glow-card">
+                <h2 class="text-base font-bold text-white mb-4">Foto de Perfil</h2>
+                <div class="flex items-center gap-5">
+                    <!-- Avatar preview -->
+                    <div id="avatar-wrap" class="relative flex-shrink-0">
+                        <div id="avatar-initials" th:if="${userInfo == null || userInfo.fotoPerfil == null}"
+                            class="w-20 h-20 rounded-full bg-gradient-to-tr from-brand-600 to-orange-400 flex items-center justify-center text-white text-2xl font-extrabold glow-orange"
+                            th:text="${#strings.toUpperCase(#strings.substring(#authentication.name, 0, 2))}">AT</div>
+                        <img id="avatar-img" th:if="${userInfo != null && userInfo.fotoPerfil != null}"
+                            th:src="${userInfo.fotoPerfil}"
+                            class="w-20 h-20 rounded-full object-cover border-2 border-brand-500/50"
+                            alt="Foto de perfil" />
+                    </div>
+                    <!-- File input -->
+                    <div class="flex-1">
+                        <label for="fotoPerfil" class="form-label">Arquivo da Foto</label>
+                        <input id="fotoPerfil" type="file" accept="image/*" class="form-input !py-1.5 text-slate-300"
+                            onchange="handleFileSelect(event)" />
+                        <p class="text-xs text-slate-600 mt-1.5">Selecione uma imagem do seu dispositivo. A imagem será
+                            salva automaticamente com o perfil.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── PROFILE FORM ── -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 glow-card">
+                <h2 class="text-base font-bold text-white mb-5">Dados Físicos e Médicos</h2>
+
+                <form id="user-info-form" class="space-y-5" onsubmit="submitForm(event)">
+
+                    <!-- Row 1: peso + altura -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="peso" class="form-label">Peso (kg)</label>
+                            <input id="peso" type="number" step="0.1" min="0.1" class="form-input"
+                                placeholder="ex: 70.5" th:value="${userInfo?.peso}" required />
+                            <p id="erro-peso" class="text-xs text-red-400 mt-1 hidden"></p>
+                        </div>
+                        <div>
+                            <label for="altura" class="form-label">Altura (cm)</label>
+                            <input id="altura" type="number" step="0.1" min="1" class="form-input" placeholder="ex: 175"
+                                th:value="${userInfo?.altura}" required />
+                            <p id="erro-altura" class="text-xs text-red-400 mt-1 hidden"></p>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: genero + dataNasc -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="genero" class="form-label">Gênero</label>
+                            <select id="genero" class="form-select" required>
+                                <option value="" disabled th:selected="${userInfo == null}">Selecione...</option>
+                                <option value="MALE" th:selected="${userInfo?.genero?.name() == 'MALE'}">Masculino
+                                </option>
+                                <option value="FEMALE" th:selected="${userInfo?.genero?.name() == 'FEMALE'}">Feminino
+                                </option>
+                                <option value="OTHER" th:selected="${userInfo?.genero?.name() == 'OTHER'}">Outro
+                                </option>
+                                <option value="PREFER_NOT_TO_SAY"
+                                    th:selected="${userInfo?.genero?.name() == 'PREFER_NOT_TO_SAY'}">Prefiro não dizer
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dataNasc" class="form-label">Data de Nascimento</label>
+                            <input id="dataNasc" type="date" class="form-input" th:value="${userInfo?.dataNasc}"
+                                required />
+                        </div>
+                    </div>
+
+                    <!-- Row 2.5: CPF -->
+                    <div>
+                        <label for="cpf" class="form-label">CPF <span class="text-slate-600 normal-case font-normal">(obrigatório para corridas pagas)</span></label>
+                        <input id="cpf" type="text" maxlength="14" placeholder="000.000.000-00" class="form-input font-mono"
+                               th:value="${userInfo?.cpfFormatado}" oninput="mascaraCPF(this)" />
+                        <p id="erro-cpf" class="text-xs text-red-400 mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Row 3: nivelCondicionamento -->
+                    <div>
+                        <label for="nivelCondicionamento" class="form-label">Nível de Condicionamento <span
+                                class="text-slate-600 normal-case font-normal">(opcional)</span></label>
+                        <select id="nivelCondicionamento" class="form-select">
+                            <option value="">Não informado</option>
+                            <option value="BEGINNER"
+                                th:selected="${userInfo?.nivelCondicionamento?.name() == 'BEGINNER'}">Iniciante</option>
+                            <option value="INTERMEDIATE"
+                                th:selected="${userInfo?.nivelCondicionamento?.name() == 'INTERMEDIATE'}">Intermediário
+                            </option>
+                            <option value="ADVANCED"
+                                th:selected="${userInfo?.nivelCondicionamento?.name() == 'ADVANCED'}">Avançado</option>
+                        </select>
+                    </div>
+
+                    <!-- Row 4: notasMedicas -->
+                    <div>
+                        <label for="notasMedicas" class="form-label">Observações Médicas <span
+                                class="text-slate-600 normal-case font-normal">(opcional)</span></label>
+                        <textarea id="notasMedicas" rows="3" class="form-input resize-none"
+                            placeholder="Lesões, alergias, restrições médicas..."
+                            th:text="${userInfo?.notasMedicas}"></textarea>
+                    </div>
+
+                    <!-- Row 5: consentimentoSaude -->
+                    <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-4 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer select-none group">
+                            <input id="consentimentoSaude" type="checkbox" class="mt-0.5 w-4 h-4 rounded border-slate-600 bg-slate-700 text-brand-500 accent-orange-500 cursor-pointer"
+                                   th:checked="${userInfo?.consentimentoSaude}" />
+                            <span class="text-sm text-slate-300 leading-snug group-hover:text-slate-200 transition-colors">
+                                <strong class="text-slate-100 font-semibold block mb-0.5">Consentimento para análise de risco com IA</strong>
+                                Autorizo que meus dados de saúde (idade, condicionamento físico e observações médicas) sejam usados
+                                para gerar <em>alertas informativos</em> antes da inscrição em corridas. Estes alertas
+                                são gerados por IA e <strong>não substituem avaliação médica</strong>.
+                                Você pode revogar este consentimento a qualquer momento.
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="flex items-center justify-between pt-2">
+                        <!-- Stats badge (only when profile exists) -->
+                        <div th:if="${userInfo != null}" class="flex items-center gap-2 text-xs text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-4 h-4 text-brand-500">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                            </svg>
+                            <span th:text="${userInfo.totalKmRun + ' km percorridos'}">0 km percorridos</span>
+                        </div>
+                        <div th:if="${userInfo == null}"></div>
+
+                        <button id="submit-btn" type="submit"
+                            class="flex items-center gap-2 bg-gradient-to-r from-brand-600 to-orange-500 hover:from-brand-500 hover:to-orange-400 text-white font-bold py-2.5 px-6 rounded-xl glow-btn transition-all text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                            </svg>
+                            Salvar Perfil
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div><!-- /max-w-2xl -->
+    </main>
+
+    <!-- ════════════════════════════════════════════════
+     BOTTOM NAV (mobile only)
+════════════════════════════════════════════════ -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-slate-800 flex justify-around items-center h-16 px-2 z-50">
+
+        <a href="/" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            Início
+        </a>
+
+        <a href="/corridas" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+            Buscar
+        </a>
+
+        <a href="/corridas" class="bnav-link flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            Corridas
+        </a>
+
+        <a href="/minha-conta" class="bnav-link active flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+            Conta
+        </a>
+
+        <a href="/solicitacoes" class="bnav-link flex flex-col items-center" sec:authorize="isAuthenticated()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+            </svg>
+            Conexões
+        </a>
+
+    </nav>
+
+
+    <!-- ════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+    <script th:inline="javascript">
+        // ── Data injected from server ──────────────────
+        const USUARIO_ID = /*[[${usuarioId}]]*/ null;
+        const PROFILE_EXISTS = /*[[${profileExists}]]*/ false;
+        let base64Foto = /*[[${userInfo?.fotoPerfil}]]*/ null;
+
+        // ── Avatar live preview ────────────────────────
+        function previewAvatar(url) {
+            const img = document.getElementById('avatar-img');
+            const initials = document.getElementById('avatar-initials');
+            if (url && url.trim() !== '') {
+                if (!img) {
+                    // Create img element if it doesn't exist
+                    const newImg = document.createElement('img');
+                    newImg.id = 'avatar-img';
+                    newImg.className = 'w-20 h-20 rounded-full object-cover border-2 border-brand-500/50';
+                    newImg.alt = 'Foto de perfil';
+                    document.getElementById('avatar-wrap').appendChild(newImg);
+                }
+                document.getElementById('avatar-img') && (document.getElementById('avatar-img').src = url);
+                initials && (initials.style.display = 'none');
+            } else {
+                img && (img.style.display = 'none');
+                initials && (initials.style.display = '');
+            }
+        }
+
+        // ── Handle file selection ────────────────────────
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                base64Foto = e.target.result;
+                previewAvatar(base64Foto);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ── Toast notification ─────────────────────────
+        function showToast(message, isSuccess) {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-msg');
+            const icon = document.getElementById('toast-icon');
+
+            msg.textContent = message;
+
+            if (isSuccess) {
+                toast.className = toast.className
+                    .replace(/bg-\S+/g, '')
+                    .replace(/text-\S+/g, '');
+                toast.classList.add('bg-emerald-900/90', 'text-emerald-300', 'border', 'border-emerald-700');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>';
+            } else {
+                toast.className = toast.className
+                    .replace(/bg-\S+/g, '')
+                    .replace(/text-\S+/g, '');
+                toast.classList.add('bg-red-900/90', 'text-red-300', 'border', 'border-red-700');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>';
+            }
+
+            toast.classList.remove('hidden');
+            toast.classList.add('visible');
+
+            setTimeout(() => {
+                toast.classList.remove('visible');
+                toast.classList.add('hidden');
+            }, 4000);
+        }
+
+        // ── Form validation ────────────────────────────
+        function validate() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            let valid = true;
+
+            const erroPeso = document.getElementById('erro-peso');
+            const erroAltura = document.getElementById('erro-altura');
+
+            if (isNaN(peso) || peso <= 0) {
+                erroPeso.textContent = 'O peso deve ser maior que 0';
+                erroPeso.classList.remove('hidden');
+                valid = false;
+            } else {
+                erroPeso.classList.add('hidden');
+            }
+
+            if (isNaN(altura) || altura <= 0) {
+                erroAltura.textContent = 'A altura deve ser maior que 0';
+                erroAltura.classList.remove('hidden');
+                valid = false;
+            } else {
+                erroAltura.classList.add('hidden');
+            }
+
+            return valid;
+        }
+
+        // ── CPF Mask ──────────────────────────────────────────
+        function mascaraCPF(input) {
+            let v = input.value.replace(/\D/g, '').slice(0, 11);
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            input.value = v;
+        }
+
+        // ── Form submit ────────────────────────────────
+        async function submitForm(event) {
+            event.preventDefault();
+
+            if (!validate()) return;
+
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.textContent = 'Salvando...';
+
+            const rawCpf = document.getElementById('cpf').value.replace(/\D/g, '');
+
+            const payload = {
+                usuarioId: USUARIO_ID,
+                peso: parseFloat(document.getElementById('peso').value),
+                altura: parseFloat(document.getElementById('altura').value),
+                genero: document.getElementById('genero').value || null,
+                dataNasc: document.getElementById('dataNasc').value || null,
+                nivelCondicionamento: document.getElementById('nivelCondicionamento').value || null,
+                notasMedicas: document.getElementById('notasMedicas').value.trim() || null,
+                consentimentoSaude: document.getElementById('consentimentoSaude').checked,
+                cpf: rawCpf.length === 11 ? rawCpf : null
+            };
+
+            try {
+                let url, method;
+
+                if (PROFILE_EXISTS) {
+                    url = '/user/userInfo/' + USUARIO_ID;
+                    method = 'PUT';
+                    delete payload.usuarioId;
+                } else {
+                    url = '/user/userInfo';
+                    method = 'POST';
+                }
+
+                // 1. Salvar os dados textuais do perfil
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    
+                    // 2. Se houver uma nova imagem selecionada, enviar via upload Multipart
+                    const fileInput = document.getElementById('fotoPerfil');
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        
+                        const uploadResp = await fetch('/user/userInfo/' + USUARIO_ID + '/foto-perfil', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (!uploadResp.ok) {
+                            showToast('Perfil salvo, mas houve erro ao enviar a foto.', false);
+                            btn.disabled = false;
+                            return;
+                        }
+                    }
+
+                    showToast('Perfil salvo com sucesso! 🎉', true);
+                    const banner = document.getElementById('alert-missing');
+                    if (banner) banner.remove();
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    const data = await response.json();
+                    showToast(data.mensagem || 'Ocorreu um erro ao salvar o perfil.', false);
+                }
+            } catch (err) {
+                showToast('Erro de conexão. Verifique sua internet e tente novamente.', false);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/>
+                </svg>
+                Salvar Perfil`;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
